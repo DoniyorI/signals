@@ -1206,7 +1206,7 @@ def test_get_bars_sorted(session):
 
 **Pinned versions** (exact):
 - dependencies: `react@19.3.0`, `react-dom@19.3.0`, `react-router@7.18.4`, `@tanstack/react-query@5.104.0`, `@tanstack/react-table@8.21.3`, `@tanstack/react-virtual@3.14.13`, `lightweight-charts@5.2.1`, `recharts@3.10.1`, `openapi-fetch@0.17.0`, `cmdk@1.1.1`, `lucide-react@1.48.0`
-- devDependencies: `vite@8.3.1`, `@vitejs/plugin-react@6.1.1`, `typescript@6.0.3`, `tailwindcss@4.3.3`, `@tailwindcss/vite@4.3.3`, `openapi-typescript@7.13.0`, `msw@2.15.0`, `vitest@4.1.11`, `jsdom@30.1.1`, `@testing-library/react@16.3.3`, `@testing-library/jest-dom@7.0.1`, `@testing-library/user-event`, `@playwright/test@1.63.0`, `eslint@9.39.5`, `typescript-eslint@8.70.1`, `eslint-plugin-react-hooks@7.1.1`, `@types/react@19.3.0`, `@types/react-dom@19.3.0`, `@types/node`
+- devDependencies: `vite@8.3.1`, `@vitejs/plugin-react@6.1.1`, `typescript@5.9.3` (changed from 6.0.3 during execution: openapi-typescript peer), `tailwindcss@4.3.3`, `@tailwindcss/vite@4.3.3`, `openapi-typescript@7.13.0`, `msw@2.15.0`, `vitest@4.1.11`, `jsdom@30.1.1`, `@testing-library/react@16.3.3`, `@testing-library/jest-dom@7.0.1`, `@testing-library/user-event`, `@playwright/test@1.63.0`, `eslint@9.39.5`, `typescript-eslint@8.70.1`, `eslint-plugin-react-hooks@7.1.1`, `@types/react@19.3.0`, `@types/react-dom@19.3.0`, `@types/node`
 
 **Scripts:** `dev` (vite), `build` (`tsc -b && vite build`), `test` (`vitest run`), `lint`, `gen:api` (`openapi-typescript src/api/openapi.json -o src/api/schema.d.ts`), `e2e` (`playwright test`).
 

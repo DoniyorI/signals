@@ -9,7 +9,7 @@
 - Shared components hold tables, chips and charts. Pure formatting and mapping functions are unit-tested.
 - MSW handlers serve typed fixtures that are consistent with the API seed world.
 
-**Tech Stack:** React 19.3, TypeScript 6.0, Vite 8, React Router 7.18, TanStack Query 5, TanStack Table 8.21, TanStack Virtual 3, Tailwind 4.3, shadcn/ui, lightweight-charts 5.2, Recharts 3, openapi-fetch 0.17, MSW 2.15, Vitest 4.1, Testing Library, Playwright 1.63.
+**Tech Stack:** React 19.3, TypeScript 5.9, Vite 8, React Router 7.18, TanStack Query 5, TanStack Table 8.21, TanStack Virtual 3, Tailwind 4.3, shadcn/ui, lightweight-charts 5.2, Recharts 3, openapi-fetch 0.17, MSW 2.15, Vitest 4.1, Testing Library, Playwright 1.63.
 
 **Spec:** `docs/superpowers/specs/2026-09-27-sec-dashboard-design.md`, section 11 (pages), 9.8 (badge meanings) and 10 (endpoints).
 

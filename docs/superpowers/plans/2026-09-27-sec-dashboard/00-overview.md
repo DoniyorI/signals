@@ -14,7 +14,7 @@ The build order is a foundation that locks in every shared contract, then six wo
 
 **Tech Stack:**
 - **Backend:** Python 3.13, uv, SQLAlchemy 2.1, Alembic 1.20, psycopg 3.3, FastAPI 0.141, httpx 0.28, APScheduler 3.11 (not 4), lxml 6, pandas 3, numpy 2.5, exchange-calendars 4.13, holidays 0.105, rapidfuzz 3.14, yfinance 1.7, Typer, structlog, pytest 9, ruff, pyright.
-- **Frontend:** Node 26, Vite 8, @vitejs/plugin-react 6, React 19.3, TypeScript 6.0 (not 7: typescript-eslint needs <6.1), React Router 7.18 (not 8), TanStack Query 5, TanStack Table 8.21 (not 9), TanStack Virtual 3, Tailwind 4.3, shadcn/ui, lightweight-charts 5.2, Recharts 3, openapi-typescript 7, openapi-fetch 0.17, MSW 2, Vitest 4.1, Testing Library, Playwright 1.63.
+- **Frontend:** Node 26, Vite 8, @vitejs/plugin-react 6, React 19.3, TypeScript 5.9 (openapi-typescript 7 needs TS 5.x; typescript-eslint needs <6.1), React Router 7.18 (not 8), TanStack Query 5, TanStack Table 8.21 (not 9), TanStack Virtual 3, Tailwind 4.3, shadcn/ui, lightweight-charts 5.2, Recharts 3, openapi-typescript 7, openapi-fetch 0.17, MSW 2, Vitest 4.1, Testing Library, Playwright 1.63.
 
 **Spec:** `docs/superpowers/specs/2026-09-27-sec-dashboard-design.md`. Every plan file argues from it, so read the spec before your plan file.
 
