@@ -1,0 +1,176 @@
+{
+  "document_type": "4",
+  "period_of_report": "2025-03-26",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": false,
+  "issuer_cik": 1437925,
+  "issuer_name": "Golden Matrix Group, Inc.",
+  "issuer_symbol": "GMGI",
+  "owners": [
+    {
+      "cik": 1194548,
+      "name": "MCCHESNEY THOMAS",
+      "is_director": true,
+      "is_officer": false,
+      "officer_title": null,
+      "is_ten_pct_owner": false,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": false,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-26",
+      "deemed_execution_date": null,
+      "code": "S",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 7500.0,
+      "price": 2.12,
+      "acquired_disposed": "D",
+      "shares_owned_after": 271897.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "price": [
+          "F1"
+        ]
+      }
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 2,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-26",
+      "deemed_execution_date": null,
+      "code": "M",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 60000.0,
+      "price": 0.795,
+      "acquired_disposed": "A",
+      "shares_owned_after": 331897.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {}
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 3,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-26",
+      "deemed_execution_date": null,
+      "code": "F",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 22187.0,
+      "price": 2.15,
+      "acquired_disposed": "D",
+      "shares_owned_after": 309710.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "code": [
+          "F2"
+        ]
+      }
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 4,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-28",
+      "deemed_execution_date": null,
+      "code": "S",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 257.0,
+      "price": 2.13,
+      "acquired_disposed": "D",
+      "shares_owned_after": 309453.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "price": [
+          "F5"
+        ]
+      }
+    },
+    {
+      "table_kind": "deriv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Stock Option (right to buy)",
+      "transaction_date": "2025-03-26",
+      "deemed_execution_date": null,
+      "code": "M",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 60000.0,
+      "price": 0.0,
+      "acquired_disposed": "D",
+      "shares_owned_after": 0.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": 0.795,
+      "exercise_date": null,
+      "expiration_date": "2025-04-27",
+      "underlying_title": "Common Stock",
+      "underlying_shares": 60000.0,
+      "field_footnotes": {
+        "exercise_date": [
+          "F3"
+        ],
+        "price": [
+          "F4"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "These shares were sold in multiple transactions at prices ranging from $2.09 to $2.15, inclusive. The reporting person undertakes to provide the Issuer, any security holder of the Issuer or the staff of the Securities and Exchange Commission, upon request, full information regarding the number of shares sold at each separate price within the range set forth in this footnote.",
+    "F2": "Represents a \"net exercise\" of outstanding stock options. The reporting person received 37,813 shares of common stock on the net exercise of an option to purchase 60,000 shares of common stock. The Issuer withheld 22,187 shares of common stock underlying the option in payment of the exercise price, based on the closing sales price of the Issuer's common stock on March 26, 2025, the date the option was exercised.",
+    "F3": "The option vests in three installments as follows: 50% on July 27, 2020, 25% on October 27, 2020 and 25% on January 27, 2021, subject to the Reporting Person's continued performance of services for the Issuer through each vesting date.",
+    "F4": "Issued in consideration for services to be rendered as a member of the Board of Directors of the Issuer. Granted under the issuer's 2018 Equity Incentive Plan. Exempt pursuant to Rule 16b3(d).",
+    "F5": "These shares were sold in multiple transactions at prices ranging from $2.10 to $2.15, inclusive. The reporting person undertakes to provide the Issuer, any security holder of the Issuer or the staff of the Securities and Exchange Commission, upon request, full information regarding the number of shares sold at each separate price within the range set forth in this footnote."
+  },
+  "remarks": null
+}

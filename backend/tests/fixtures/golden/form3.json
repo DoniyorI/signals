@@ -1,0 +1,57 @@
+{
+  "document_type": "3",
+  "period_of_report": "2025-03-29",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": null,
+  "issuer_cik": 866291,
+  "issuer_name": "ALLEGRO MICROSYSTEMS, INC.",
+  "issuer_symbol": "ALGM",
+  "owners": [
+    {
+      "cik": 2061106,
+      "name": "Madormo Richard",
+      "is_director": false,
+      "is_officer": true,
+      "officer_title": "SVP, Worldwide Sales",
+      "is_ten_pct_owner": false,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": null,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "holding",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": null,
+      "deemed_execution_date": null,
+      "code": null,
+      "form_type": null,
+      "equity_swap": null,
+      "timeliness": null,
+      "shares": null,
+      "price": null,
+      "acquired_disposed": null,
+      "shares_owned_after": 29252.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "shares_owned_after": [
+          "F1"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "Represents a previously granted award of Restricted Stock Units (\"RSUs\"), which was granted on March 24, 2025. Each RSU represents a contingent right to receive one share of common stock. The RSUs will vest 50% on March 24, 2026, 25% on March 24, 2027, and 25% on March 24, 2028."
+  },
+  "remarks": "Exhibit 24 - Power of Attorney"
+}

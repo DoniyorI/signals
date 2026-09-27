@@ -1,0 +1,111 @@
+{
+  "document_type": "5",
+  "period_of_report": "2024-12-31",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": false,
+  "issuer_cik": 736772,
+  "issuer_name": "CNB FINANCIAL CORP/PA",
+  "issuer_symbol": "CCNE",
+  "owners": [
+    {
+      "cik": 1275520,
+      "name": "LIMA TITO L",
+      "is_director": false,
+      "is_officer": true,
+      "officer_title": "SEVP/CFO",
+      "is_ten_pct_owner": false,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": false,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "holding",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": null,
+      "deemed_execution_date": null,
+      "code": null,
+      "form_type": null,
+      "equity_swap": null,
+      "timeliness": null,
+      "shares": null,
+      "price": null,
+      "acquired_disposed": null,
+      "shares_owned_after": 873.91,
+      "value_owned_after": null,
+      "direct_indirect": "I",
+      "nature_of_ownership": "Spouse",
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "direct_indirect": [
+          "F1"
+        ]
+      }
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "holding",
+      "row_no": 2,
+      "security_title": "Common Stock",
+      "transaction_date": null,
+      "deemed_execution_date": null,
+      "code": null,
+      "form_type": null,
+      "equity_swap": null,
+      "timeliness": null,
+      "shares": null,
+      "price": null,
+      "acquired_disposed": null,
+      "shares_owned_after": 3006.98,
+      "value_owned_after": null,
+      "direct_indirect": "I",
+      "nature_of_ownership": "By 401K Plan",
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {}
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "holding",
+      "row_no": 3,
+      "security_title": "Common Stock",
+      "transaction_date": null,
+      "deemed_execution_date": null,
+      "code": null,
+      "form_type": null,
+      "equity_swap": null,
+      "timeliness": null,
+      "shares": null,
+      "price": null,
+      "acquired_disposed": null,
+      "shares_owned_after": 18743.77,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "direct_indirect": [
+          "F1"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "Accumulated shares through Dividend Reinvestment"
+  },
+  "remarks": null
+}
