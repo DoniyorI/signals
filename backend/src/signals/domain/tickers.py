@@ -30,13 +30,14 @@ class TickerInterval:
 
 
 def canonical_symbol(raw: str | None) -> str | None:
-    """Upper-case, no spaces, class shares in dot style (BRK-B -> BRK.B)."""
+    """Upper-case, no spaces, class shares in dot style (BRK-B, BRK/B -> BRK.B)."""
     if raw is None:
         return None
-    symbol = re.sub(r"\s+", "", raw.strip().upper()).replace("-", ".")
-    if not symbol or symbol in _JUNK or not _VALID.match(symbol):
+    compact = re.sub(r"\s+", "", raw.strip().upper())
+    if not compact or compact in _JUNK:
         return None
-    return symbol
+    symbol = compact.replace("-", ".").replace("/", ".")
+    return symbol if _VALID.match(symbol) else None
 
 
 def record_ticker_evidence(

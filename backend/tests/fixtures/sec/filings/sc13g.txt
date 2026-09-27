@@ -1,0 +1,180 @@
+<SEC-DOCUMENT>0001493152-26-044221.txt : 20260925
+<SEC-HEADER>0001493152-26-044221.hdr.sgml : 20260925
+<ACCEPTANCE-DATETIME>20260925060235
+ACCESSION NUMBER:		0001493152-26-044221
+CONFORMED SUBMISSION TYPE:	SCHEDULE 13G
+PUBLIC DOCUMENT COUNT:		1
+FILED AS OF DATE:		20260925
+DATE AS OF CHANGE:		20260925
+
+SUBJECT COMPANY:	
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			ADDENTAX GROUP CORP.
+		CENTRAL INDEX KEY:			0001650101
+		STANDARD INDUSTRIAL CLASSIFICATION:	SERVICES-MAILING, REPRODUCTION, COMMERCIAL ART & PHOTOGRAPHY [7330]
+		ORGANIZATION NAME:           	07 Trade & Services
+		EIN:				000000000
+		STATE OF INCORPORATION:			NV
+		FISCAL YEAR END:			0331
+
+	FILING VALUES:
+		FORM TYPE:		SCHEDULE 13G
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	005-94425
+		FILM NUMBER:		261406096
+
+	BUSINESS ADDRESS:	
+		STREET 1:		KINGKEY 100, BLOCK A, ROOM 4805
+		STREET 2:		LUOHU DISTRICT
+		CITY:			SHENZHEN CITY
+		STATE:			F4
+		ZIP:			518000
+		BUSINESS PHONE:		(86) 755 8696 1405
+
+	MAIL ADDRESS:	
+		STREET 1:		KINGKEY 100, BLOCK A, ROOM 4805
+		STREET 2:		LUOHU DISTRICT
+		CITY:			SHENZHEN CITY
+		STATE:			F4
+		ZIP:			518000
+
+FILED BY:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			YIP WAI LUN
+		CENTRAL INDEX KEY:			0002152205
+		ORGANIZATION NAME:           	
+
+	FILING VALUES:
+		FORM TYPE:		SCHEDULE 13G
+
+	MAIL ADDRESS:	
+		ADDRESS IS A NON US LOCATION: 	YES
+		STREET 1:		RM 911, WAI TUNG HSE, TUNG TAU EST,
+		STREET 2:		WONG TAI SIN
+		CITY:			HONG KONG
+		NON US STATE TERRITORY:  	HONG KONG
+		PROVINCE COUNTRY:   	F4
+		ZIP:			999077
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>SCHEDULE 13G
+<SEQUENCE>1
+<FILENAME>primary_doc.xml
+<TEXT>
+<XML>
+<?xml version="1.0" encoding="UTF-8"?><edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g" xmlns:com="http://www.sec.gov/edgar/common">
+  <schemaVersion>X0202</schemaVersion>
+<headerData>
+    <submissionType>SCHEDULE 13G</submissionType>
+    <filerInfo>
+      <filer>
+        <filerCredentials>
+          <!-- Field: Pseudo-Tag; ID: Name; Data: YIP WAI LUN -->
+          <cik>0002152205</cik>
+          <ccc>XXXXXXXX</ccc>
+        </filerCredentials>
+      </filer>
+      <liveTestFlag>LIVE</liveTestFlag>
+
+
+
+    </filerInfo>
+  </headerData>
+  <formData>
+    <coverPageHeader>
+      <securitiesClassTitle>Common Stock</securitiesClassTitle>
+      <eventDateRequiresFilingThisStatement>09/22/2026</eventDateRequiresFilingThisStatement>
+      <issuerInfo>
+        <issuerCik>0001650101</issuerCik>
+        <issuerName>ADDENTAX GROUP CORP.</issuerName>
+        <issuerCusips>
+          <issuerCusipNumber>00653L400</issuerCusipNumber>
+        </issuerCusips>
+        <issuerPrincipalExecutiveOfficeAddress>
+          <com:street1>KINGKEY 100, BLOCK A, ROOM 4805</com:street1>
+          <com:street2>LUOHU DISTRICT</com:street2>
+          <com:city>SHENZHEN CITY</com:city>
+          <com:stateOrCountry>F4</com:stateOrCountry>
+          <com:zipCode>518000</com:zipCode>
+        </issuerPrincipalExecutiveOfficeAddress>
+      </issuerInfo>
+      <designateRulesPursuantThisScheduleFiled>
+        <designateRulePursuantThisScheduleFiled>Rule 13d-1(c)</designateRulePursuantThisScheduleFiled>
+      </designateRulesPursuantThisScheduleFiled>
+    </coverPageHeader>
+    <coverPageHeaderReportingPersonDetails>
+
+
+      <reportingPersonName>Yip Wai Lun</reportingPersonName>
+      <citizenshipOrOrganization>F4</citizenshipOrOrganization>
+      <reportingPersonBeneficiallyOwnedNumberOfShares>
+        <soleVotingPower>208334.00</soleVotingPower>
+        <sharedVotingPower>0.00</sharedVotingPower>
+        <soleDispositivePower>208334.00</soleDispositivePower>
+        <sharedDispositivePower>0.00</sharedDispositivePower>
+      </reportingPersonBeneficiallyOwnedNumberOfShares>
+      <reportingPersonBeneficiallyOwnedAggregateNumberOfShares>208334.00</reportingPersonBeneficiallyOwnedAggregateNumberOfShares>
+      <aggregateAmountExcludesCertainSharesFlag>N</aggregateAmountExcludesCertainSharesFlag>
+      <classPercent>9.90</classPercent>
+      <typeOfReportingPerson>IN</typeOfReportingPerson>
+      <comments>Percentage of the class is calculated based on 2,105,058 shares of common stock outstanding as of September 22, 2026.</comments>
+    </coverPageHeaderReportingPersonDetails>
+    <items>
+      <item1>
+        <issuerName>ADDENTAX GROUP CORP.</issuerName>
+        <issuerPrincipalExecutiveOfficeAddress>Kingkey 100, Block A, Room 4805, Luohu District, Shenzhen F4 518000</issuerPrincipalExecutiveOfficeAddress>
+      </item1>
+      <item2>
+        <filingPersonName>Yip Wai Lun</filingPersonName>
+        <principalBusinessOfficeOrResidenceAddress>Rm911, Wai Tung Hse, Tung Tau Est, Wong Tai Sin, Hong Kong</principalBusinessOfficeOrResidenceAddress>
+        <citizenship>China</citizenship>
+      </item2>
+      <item3>
+        <notApplicableFlag>Y</notApplicableFlag>
+      </item3>
+      <item4>
+        <amountBeneficiallyOwned>208,334</amountBeneficiallyOwned>
+        <classPercent>9.90%</classPercent>
+        <numberOfSharesPersonHas>
+          <solePowerOrDirectToVote>208,334</solePowerOrDirectToVote>
+          <sharedPowerOrDirectToVote>0</sharedPowerOrDirectToVote>
+          <solePowerOrDirectToDispose>208,334</solePowerOrDirectToDispose>
+          <sharedPowerOrDirectToDispose>0</sharedPowerOrDirectToDispose>
+        </numberOfSharesPersonHas>
+      </item4>
+      <item5>
+        <notApplicableFlag>Y</notApplicableFlag>
+      </item5>
+      <item6>
+        <notApplicableFlag>Y</notApplicableFlag>
+      </item6>
+      <item7>
+        <notApplicableFlag>Y</notApplicableFlag>
+      </item7>
+      <item8>
+        <notApplicableFlag>Y</notApplicableFlag>
+      </item8>
+      <item9>
+        <notApplicableFlag>Y</notApplicableFlag>
+      </item9>
+      <item10>
+        <notApplicableFlag>N</notApplicableFlag>
+        <certifications>By signing below I certify that, to the best of my knowledge and belief, the securities referred to above were not acquired and are not held for the purpose of or with the effect of changing or influencing the control of the issuer of the securities and were not acquired and are not held in connection with or as a participant in any transaction having that purpose or effect, other than activities solely in connection with a nomination under § 240.14a-11.</certifications>
+      </item10>
+    </items>
+    <signatureInformation>
+      <reportingPersonName>Yip Wai Lun</reportingPersonName>
+      <signatureDetails>
+        <signature>/s/ Yip Wai Lun</signature>
+        <title>Yip Wai Lun</title>
+        <date>09/25/2026</date>
+      </signatureDetails>
+    </signatureInformation>
+  </formData>
+</edgarSubmission>
+</XML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

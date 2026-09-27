@@ -1,0 +1,536 @@
+<SEC-DOCUMENT>0000947871-26-000898.txt : 20260925
+<SEC-HEADER>0000947871-26-000898.hdr.sgml : 20260925
+<ACCEPTANCE-DATETIME>20260925171102
+ACCESSION NUMBER:		0000947871-26-000898
+CONFORMED SUBMISSION TYPE:	SCHEDULE 13D
+PUBLIC DOCUMENT COUNT:		2
+FILED AS OF DATE:		20260925
+DATE AS OF CHANGE:		20260925
+
+SUBJECT COMPANY:	
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			Electra Therapeutics, Inc.
+		CENTRAL INDEX KEY:			0002088082
+		STANDARD INDUSTRIAL CLASSIFICATION:	BIOLOGICAL PRODUCTS (NO DIAGNOSTIC SUBSTANCES) [2836]
+		ORGANIZATION NAME:           	03 Life Sciences
+		EIN:				832193635
+		STATE OF INCORPORATION:			DE
+		FISCAL YEAR END:			1231
+
+	FILING VALUES:
+		FORM TYPE:		SCHEDULE 13D
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	005-95943
+		FILM NUMBER:		261411207
+
+	BUSINESS ADDRESS:	
+		STREET 1:		230 EAST GRAND AVENUE, SUITE S-100
+		CITY:			SOUTH SAN FRANCISCO
+		STATE:			CA
+		ZIP:			94080
+		BUSINESS PHONE:		(888) 743-2290
+
+	MAIL ADDRESS:	
+		STREET 1:		230 EAST GRAND AVENUE, SUITE S-100
+		CITY:			SOUTH SAN FRANCISCO
+		STATE:			CA
+		ZIP:			94080
+
+FILED BY:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			ORBIMED ADVISORS LLC
+		CENTRAL INDEX KEY:			0001055951
+		ORGANIZATION NAME:           	
+		EIN:				133976876
+		STATE OF INCORPORATION:			DE
+
+	FILING VALUES:
+		FORM TYPE:		SCHEDULE 13D
+
+	BUSINESS ADDRESS:	
+		STREET 1:		601 LEXINGTON AVENUE
+		STREET 2:		54TH FLOOR
+		CITY:			NEW YORK
+		STATE:			NY
+		ZIP:			10022
+		BUSINESS PHONE:		(212) 739-6400
+
+	MAIL ADDRESS:	
+		STREET 1:		601 LEXINGTON AVENUE
+		STREET 2:		54TH FLOOR
+		CITY:			NEW YORK
+		STATE:			NY
+		ZIP:			10022
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>SCHEDULE 13D
+<SEQUENCE>1
+<FILENAME>primary_doc.xml
+<TEXT>
+<XML>
+<?xml version="1.0" encoding="UTF-8"?><edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13D" xmlns:com="http://www.sec.gov/edgar/common">
+  <schemaVersion>X0202</schemaVersion>
+<headerData>
+    <submissionType>SCHEDULE 13D</submissionType>
+    <filerInfo>
+      <filer>
+        <filerCredentials>
+          <!-- Field: Pseudo-Tag; ID: Name; Data: ORBIMED ADVISORS LLC -->
+          <cik>0001055951</cik>
+          <ccc>XXXXXXXX</ccc>
+        </filerCredentials>
+      </filer>
+      <liveTestFlag>LIVE</liveTestFlag>
+
+
+
+    </filerInfo>
+  </headerData>
+  <formData>
+    <coverPageHeader>
+      <securitiesClassTitle>COMMON STOCK</securitiesClassTitle>
+      <dateOfEvent>09/21/2026</dateOfEvent>
+      <previouslyFiledFlag>false</previouslyFiledFlag>
+      <issuerInfo>
+        <issuerCIK>0002088082</issuerCIK>
+        <issuerCusips>
+          <issuerCusipNumber>284825106</issuerCusipNumber>
+        </issuerCusips>
+        <issuerName>Electra Therapeutics, Inc.</issuerName>
+        <address>
+          <com:street1>230 East Grand Avenue, Suite S-100</com:street1>
+          <com:city>South San Francisco</com:city>
+          <com:stateOrCountry>CA</com:stateOrCountry>
+          <com:zipCode>94080</com:zipCode>
+        </address>
+      </issuerInfo>
+      <authorizedPersons>
+        <notificationInfo>
+          <personName>OrbiMed Advisors LLC</personName>
+          <personPhoneNum>(212) 739-6400</personPhoneNum>
+          <personAddress>
+            <com:street1>601 Lexington Avenue, 54th Floor</com:street1>
+            <com:city>New York</com:city>
+            <com:stateOrCountry>NY</com:stateOrCountry>
+            <com:zipCode>10022</com:zipCode>
+          </personAddress>
+        </notificationInfo>
+        <notificationInfo>
+          <personName>OrbiMed Capital GP VII LLC</personName>
+          <personPhoneNum>(212) 739-6400</personPhoneNum>
+          <personAddress>
+            <com:street1>601 Lexington Avenue, 54th Floor</com:street1>
+            <com:city>New York</com:city>
+            <com:stateOrCountry>NY</com:stateOrCountry>
+            <com:zipCode>10022</com:zipCode>
+          </personAddress>
+        </notificationInfo>
+        <notificationInfo>
+          <personName>OrbiMed Genesis GP LLC</personName>
+          <personPhoneNum>(212) 739-6400</personPhoneNum>
+          <personAddress>
+            <com:street1>601 Lexington Avenue, 54th Floor</com:street1>
+            <com:city>New York</com:city>
+            <com:stateOrCountry>NY</com:stateOrCountry>
+            <com:zipCode>10022</com:zipCode>
+          </personAddress>
+        </notificationInfo>
+      </authorizedPersons>
+    </coverPageHeader>
+    <reportingPersons>
+      <reportingPersonInfo>
+        <reportingPersonCIK>0001055951</reportingPersonCIK>
+        <reportingPersonNoCIK>N</reportingPersonNoCIK>
+        <reportingPersonName>ORBIMED ADVISORS LLC</reportingPersonName>
+        <fundType>AF</fundType>
+        <legalProceedings>N</legalProceedings>
+        <citizenshipOrOrganization>DE</citizenshipOrOrganization>
+        <soleVotingPower>0.00</soleVotingPower>
+        <sharedVotingPower>6885170.00</sharedVotingPower>
+        <soleDispositivePower>0.00</soleDispositivePower>
+        <sharedDispositivePower>6885170.00</sharedDispositivePower>
+        <aggregateAmountOwned>6885170.00</aggregateAmountOwned>
+        <isAggregateExcludeShares>N</isAggregateExcludeShares>
+        <percentOfClass>11.0</percentOfClass>
+        <typeOfReportingPerson>IA</typeOfReportingPerson>
+      </reportingPersonInfo>
+      <reportingPersonInfo>
+        <reportingPersonCIK>0001760648</reportingPersonCIK>
+        <reportingPersonNoCIK>N</reportingPersonNoCIK>
+        <reportingPersonName>ORBIMED CAPITAL GP VII LLC</reportingPersonName>
+        <fundType>AF</fundType>
+        <legalProceedings>N</legalProceedings>
+        <citizenshipOrOrganization>DE</citizenshipOrOrganization>
+        <soleVotingPower>0.00</soleVotingPower>
+        <sharedVotingPower>5126891.00</sharedVotingPower>
+        <soleDispositivePower>0.00</soleDispositivePower>
+        <sharedDispositivePower>5126891.00</sharedDispositivePower>
+        <aggregateAmountOwned>5126891.00</aggregateAmountOwned>
+        <isAggregateExcludeShares>N</isAggregateExcludeShares>
+        <percentOfClass>8.2</percentOfClass>
+        <typeOfReportingPerson>OO</typeOfReportingPerson>
+      </reportingPersonInfo>
+      <reportingPersonInfo>
+        <reportingPersonCIK>0001808744</reportingPersonCIK>
+        <reportingPersonNoCIK>N</reportingPersonNoCIK>
+        <reportingPersonName>OrbiMed Genesis GP LLC</reportingPersonName>
+        <fundType>AF</fundType>
+        <legalProceedings>N</legalProceedings>
+        <citizenshipOrOrganization>DE</citizenshipOrOrganization>
+        <soleVotingPower>0.00</soleVotingPower>
+        <sharedVotingPower>1758279.00</sharedVotingPower>
+        <soleDispositivePower>0.00</soleDispositivePower>
+        <sharedDispositivePower>1758279.00</sharedDispositivePower>
+        <aggregateAmountOwned>1758279.00</aggregateAmountOwned>
+        <isAggregateExcludeShares>N</isAggregateExcludeShares>
+        <percentOfClass>2.8</percentOfClass>
+        <typeOfReportingPerson>OO</typeOfReportingPerson>
+      </reportingPersonInfo>
+    </reportingPersons>
+    <items1To7>
+      <item1>
+        <securityTitle>COMMON STOCK</securityTitle>
+        <issuerName>Electra Therapeutics, Inc.</issuerName>
+        <issuerPrincipalAddress>
+          <com:street1>230 East Grand Avenue, Suite S-100</com:street1>
+          <com:city>South San Francisco</com:city>
+          <com:stateOrCountry>CA</com:stateOrCountry>
+          <com:zipCode>94080</com:zipCode>
+        </issuerPrincipalAddress>
+      </item1>
+      <item2>
+        <filingPersonName>OrbiMed Advisors LLC ("OrbiMed Advisors"), a limited liability company organized under the laws of Delaware and a registered investment adviser under the Investment Advisers Act of 1940, as amended.
+OrbiMed Capital GP VII LLC ("OrbiMed GP"), a limited liability company organized under the laws of Delaware.
+OrbiMed Genesis GP LLC ("OrbiMed Genesis" and, together with OrbiMed Advisors and OrbiMed GP, the "Reporting Persons"), a limited liability company organized under the laws of Delaware.
+Carl L. Gordon, a United States citizen.
+W. Carter Neild, a United States citizen.
+Geoffrey C. Hsu, a United States citizen.
+C. Scotland Stevens, a United States citizen.
+David P. Bonita, a United States citizen.
+Peter A. Thompson, a United States citizen.
+Matthew S. Rizzo, a United States citizen.
+Mona Ashiya, a United States citizen.
+Trey Block, a United States citizen.</filingPersonName>
+        <principalBusinessAddress>601 Lexington Avenue, 54th Floor, New York, New York 10022.</principalBusinessAddress>
+        <principalJob>OrbiMed Advisors is the managing member or general partner of certain entities as more particularly described in Item 6 below.
+OrbiMed GP is the general partner of a limited partnership as more particularly described in Item 6 below.
+OrbiMed Genesis is the general partner of a limited partnership as more particularly described in Item 6 below.
+Carl L. Gordon is a member of OrbiMed Advisors.
+W. Carter Neild is a member of OrbiMed Advisors.
+Geoffrey C. Hsu is a member of OrbiMed Advisors.
+C. Scotland Stevens is a member of OrbiMed Advisors.
+David P. Bonita is a member of OrbiMed Advisors.
+Peter A. Thompson is a member of OrbiMed Advisors.
+Matthew S. Rizzo is a member of OrbiMed Advisors.
+Mona Ashiya is a member of OrbiMed Advisors.
+Trey Block is the Chief Financial Officer of OrbiMed Advisors.</principalJob>
+        <hasBeenConvicted>Not applicable.</hasBeenConvicted>
+        <convictionDescription>Not applicable.</convictionDescription>
+        <citizenship>Item 2(a) is incorporated herein by reference.</citizenship>
+      </item2>
+      <item3>
+        <fundsSource>In February 2022, OrbiMed Advisors and OrbiMed GP, pursuant to their authority under the limited partnership agreement of OrbiMed Private Investments VII, LP ("OPI VII"), cause OPI VII to purchase 1,632,119 shares of Series B Preferred Stock. In October 2025, OrbiMed Advisors and OrbiMed GP caused OPI VII to purchase 2,038,237 shares of Series C Preferred Stock. In June 2026, OrbiMed Advisors and OrbiMed GP caused OPI VII to purchase a second tranche of 517,078 shares of Series C Preferred Stock.
+
+In October 2025, OrbiMed Advisors and OrbiMed Genesis, pursuant to their authority under the limited partnership agreement of OrbiMed Genesis Master Fund, L.P. ("Genesis"), caused Genesis to purchase 739,422 shares of Series C Preferred Stock. In June 2026, OrbiMed Advisors and OrbiMed Genesis caused Genesis to purchase a second tranche of 398,150 shares of Series C Preferred Stock.
+
+In September 2026, the Series B Preferred Stock and Series C Preferred were subject to a reverse stock split of 1-for-1.5002.
+
+In connection with Electra Therapeutics LLC's ("Electra LLC") distribution of shares of the Issuer's Series A Preferred Stock to the unit holders of Electra LLC, OPI VII received 2,003,310 shares of Series A Preferred Stock (together with Series B Preferred Stock and Series C Preferred Stock, the "Preferred Stock").
+
+Each outstanding share of Preferred Stock converted into 1 Share immediately upon the completion of the Issuer's initial public offering (the "IPO").
+
+On and prior to the closing of the IPO, OrbiMed Advisors and OrbiMed GP, pursuant to their authority under the limited partnership agreement of OPI VII, caused OPI VII to purchase 333,333 shares of the Issuer's common stock, par value $0.0001 per share (the "Shares") in the IPO, and OrbiMed Advisors and OrbiMed Genesis, pursuant to their authority under the limited partnership agreement of Genesis, caused Genesis to purchase 1,000,000 Shares in the IPO, in each case at purchase price of $15.00 per Share.
+
+The source of funds for such purchases was the working capital of OPI VII and Genesis.</fundsSource>
+      </item3>
+      <item4>
+        <transactionPurpose>This Statement on Schedule 13D relates to the acquisition of Shares by the Reporting Persons. The Shares acquired by the Reporting Persons were acquired for the purpose of making an investment in the Issuer and not with the intention of acquiring control of the Issuer's business on behalf of the Reporting Persons' respective advisory clients.
+
+The Reporting Persons from time to time intend to review their investment in the Issuer on the basis of various factors, including the Issuer's business, financial condition, results of operations and prospects, general economic and industry conditions, the securities markets in general and those for the Issuer's Shares in particular, as well as other developments and other investment opportunities. Based upon such review, the Reporting Persons will take such actions in the future as the Reporting Persons may deem appropriate in light of the circumstances existing from time to time. If the Reporting Persons believe that further investment in the Issuer is attractive, whether because of the market price of Shares or otherwise, they may acquire Shares or other securities of the Issuer either in the open market or in privately negotiated transactions. Similarly, depending on market and other factors, the Reporting Persons may determine to dispose of some or all of the Shares currently owned by the Reporting Persons or otherwise acquired by the Reporting Persons either in the open market or in privately negotiated transactions.
+
+Except as set forth in this Schedule 13D, the Reporting Persons have not formulated any plans or proposals which relate to or would result in: (a) the acquisition by any person of additional securities of the Issuer or the disposition of securities of the Issuer, (b) an extraordinary corporate transaction, such as a merger, reorganization or liquidation, involving the Issuer or any of its subsidiaries, (c) a sale or transfer of a material amount of the assets of the Issuer or any of its subsidiaries, (d) any change in the present Board of Directors or management of the Issuer, including any plans or proposals to change the number or term of directors or to fill any existing vacancies on the board, (e) any material change in the Issuer's capitalization or dividend policy of the Issuer, (f) any other material change in the Issuer's business or corporate structure, (g) any change in the Issuer's charter or bylaws or other instrument corresponding thereto or other action which may impede the acquisition of control of the Issuer by any person, (h) causing a class of the Issuer's securities to be deregistered or delisted from a national securities exchange or to cease to be authorized to be quoted in an inter-dealer quotation system of a registered national securities association, (i) a class of equity securities of the Issuer becoming eligible for termination of registration pursuant to Section 12(g)(4) of the Act or (j) any action similar to any of those enumerated above.</transactionPurpose>
+      </item4>
+      <item5>
+        <percentageOfClassSecurities>The following disclosure is based upon 62,766,955 outstanding Shares as set forth in the Issuer's Final Rule 424(b)(5) Prospectus filed with the Securities and Exchange Commission on September 18, 2026.
+
+As of the date of this filing, OPI VII, a limited partnership organized under the laws of Delaware, holds 5,126,891 Shares constituting approximately 8.2% of the issued and outstanding Shares. OrbiMed GP is the general partner of OPI VII, pursuant to the terms of the limited partnership agreement of OPI VII, and OrbiMed Advisors is the managing member of OrbiMed GP, pursuant to the terms of the limited liability company agreement of OrbiMed GP. As a result, OrbiMed Advisors and OrbiMed GP share power to direct the vote and disposition of the Shares held by OPI VII and may be deemed directly or indirectly, including by reason of their mutual affiliation, to be the beneficial owners of the Shares held by OPI VII. OrbiMed Advisors exercises this investment and voting power through a management committee comprised of Carl L. Gordon, W. Carter Neild, and Geoffrey C. Hsu, each of whom disclaims beneficial ownership of the Shares held by OPI VII.
+
+As of the date of this filing, Genesis, a limited partnership organized under the laws of the Cayman Islands, holds 1,758,279 Shares constituting approximately 2.8% of the issued and outstanding Shares. OrbiMed Genesis is the general partner of Genesis, pursuant to the terms of the limited partnership agreement of Genesis, and OrbiMed Advisors is the managing member of OrbiMed Genesis, pursuant to the terms of the limited liability company agreement of OrbiMed Genesis. As a result, OrbiMed Advisors and OrbiMed Genesis share power to direct the vote and disposition of the Shares held by Genesis and may be deemed, directly or indirectly, including by reason of their mutual affiliation, to be the beneficial owners of the Shares held by Genesis. OrbiMed Advisors exercises this investment and voting power through a management committee comprised of Carl L. Gordon, W. Carter Neild, and Geoffrey C. Hsu, each of whom disclaims beneficial ownership of the Shares held by Genesis.</percentageOfClassSecurities>
+        <numberOfShares>Item 5(a) is incorporated by reference herein.</numberOfShares>
+        <transactionDesc>Except as disclosed in Item 3, the Reporting Persons have not effected any transactions during the past sixty (60) days in any Shares.</transactionDesc>
+        <listOfShareholders>Not applicable.</listOfShareholders>
+        <date5PercentOwnership>Not applicable.</date5PercentOwnership>
+      </item5>
+      <item6>
+        <contractDescription>In addition to the relationships between the Reporting Persons described in Items 2 and 5 above, OrbiMed GP is the general partner of OPI VII, pursuant to the terms of the limited partnership agreement of OPI VII. Pursuant to this agreement and relationship, OrbiMed GP has discretionary investment management authority with respect to the assets of OPI VII. Such authority includes the power to vote and otherwise dispose of securities held by OPI VII. The number of outstanding Shares of the Issuer attributable to OPI VII is 5,126,891. OrbiMed GP, pursuant to its authority under the limited partnership agreement of OPI VII, may be considered to hold indirectly 5,126,891 Shares.
+
+In addition to the relationships between the Reporting Persons described in Items 2 and 5 above, OrbiMed Genesis is the general partner of Genesis, pursuant to the terms of the limited partnership agreement of Genesis. Pursuant to this agreement and relationship, OrbiMed Genesis has discretionary investment management authority with respect to the assets of Genesis. Such authority includes the power to vote and otherwise dispose of securities held by Genesis. The number of outstanding Shares of the Issuer attributable to Genesis is 1,758,279. OrbiMed Genesis, pursuant to its authority under the limited partnership agreement of Genesis, may be considered to hold indirectly 1,758,279 Shares.
+
+In addition to the relationships between the Reporting Persons described in Items 2 and 5 above, OrbiMed Advisors is the managing member of OrbiMed GP and OrbiMed Genesis, pursuant to the terms of the limited liability company agreements of OrbiMed GP and OrbiMed Genesis. Pursuant to these agreements and relationships, OrbiMed Advisors and OrbiMed GP have discretionary investment management authority with respect to the assets of OPI VII and OrbiMed Advisors and OrbiMed Gensis have discretionary investment management authority with respect to the assets of Genesis. Such authority includes the power of OrbiMed GP to vote and otherwise dispose of securities held by OPI VII and OrbiMed Genesis to vote and otherwise dispose of securities held by Genesis. The number of outstanding Shares attributable to OPI VII is 5,126,891 Shares and the number of outstanding Shares attributable to Genesis is 1,758,279. OrbiMed Advisors, pursuant to its authority under the terms of the limited liability company agreements of OrbiMed GP and OrbiMed Genesis, may also be considered to hold indirectly 6,885,170 Shares.
+
+Carl L. Gordon ("Gordon"), a member of OrbiMed Advisors, is a member of the Board of Directors of the Issuer and, accordingly, OrbiMed Advisors and OrbiMed GP may have the ability to affect and influence control of the Issuer. From time to time, Gordon may receive stock options or other awards of equity-based compensation pursuant to the Issuer's compensation arrangements for non-employee directors. Pursuant to an agreement with OrbiMed Advisors, Gordon is obligated to transfer any securities issued under any such stock options or other awards, or the economic benefit thereof, to OrbiMed Advisors, which will in turn ensure that such securities or economic benefits are provided to OPI VII.
+
+Investors' Rights Agreement
+
+In addition, OPI VII, Genesis, and certain other stockholders of the Issuer entered into the Investors' Rights Agreement with the Issuer, dated as of October 15, 2025 (the "Investors' Rights Agreement"). Pursuant to the Investors' Rights Agreement and subject to the terms and conditions therein, the parties agreed that:
+
+Form S-1 Registration Rights
+
+Upon the completion of the IPO, certain holders of Shares, including those issuable upon the conversion of shares of Preferred Stock, will be entitled to certain demand registration rights. At any time beginning 180 days after the effective date of the registration statement for the IPO, the holders of a majority of registrable securities then outstanding may request that the Issuer file a registration statement on Form S-1 with respect to outstanding registrable securities having an anticipated aggregate gross offering price to the public of at least $15 million. With certain exceptions, the Issuer is not required to effect the filing of a registration statement during the period starting 60 days prior to the date of filing of, and ending 180 days after the effective date of, the IPO. The Issuer will not be required to take any action in response to such request if the Issuer has already effected two registrations on Form S-1, or if the initiating shareholders propose to dispose of such shares or registerable securities that may be immediately registered on Form S-3.
+
+Piggyback Registration Rights
+
+After the IPO, in the event that the Issuer proposes to register any of its securities under the Securities Act of 1933, as amended (the "Securities Act"), solely for cash, either for its own account or for the account of other security holders, the holders of such Shares will be entitled to certain piggyback registration rights allowing the holder to include their Shares in such registration, subject to certain marketing and other limitations.
+
+Form S-3 Registration Rights
+
+Upon the completion of the IPO, certain holders of Shares, including those issuable upon the conversion of shares of Preferred Stock, will be entitled to certain Form S-3 registration rights. Holders of at least 20% of registrable securities then outstanding can make a request that the Issuer register their Shares on Form S-3 if the Issuer is qualified to file a registration statement on Form S-3 and if the reasonably anticipated aggregate net proceeds of the Shares offered would equal or exceed $10 million. The Issuer will not be required to (i) take any action during the period starting from 30 days prior to the date of filing of, and ending 90 days after the effective date of, a registration initiated by the Issuer, (ii) effect more than two registrations on Form S-3 within any twelve-month period, or (iii) take any action if, within 30 days of receipt of a require from initiating holders, the Issuer gives notice to such holders of Issuer's intention to make a public offering on From S-3. The right to have such Shares registered on Form S-3 is further subject to other specified conditions and limitations.
+
+Expiration of Registration Rights
+
+The demand registration rights and short-form registration rights granted under the Investors' Rights Agreement will expire on the earliest to occur of (i) the closing of a liquidation event, as defined in the Issuer's restated certificate, (ii) such time after the IPO as the registrable securities held by such holder may be sold within any three-month period without restriction pursuant to Rule 144 or a similar exemption under the Securities Act or (iii) the fourth anniversary of the IPO.
+
+Lock-Up Agreement
+
+In addition, in connection with the IPO, OPI VII, Genesis, and Gordon each entered into a lock-up agreement (the "Lock-Up Agreement") with the Issuer's underwriters pursuant to which, among other things, OPI VII, Genesis, and Gordon each agreed not to, except in limited circumstances, directly or indirectly, from the date of the Lock-Up Agreement until 180 days after the date of the final prospectus supplement relating to the IPO: (i) sell or offer to sell any Shares or Related Securities (as defined in the Lock-Up Agreement) currently or hereafter owned either of record or beneficially by the undersigned or the undersigned's family member; (ii) enter into any SWAP (as defined in the Lock-Up Agreement); (iii) make any demand for, or exercise any right to, the registration under the Securities Act of the offer and sale of any Shares or related securities, or cause to be filed a registration statement, prospectus or prospectus supplement (or an amendment or supplement thereto) with respect to any such registration; or (iv) publicly announce any intention to do any of the foregoing.
+
+The foregoing description of the Registration Rights Agreement and the Lockup Agreement do not purport to be complete and are qualified in their entirety by reference to the full texts of the Registration Rights Agreement and the Lock-Up Agreement, which are filed as Exhibit 2 and Exhibit 3, respectively, and incorporated herein by reference.</contractDescription>
+      </item6>
+      <item7>
+        <filedExhibits>---------------------------------------------------------------------------------------------------
+ Exhibit  Description
+---------------------------------------------------------------------------------------------------
+ 1.           Joint Filing Agreement among OrbiMed Advisors LLC, OrbiMed Capital GP VII LLC,
+               and OrbiMed Genesis GP LLC.
+---------------------------------------------------------------------------------------------------
+ 2.           Investors' Rights Agreement, by and between the Issuer and certain of its
+               stockholders, dated as of October 15, 2025 (incorporated by reference to
+               Exhibit 4.2 to the Issuer's Registration Statement on Form S-1, filed with
+               the SEC on August 28, 2026).
+---------------------------------------------------------------------------------------------------
+ 3.           Form of Lock-Up Agreement (incorporated by reference to Exhibit A to
+               Exhibit 1.1 to the Issuer's Registration Statement on Form S-1/A, filed
+               with the SEC on September 14, 2026).
+---------------------------------------------------------------------------------------------------</filedExhibits>
+      </item7>
+    </items1To7>
+    <signatureInfo>
+      <signaturePerson>
+        <signatureReportingPerson>ORBIMED ADVISORS LLC</signatureReportingPerson>
+        <signatureDetails>
+          <signature>/s/ Carl L. Gordon</signature>
+          <title>Carl L. Gordon/Member</title>
+          <date>09/25/2026</date>
+        </signatureDetails>
+      </signaturePerson>
+      <signaturePerson>
+        <signatureReportingPerson>ORBIMED CAPITAL GP VII LLC</signatureReportingPerson>
+        <signatureDetails>
+          <signature>/s/ Carl L. Gordon</signature>
+          <title>Carl L. Gordon/Member of OrbiMed Advisors LLC</title>
+          <date>09/25/2026</date>
+        </signatureDetails>
+      </signaturePerson>
+      <signaturePerson>
+        <signatureReportingPerson>OrbiMed Genesis GP LLC</signatureReportingPerson>
+        <signatureDetails>
+          <signature>/s/ Carl L. Gordon</signature>
+          <title>Carl L. Gordon/Member of OrbiMed Advisors LLC</title>
+          <date>09/25/2026</date>
+        </signatureDetails>
+      </signaturePerson>
+    </signatureInfo>
+  </formData>
+
+</edgarSubmission>
+</XML>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-99.1
+<SEQUENCE>2
+<FILENAME>ss6871545_ex9901.htm
+<DESCRIPTION>JOINT FILING AGREEMENT
+<TEXT>
+<HTML>
+<HEAD>
+<TITLE></TITLE>
+</HEAD>
+<BODY>
+
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0"><B>&nbsp;</B></P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0"><B>&nbsp;</B></P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0 0 3pt; text-align: right"><B><U>Exhibit 1</U></B></P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0; text-align: center">JOINT FILING AGREEMENT</P>
+
+<P STYLE="font: 12pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0; text-align: justify; text-indent: 0.5in">The undersigned hereby agree that
+the Statement on Schedule 13D, dated September 21, 2026, with respect to the common stock of Electra Therapeutics, Inc. is filed on behalf
+of each of us pursuant to and in accordance with the provisions of Rule 13d-1(k) under the Securities Exchange Act of 1934, as amended.
+Each of the undersigned agrees to be responsible for the timely filing of this Statement, and for the completeness and accuracy of the
+information concerning itself contained therein. This Joint Filing Agreement may be executed in any number of counterparts, all of which
+taken together shall constitute one and the same instrument.</P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0; text-align: justify">&nbsp;</P>
+
+<P STYLE="font: 10pt Times New Roman, Times, Serif; margin: 0; text-align: justify; text-indent: 0.5in">IN WITNESS WHEREOF, the undersigned
+have executed this Agreement as of the 25<SUP>th</SUP> day of September 2026.</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<TABLE CELLSPACING="0" CELLPADDING="0" STYLE="font: 12pt Times New Roman, Times, Serif; width: 100%; border-collapse: collapse">
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt"><B>ORBIMED ADVISORS LLC</B></FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD><FONT STYLE="font-size: 10pt">By:</FONT></TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt"><U>/s/ Carl L. Gordon </U></FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt">Name: Carl L. Gordon</FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt">Title: Member </FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt"><B>ORBIMED CAPITAL GP VII LLC</B></FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD><FONT STYLE="font-size: 10pt">By:</FONT></TD>
+    <TD COLSPAN="3"><FONT STYLE="font-size: 10pt">ORBIMED ADVISORS LLC, its managing member</FONT></TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD><FONT STYLE="font-size: 10pt">By:</FONT></TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt"><U>/s/ Carl L. Gordon </U></FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt">Name: Carl L. Gordon</FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt">Title: Member of OrbiMed Advisors LLC</FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt"><B>ORBIMED GENESIS GP LLC</B></FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD><FONT STYLE="font-size: 10pt">By:</FONT></TD>
+    <TD COLSPAN="3"><FONT STYLE="font-size: 10pt">ORBIMED ADVISORS LLC, its managing member</FONT></TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD><FONT STYLE="font-size: 10pt">By:</FONT></TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt"><U>/s/ Carl L. Gordon </U></FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt">Name: Carl L. Gordon</FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2"><FONT STYLE="font-size: 10pt">Title: Member of OrbiMed Advisors LLC</FONT></TD>
+    <TD>&nbsp;</TD></TR>
+  <TR STYLE="vertical-align: top">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD COLSPAN="2">&nbsp;</TD>
+    <TD>&nbsp;</TD></TR>
+  <TR>
+    <TD STYLE="width: 40%">&nbsp;</TD>
+    <TD STYLE="width: 1%">&nbsp;</TD>
+    <TD STYLE="width: 47%">&nbsp;</TD>
+    <TD STYLE="width: 6%">&nbsp;</TD>
+    <TD STYLE="width: 6%">&nbsp;</TD></TR>
+  </TABLE>
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0"></P>
+
+<!-- Field: Rule-Page --><DIV STYLE="margin-top: 3pt; margin-bottom: 3pt; width: 100%"><DIV STYLE="font-size: 1pt; border-top: Black 2pt solid">&nbsp;</DIV></DIV><!-- Field: /Rule-Page -->
+
+<P STYLE="font: 11pt Times New Roman, Times, Serif; margin: 0">&nbsp;</P>
+
+
+</BODY>
+</HTML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

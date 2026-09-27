@@ -1,0 +1,1061 @@
+{
+  "alpaca_all_p1": {
+    "file": "alpaca/alpaca_all_p1.json",
+    "source_url": "https://data.alpaca.markets/v2/stocks/bars",
+    "why": "SPY+AAPL daily bars Jan-Feb 2016, adjustment=all, page 1",
+    "expect": {
+      "symbols": [
+        "AAPL",
+        "SPY"
+      ],
+      "n_bars": {
+        "AAPL": 39,
+        "SPY": 1
+      },
+      "has_next_page_token": true,
+      "params": {
+        "symbols": "SPY,AAPL",
+        "timeframe": "1Day",
+        "start": "2016-01-04T00:00:00Z",
+        "end": "2016-02-29T23:59:59Z",
+        "limit": 40,
+        "adjustment": "all",
+        "feed": "sip",
+        "sort": "asc"
+      },
+      "n_bars_total": {
+        "AAPL": 39,
+        "SPY": 39
+      },
+      "note": "Alpaca sorts by symbol then time; limit=40 spans symbols (page 1: 39 AAPL + 1 SPY)."
+    }
+  },
+  "alpaca_all_p2": {
+    "file": "alpaca/alpaca_all_p2.json",
+    "source_url": "https://data.alpaca.markets/v2/stocks/bars",
+    "why": "SPY+AAPL daily bars Jan-Feb 2016, adjustment=all, page 2",
+    "expect": {
+      "symbols": [
+        "SPY"
+      ],
+      "n_bars": {
+        "SPY": 38
+      },
+      "has_next_page_token": false,
+      "params": {
+        "symbols": "SPY,AAPL",
+        "timeframe": "1Day",
+        "start": "2016-01-04T00:00:00Z",
+        "end": "2016-02-29T23:59:59Z",
+        "limit": 40,
+        "adjustment": "all",
+        "feed": "sip",
+        "sort": "asc"
+      },
+      "n_bars_total": {
+        "AAPL": 39,
+        "SPY": 39
+      },
+      "note": "Alpaca sorts by symbol then time; limit=40 spans symbols (page 1: 39 AAPL + 1 SPY)."
+    }
+  },
+  "alpaca_raw_p1": {
+    "file": "alpaca/alpaca_raw_p1.json",
+    "source_url": "https://data.alpaca.markets/v2/stocks/bars",
+    "why": "SPY+AAPL daily bars Jan-Feb 2016, adjustment=raw, page 1",
+    "expect": {
+      "symbols": [
+        "AAPL",
+        "SPY"
+      ],
+      "n_bars": {
+        "AAPL": 39,
+        "SPY": 1
+      },
+      "has_next_page_token": true,
+      "params": {
+        "symbols": "SPY,AAPL",
+        "timeframe": "1Day",
+        "start": "2016-01-04T00:00:00Z",
+        "end": "2016-02-29T23:59:59Z",
+        "limit": 40,
+        "adjustment": "raw",
+        "feed": "sip",
+        "sort": "asc"
+      },
+      "n_bars_total": {
+        "AAPL": 39,
+        "SPY": 39
+      },
+      "note": "Alpaca sorts by symbol then time; limit=40 spans symbols (page 1: 39 AAPL + 1 SPY)."
+    }
+  },
+  "alpaca_raw_p2": {
+    "file": "alpaca/alpaca_raw_p2.json",
+    "source_url": "https://data.alpaca.markets/v2/stocks/bars",
+    "why": "SPY+AAPL daily bars Jan-Feb 2016, adjustment=raw, page 2",
+    "expect": {
+      "symbols": [
+        "SPY"
+      ],
+      "n_bars": {
+        "SPY": 38
+      },
+      "has_next_page_token": false,
+      "params": {
+        "symbols": "SPY,AAPL",
+        "timeframe": "1Day",
+        "start": "2016-01-04T00:00:00Z",
+        "end": "2016-02-29T23:59:59Z",
+        "limit": 40,
+        "adjustment": "raw",
+        "feed": "sip",
+        "sort": "asc"
+      },
+      "n_bars_total": {
+        "AAPL": 39,
+        "SPY": 39
+      },
+      "note": "Alpaca sorts by symbol then time; limit=40 spans symbols (page 1: 39 AAPL + 1 SPY)."
+    }
+  },
+  "atom_form4_424b2": {
+    "file": "feeds/atom_form4_p2.xml",
+    "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&company=&dateb=&owner=include&start=100&count=100&output=atom",
+    "why": "type=4 prefix-matches other forms: this page holds 424B2/424B3/424B4/424B5/485APOS entries",
+    "expect": {
+      "n_424b2": 20,
+      "form_terms": {
+        "4": 65,
+        "4/A": 8,
+        "424B2": 20,
+        "485APOS": 2,
+        "424B4": 1,
+        "424B5": 2,
+        "424B3": 2
+      }
+    }
+  },
+  "atom_form4_p1": {
+    "file": "feeds/atom_form4_p1.xml",
+    "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&company=&dateb=&owner=include&start=0&count=100&output=atom",
+    "why": "getcurrent Atom feed, type=4",
+    "expect": {
+      "n_entries": 100,
+      "first": {
+        "accession": "0002045034-26-000009",
+        "form_type": "4",
+        "cik": 2045034,
+        "title": "4 - Bernes Marshall (0002045034) (Reporting)"
+      },
+      "form_terms": {
+        "4": 93,
+        "4/A": 7
+      },
+      "n_424b2": 0,
+      "n_unique_accessions": 46
+    }
+  },
+  "atom_form4_p2": {
+    "file": "feeds/atom_form4_p2.xml",
+    "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&company=&dateb=&owner=include&start=100&count=100&output=atom",
+    "why": "getcurrent Atom feed, type=4",
+    "expect": {
+      "n_entries": 100,
+      "first": {
+        "accession": "0001193125-26-403031",
+        "form_type": "4",
+        "cik": 1618732,
+        "title": "4 - Nutanix, Inc. (0001618732) (Issuer)"
+      },
+      "form_terms": {
+        "4": 65,
+        "4/A": 8,
+        "424B2": 20,
+        "485APOS": 2,
+        "424B4": 1,
+        "424B5": 2,
+        "424B3": 2
+      },
+      "n_424b2": 20,
+      "n_unique_accessions": 53
+    }
+  },
+  "bulk_13f_slice_2022": {
+    "file": "bulk/bulk_13f_slice_2022.zip",
+    "source_url": "2022q4_form13f.zip",
+    "why": "sliced from an SEC data set",
+    "expect": {
+      "accessions": [
+        "0000919574-22-006164",
+        "0000950123-22-010583",
+        "0000950123-22-012275",
+        "0001041062-22-000157",
+        "0001376474-22-000436",
+        "0001420506-22-001922",
+        "0001672512-22-000004",
+        "0001692590-22-000006",
+        "0001738071-22-000009",
+        "0001927067-22-000007"
+      ],
+      "row_counts": {
+        "COVERPAGE.tsv": 10,
+        "INFOTABLE.tsv": 290,
+        "OTHERMANAGER.tsv": 1,
+        "OTHERMANAGER2.tsv": 14,
+        "SIGNATURE.tsv": 10,
+        "SUBMISSION.tsv": 10,
+        "SUMMARYPAGE.tsv": 10
+      },
+      "note": "2022 Q4 quarterly set; filings before 2023-01-03 report VALUE in thousands",
+      "sample": {
+        "accession": "0000950123-22-012275",
+        "cusip": "00507V109",
+        "value_reported": 1906458.0
+      },
+      "n_infotable": 290
+    }
+  },
+  "bulk_13f_slice_2025": {
+    "file": "bulk/bulk_13f_slice_2025.zip",
+    "source_url": "01jun2026-31aug2026_form13f.zip",
+    "why": "sliced from an SEC data set",
+    "expect": {
+      "accessions": [
+        "0000902664-26-003486",
+        "0000921895-26-001911",
+        "0001061768-26-000010",
+        "0001345471-26-000035",
+        "0001418814-26-000003",
+        "0001999371-26-018931",
+        "0002043585-26-000022",
+        "0002098824-26-000003",
+        "0002098824-26-000005",
+        "0002134841-26-000139"
+      ],
+      "row_counts": {
+        "COVERPAGE.tsv": 10,
+        "INFOTABLE.tsv": 206,
+        "OTHERMANAGER.tsv": 5,
+        "OTHERMANAGER2.tsv": 4,
+        "SIGNATURE.tsv": 10,
+        "SUBMISSION.tsv": 10,
+        "SUMMARYPAGE.tsv": 9
+      },
+      "restatement_accession": "0002098824-26-000005",
+      "restatement_original_accession": "0002098824-26-000003",
+      "new_holdings_accession": "0001999371-26-018931",
+      "notice_accession": "0000921895-26-001911",
+      "old_period_accession": "0002134841-26-000139",
+      "note": "latest 3-month set (Jun-Aug 2026); values in dollars",
+      "sample": {
+        "accession": "0001061768-26-000010",
+        "cusip": "02079K107",
+        "value_reported": 484744.0
+      },
+      "n_infotable": 206
+    }
+  },
+  "bulk_345_slice": {
+    "file": "bulk/bulk_345_slice.zip",
+    "source_url": "2025q1_form345.zip",
+    "why": "sliced from an SEC data set",
+    "expect": {
+      "accessions": [
+        "0000277135-25-000032",
+        "0000712534-25-000019",
+        "0000715579-25-000042",
+        "0000723612-25-000044",
+        "0000784977-25-000020",
+        "0000794367-25-000028",
+        "0000805928-25-000044",
+        "0000849146-25-000019",
+        "0000860748-25-000040",
+        "0000897069-25-000531",
+        "0000905148-25-000009",
+        "0000905148-25-000976",
+        "0000950170-25-000573",
+        "0000950170-25-002813",
+        "0000950170-25-006839",
+        "0000950170-25-009850",
+        "0000950170-25-033614",
+        "0000950170-25-035476",
+        "0000950170-25-035818",
+        "0000950170-25-042034",
+        "0001062993-25-003066",
+        "0001104659-25-001747",
+        "0001127602-25-001771",
+        "0001127602-25-005671",
+        "0001127602-25-005939",
+        "0001127602-25-008798",
+        "0001127602-25-008936",
+        "0001127602-25-009649",
+        "0001137547-25-000030",
+        "0001230245-25-000050",
+        "0001401257-25-000035",
+        "0001415889-25-000011",
+        "0001415889-25-001339",
+        "0001415889-25-002099",
+        "0001415889-25-002498",
+        "0001415889-25-003262",
+        "0001415889-25-005027",
+        "0001415889-25-005878",
+        "0001415889-25-005897",
+        "0001415889-25-006218",
+        "0001437749-25-005306",
+        "0001437749-25-006421",
+        "0001476220-25-000002",
+        "0001477932-25-002140",
+        "0001477932-25-002276",
+        "0001528396-25-000101",
+        "0001700264-25-000050",
+        "0001718939-25-000034",
+        "0001828972-25-000002",
+        "0002003074-25-000007"
+      ],
+      "row_counts": {
+        "DERIV_HOLDING.tsv": 8,
+        "DERIV_TRANS.tsv": 30,
+        "FOOTNOTES.tsv": 119,
+        "NONDERIV_HOLDING.tsv": 16,
+        "NONDERIV_TRANS.tsv": 60,
+        "OWNER_SIGNATURE.tsv": 50,
+        "REPORTINGOWNER.tsv": 51,
+        "SUBMISSION.tsv": 50
+      },
+      "joint_accession": "0002003074-25-000007",
+      "amendment_accession": "0001477932-25-002276",
+      "amendment_original_accession": "0001477932-25-002140",
+      "footnote_10b5_1_accession": "0001415889-25-002498",
+      "flag_10b5_1_accession": "0001528396-25-000101",
+      "n_nonderiv_trans": 60,
+      "n_nonderiv_holding": 16,
+      "n_deriv_trans": 30,
+      "n_deriv_holding": 8
+    }
+  },
+  "company_tickers_exchange": {
+    "file": "reference/company_tickers_exchange.json",
+    "source_url": "https://www.sec.gov/files/company_tickers_exchange.json",
+    "why": "current CIK/ticker/exchange list (trimmed to 200 rows plus every fixture issuer)",
+    "expect": {
+      "n_entries": 211,
+      "fields": [
+        "cik",
+        "name",
+        "ticker",
+        "exchange"
+      ],
+      "fixture_issuer_rows": [
+        [
+          1596532,
+          "Arista Networks, Inc.",
+          "ANET",
+          "NYSE"
+        ],
+        [
+          882184,
+          "HORTON D R INC /DE/",
+          "DHI",
+          "NYSE"
+        ],
+        [
+          1086222,
+          "AKAMAI TECHNOLOGIES INC",
+          "AKAM",
+          "Nasdaq"
+        ],
+        [
+          1528396,
+          "Guidewire Software, Inc.",
+          "GWRE",
+          "NYSE"
+        ],
+        [
+          866291,
+          "ALLEGRO MICROSYSTEMS, INC.",
+          "ALGM",
+          "Nasdaq"
+        ],
+        [
+          1789029,
+          "Aeva Technologies, Inc.",
+          "AEVA",
+          "Nasdaq"
+        ],
+        [
+          736772,
+          "CNB FINANCIAL CORP/PA",
+          "CCNE",
+          "Nasdaq"
+        ],
+        [
+          2088082,
+          "Electra Therapeutics, Inc.",
+          "ETRA",
+          "Nasdaq"
+        ],
+        [
+          1509261,
+          "Rezolute, Inc.",
+          "RZLT",
+          "Nasdaq"
+        ],
+        [
+          1437925,
+          "Meridian Holdings Inc./NV",
+          "MRDN",
+          "Nasdaq"
+        ],
+        [
+          1650101,
+          "ADDENTAX GROUP CORP.",
+          "ATXG",
+          "Nasdaq"
+        ],
+        [
+          736772,
+          "CNB FINANCIAL CORP/PA",
+          "CCNEP",
+          "Nasdaq"
+        ]
+      ]
+    }
+  },
+  "daily_index": {
+    "file": "indexes/form.20260925.idx",
+    "source_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR3/form.20260925.idx",
+    "why": "daily form index (trimmed: header + selected lines, original order kept)",
+    "expect": {
+      "n_entries": 400,
+      "sample": {
+        "form_type": "4",
+        "cik": 1555279,
+        "date_filed": "20260925",
+        "accession": "0001535264-26-000053"
+      },
+      "spaced_form_sample": {
+        "form_type": "1-A POS",
+        "cik": 1898722,
+        "date_filed": "20260925",
+        "accession": "0001213900-26-103507"
+      },
+      "form_counts": {
+        "1-A POS": 1,
+        "13F-HR": 2,
+        "144": 98,
+        "3": 91,
+        "4": 150,
+        "4/A": 58
+      },
+      "structure_note": "The daily-index header wraps: 'Date Filed' and 'File Name' sit on the line after 'Form Type ... CIK'. Parse data rows right-anchored: '<form>  <company>  <cik>  <date>  <edgar/...txt>' where the form type (which may contain single spaces, e.g. 'SCHEDULE 13D', '1-A POS') ends at the first run of 2+ spaces; dates are YYYYMMDD in daily indexes and YYYY-MM-DD in full indexes."
+    }
+  },
+  "f13f_pre2023": {
+    "file": "filings/f13f_pre2023.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012322012275/0000950123-22-012275-index.htm",
+    "why": "Berkshire 13F-HR for Q3 2022 filed 2022-11-14: values reported in thousands",
+    "accession": "0000950123-22-012275",
+    "cik": 1067983,
+    "form_type": "13F-HR",
+    "filed_date": "2022-11-14",
+    "accepted_at": "2022-11-14T16:01:07-05:00",
+    "expect": {
+      "period_of_report": "09-30-2022",
+      "report_calendar_or_quarter": "09-30-2022",
+      "amendment_type": null,
+      "table_entry_total": 179,
+      "table_value_total": 296096640.0,
+      "n_rows": 179,
+      "first_row": {
+        "cusip": "00507V109",
+        "value_reported": 1906458.0
+      },
+      "sum_value_reported": 296096640.0
+    }
+  },
+  "f13f_restatement": {
+    "file": "filings/f13f_restatement.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/2098824/000209882426000005/0002098824-26-000005-index.htm",
+    "why": "13F-HR/A RESTATEMENT (its original 0002098824-26-000003 is in the same data set)",
+    "accession": "0002098824-26-000005",
+    "cik": 2098824,
+    "form_type": "13F-HR/A",
+    "filed_date": "2026-08-28",
+    "accepted_at": "2026-08-28T14:39:49-04:00",
+    "expect": {
+      "period_of_report": "06-30-2026",
+      "report_calendar_or_quarter": "06-30-2026",
+      "amendment_type": "RESTATEMENT",
+      "table_entry_total": 23,
+      "table_value_total": 126975569.0,
+      "n_rows": 23,
+      "first_row": {
+        "cusip": "037833100",
+        "value_reported": 5280074.0
+      },
+      "sum_value_reported": 126975569.0
+    }
+  },
+  "f13f_small": {
+    "file": "filings/f13f_small.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1061165/000091957426005485/0000919574-26-005485-index.htm",
+    "why": "13F-HR (Q2 2026, filed 2026-08-14, dollars) from Lone Pine Capital, 34 rows",
+    "accession": "0000919574-26-005485",
+    "cik": 1061165,
+    "form_type": "13F-HR",
+    "filed_date": "2026-08-14",
+    "accepted_at": "2026-08-14T16:06:46-04:00",
+    "expect": {
+      "period_of_report": "06-30-2026",
+      "report_calendar_or_quarter": "06-30-2026",
+      "amendment_type": null,
+      "table_entry_total": 34,
+      "table_value_total": 16357760275.0,
+      "n_rows": 34,
+      "first_row": {
+        "cusip": "02079K305",
+        "value_reported": 77039680.0
+      },
+      "sum_value_reported": 16357760275.0
+    }
+  },
+  "form144": {
+    "file": "filings/form144.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1086222/000192109426001051/0001921094-26-001051-index.htm",
+    "why": "Form 144 notice of proposed sale (XML)",
+    "accession": "0001921094-26-001051",
+    "cik": 1086222,
+    "form_type": "144",
+    "filed_date": "2026-09-25",
+    "accepted_at": "2026-09-25T16:17:34-04:00",
+    "expect": {
+      "issuer_cik": 1086222,
+      "filer_cik": 1845739,
+      "seller_name": "Salem-Jackson Kim",
+      "relationship": "Officer",
+      "shares_to_sell": 2013.0,
+      "market_value_usd": 257664.0,
+      "shares_outstanding": 143716609.0,
+      "approx_sale_date": "2026-09-25",
+      "exchange": "NASDAQ",
+      "broker": "Charles Schwab & Co., Inc.",
+      "plan_10b5_1_adopted": "2026-03-10",
+      "n_securities_lines": 6
+    }
+  },
+  "form3": {
+    "file": "filings/form3.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/866291/000095017025047747/0000950170-25-047747-index.htm",
+    "why": "Form 3 with nonderivative holdings",
+    "accession": "0000950170-25-047747",
+    "cik": 866291,
+    "form_type": "3",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T16:16:05-04:00",
+    "expect": {
+      "issuer_cik": 866291,
+      "owner_ciks": [
+        2061106
+      ],
+      "document_type": "3",
+      "n_nonderiv_trans": 0,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 1,
+      "codes": [],
+      "deriv_codes": [],
+      "aff10b5one": null,
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4_10b5_1_flag": {
+    "file": "filings/form4_10b5_1_flag.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1528396/000152839625000101/0001528396-25-000101-index.htm",
+    "why": "Form 4 filed 2025 with aff10b5One=1 and S rows",
+    "accession": "0001528396-25-000101",
+    "cik": 1528396,
+    "form_type": "4",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T17:43:13-04:00",
+    "expect": {
+      "issuer_cik": 1528396,
+      "owner_ciks": [
+        1784996
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 1,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "S"
+      ],
+      "deriv_codes": [],
+      "aff10b5one": true,
+      "first_nonderiv": {
+        "transaction_date": "2025-03-31",
+        "shares": 1400.0,
+        "price": 184.41,
+        "shares_owned_after": 259993.0
+      },
+      "footnote_ids_with_10b5_1": [
+        "F1"
+      ]
+    }
+  },
+  "form4_10b5_1_footnote": {
+    "file": "filings/form4_10b5_1_footnote.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1596532/000159653222000296/0001596532-22-000296-index.htm",
+    "why": "2022 Form 4 sale (before the 10b5-1 checkbox existed) with 10b5-1 in footnote F1",
+    "accession": "0001596532-22-000296",
+    "cik": 1596532,
+    "form_type": "4",
+    "filed_date": "2022-10-31",
+    "accepted_at": "2022-10-31T20:11:57-04:00",
+    "expect": {
+      "issuer_cik": 1596532,
+      "owner_ciks": [
+        1299634
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 1,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 1,
+      "codes": [
+        "S"
+      ],
+      "deriv_codes": [],
+      "aff10b5one": null,
+      "first_nonderiv": {
+        "transaction_date": "2022-10-27",
+        "shares": 2000.0,
+        "price": 125.9382,
+        "shares_owned_after": 94946.0
+      },
+      "footnote_ids_with_10b5_1": [
+        "F1"
+      ]
+    }
+  },
+  "form4_buy_single": {
+    "file": "filings/form4_buy_single.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1509261/000091228225000343/0000912282-25-000343-index.htm",
+    "why": "Form 4, one reporting owner, open-market purchase (P)",
+    "accession": "0000912282-25-000343",
+    "cik": 1509261,
+    "form_type": "4",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T09:18:52-04:00",
+    "expect": {
+      "issuer_cik": 1509261,
+      "owner_ciks": [
+        1314773
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 1,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "P"
+      ],
+      "deriv_codes": [],
+      "aff10b5one": false,
+      "first_nonderiv": {
+        "transaction_date": "2025-03-27",
+        "shares": 12302.0,
+        "price": 2.845,
+        "shares_owned_after": 224119.0
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4_exercise_sale": {
+    "file": "filings/form4_exercise_sale.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1484565/000141588925009298/0001415889-25-009298-index.htm",
+    "why": "derivative M exercise plus same-day nonderivative S",
+    "accession": "0001415889-25-009298",
+    "cik": 1484565,
+    "form_type": "4",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T19:24:33-04:00",
+    "expect": {
+      "issuer_cik": 1484565,
+      "owner_ciks": [
+        1573429
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 2,
+      "n_deriv_trans": 1,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "M",
+        "S"
+      ],
+      "deriv_codes": [
+        "M"
+      ],
+      "aff10b5one": false,
+      "first_nonderiv": {
+        "transaction_date": "2025-03-28",
+        "shares": 5937.0,
+        "price": 4.6,
+        "shares_owned_after": 12437.0
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4_footnote_price": {
+    "file": "filings/form4_footnote_price.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/882184/000106299325006590/0001062993-25-006590-index.htm",
+    "why": "row whose transactionPricePerShare has only a footnoteId",
+    "accession": "0001062993-25-006590",
+    "cik": 882184,
+    "form_type": "4",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T16:27:30-04:00",
+    "expect": {
+      "issuer_cik": 882184,
+      "owner_ciks": [
+        1488288
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 1,
+      "n_deriv_trans": 1,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "M"
+      ],
+      "deriv_codes": [
+        "M"
+      ],
+      "aff10b5one": false,
+      "first_nonderiv": {
+        "transaction_date": "2025-03-30",
+        "shares": 224.0,
+        "price": null,
+        "shares_owned_after": 21205.0
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4_joint": {
+    "file": "filings/form4_joint.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1789029/000200307425000007/0002003074-25-000007-index.htm",
+    "why": "Form 4 joint filing: two reporting owners, P rows",
+    "accession": "0002003074-25-000007",
+    "cik": 1789029,
+    "form_type": "4",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T20:49:23-04:00",
+    "expect": {
+      "issuer_cik": 1789029,
+      "owner_ciks": [
+        2003074,
+        1745725
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 3,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "P",
+        "P",
+        "P"
+      ],
+      "deriv_codes": [],
+      "aff10b5one": false,
+      "first_nonderiv": {
+        "transaction_date": "2025-03-27",
+        "shares": 1157742.0,
+        "price": 6.15,
+        "shares_owned_after": 13827068.0
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4_value_owned": {
+    "file": "filings/form4_value_owned.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1989393/000198939325000001/0001989393-25-000001-index.htm",
+    "why": "row reporting valueOwnedFollowingTransaction instead of shares",
+    "accession": "0001989393-25-000001",
+    "cik": 1989393,
+    "form_type": "4",
+    "filed_date": "2025-01-30",
+    "accepted_at": "2025-01-30T17:30:13-05:00",
+    "expect": {
+      "issuer_cik": 1989393,
+      "owner_ciks": [
+        1702074
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 1,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "P"
+      ],
+      "deriv_codes": [],
+      "aff10b5one": false,
+      "first_nonderiv": {
+        "transaction_date": "2025-01-01",
+        "shares": 3489183.531,
+        "price": 1.58,
+        "shares_owned_after": null
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4a_amendment": {
+    "file": "filings/form4a_amendment.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1437925/000147793225002276/0001477932-25-002276-index.htm",
+    "why": "Form 4/A amending form4a_original",
+    "accession": "0001477932-25-002276",
+    "cik": 1437925,
+    "form_type": "4/A",
+    "filed_date": "2025-03-31",
+    "accepted_at": "2025-03-31T20:20:21-04:00",
+    "expect": {
+      "issuer_cik": 1437925,
+      "owner_ciks": [
+        1194548
+      ],
+      "document_type": "4/A",
+      "n_nonderiv_trans": 5,
+      "n_deriv_trans": 1,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "S",
+        "M",
+        "F",
+        "S",
+        "S"
+      ],
+      "deriv_codes": [
+        "M"
+      ],
+      "aff10b5one": false,
+      "date_of_original_submission": "2025-03-28",
+      "first_nonderiv": {
+        "transaction_date": "2025-03-26",
+        "shares": 7500.0,
+        "price": 2.12,
+        "shares_owned_after": 271897.0
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form4a_original": {
+    "file": "filings/form4a_original.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1437925/000147793225002140/0001477932-25-002140-index.htm",
+    "why": "original Form 4 later amended by form4a_amendment",
+    "accession": "0001477932-25-002140",
+    "cik": 1437925,
+    "form_type": "4",
+    "filed_date": "2025-03-28",
+    "accepted_at": "2025-03-28T18:21:50-04:00",
+    "expect": {
+      "issuer_cik": 1437925,
+      "owner_ciks": [
+        1194548
+      ],
+      "document_type": "4",
+      "n_nonderiv_trans": 4,
+      "n_deriv_trans": 1,
+      "n_nonderiv_holdings": 0,
+      "codes": [
+        "S",
+        "M",
+        "F",
+        "S"
+      ],
+      "deriv_codes": [
+        "M"
+      ],
+      "aff10b5one": false,
+      "first_nonderiv": {
+        "transaction_date": "2025-03-26",
+        "shares": 7500.0,
+        "price": 2.12,
+        "shares_owned_after": 271897.0
+      },
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "form5": {
+    "file": "filings/form5.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/736772/000073677225000033/0000736772-25-000033-index.htm",
+    "why": "Form 5 annual statement with holdings",
+    "accession": "0000736772-25-000033",
+    "cik": 736772,
+    "form_type": "5",
+    "filed_date": "2025-01-31",
+    "accepted_at": "2025-01-31T16:36:53-05:00",
+    "expect": {
+      "issuer_cik": 736772,
+      "owner_ciks": [
+        1275520
+      ],
+      "document_type": "5",
+      "n_nonderiv_trans": 0,
+      "n_deriv_trans": 0,
+      "n_nonderiv_holdings": 3,
+      "codes": [],
+      "deriv_codes": [],
+      "aff10b5one": false,
+      "footnote_ids_with_10b5_1": []
+    }
+  },
+  "frames_sample": {
+    "file": "reference/frames_sample.json",
+    "source_url": "https://data.sec.gov/api/xbrl/frames/dei/EntityCommonStockSharesOutstanding/shares/CY2026Q2I.json",
+    "why": "XBRL frame CY2026Q2I for dei:EntityCommonStockSharesOutstanding (trimmed to 50)",
+    "expect": {
+      "n_entries": 50,
+      "period": "CY2026Q2I",
+      "sample": {
+        "cik": 1750,
+        "val": 39892472,
+        "end": "2026-06-30"
+      }
+    }
+  },
+  "full_index": {
+    "file": "indexes/full_2025_QTR1_form.idx",
+    "source_url": "https://www.sec.gov/Archives/edgar/full-index/2025/QTR1/form.idx",
+    "why": "quarterly full form index (trimmed to 144, SCHEDULE 13D, 13F-HR; dashed dates)",
+    "expect": {
+      "n_entries": 300,
+      "sample": {
+        "form_type": "13F-HR",
+        "cik": 107136,
+        "date_filed": "2025-02-14",
+        "accession": "0001214659-25-002647"
+      },
+      "form_counts": {
+        "144": 100,
+        "SCHEDULE 13D": 100,
+        "13F-HR": 100
+      },
+      "structure_note": "The daily-index header wraps: 'Date Filed' and 'File Name' sit on the line after 'Form Type ... CIK'. Parse data rows right-anchored: '<form>  <company>  <cik>  <date>  <edgar/...txt>' where the form type (which may contain single spaces, e.g. 'SCHEDULE 13D', '1-A POS') ends at the first run of 2+ spaces; dates are YYYYMMDD in daily indexes and YYYY-MM-DD in full indexes."
+    }
+  },
+  "listing_13f_html": {
+    "file": "pages/listing_13f_html.html",
+    "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+    "why": "SEC data set listing page",
+    "expect": {
+      "n_links": 54,
+      "first": "01dec2024-28feb2025_form13f.zip",
+      "last": "2023q4_form13f.zip",
+      "has_datastandardsinnovation_path": true
+    }
+  },
+  "listing_345_html": {
+    "file": "pages/listing_345_html.html",
+    "source_url": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+    "why": "SEC data set listing page",
+    "expect": {
+      "n_links": 82,
+      "first": "2006q1_form345.zip",
+      "last": "2026q2_form345.zip",
+      "has_datastandardsinnovation_path": true
+    }
+  },
+  "openfigi_sample": {
+    "file": "openfigi/openfigi_sample.json",
+    "source_url": "https://api.openfigi.com/v3/mapping",
+    "why": "AAPL, BRK.B and a bogus CUSIP",
+    "expect": {
+      "jobs": [
+        {
+          "idType": "ID_CUSIP",
+          "idValue": "037833100",
+          "exchCode": "US"
+        },
+        {
+          "idType": "ID_CUSIP",
+          "idValue": "084670702",
+          "exchCode": "US"
+        },
+        {
+          "idType": "ID_CUSIP",
+          "idValue": "000000000",
+          "exchCode": "US"
+        }
+      ],
+      "tickers": {
+        "037833100": "AAPL",
+        "084670702": "BRK/B",
+        "000000000": null
+      },
+      "n_warnings": 1,
+      "note": "OpenFIGI returns 'BRK/B' (slash) for class shares; canonical_symbol maps it to BRK.B."
+    }
+  },
+  "sc13d": {
+    "file": "filings/sc13d.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/2088082/000094787126000898/0000947871-26-000898-index.htm",
+    "why": "SCHEDULE 13D in structured XML (after 2024-12-18)",
+    "accession": "0000947871-26-000898",
+    "cik": 2088082,
+    "form_type": "SCHEDULE 13D",
+    "filed_date": "2026-09-25",
+    "accepted_at": "2026-09-25T17:11:02-04:00",
+    "expect": {
+      "n_persons": 3,
+      "person_names": [
+        "ORBIMED ADVISORS LLC",
+        "ORBIMED CAPITAL GP VII LLC",
+        "OrbiMed Genesis GP LLC"
+      ],
+      "max_percent_of_class": 11.0,
+      "cusip": "284825106",
+      "issuer_cik": 2088082,
+      "event_date_raw": "09/21/2026",
+      "percent_raw_values": [
+        "11.0",
+        "8.2",
+        "2.8"
+      ],
+      "structure_note": "13D persons are formData/reportingPersons/reportingPersonInfo (percentOfClass); issuer CIK element is issuerCIK (13G uses issuerCik); Item 4 purpose text is at edgarSubmission/formData/items1To7/item4/transactionPurpose."
+    }
+  },
+  "sc13g": {
+    "file": "filings/sc13g.txt",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1650101/000149315226044221/0001493152-26-044221-index.htm",
+    "why": "SCHEDULE 13G in structured XML (after 2024-12-18)",
+    "accession": "0001493152-26-044221",
+    "cik": 1650101,
+    "form_type": "SCHEDULE 13G",
+    "filed_date": "2026-09-25",
+    "accepted_at": "2026-09-25T06:02:35-04:00",
+    "expect": {
+      "n_persons": 1,
+      "person_names": [
+        "Yip Wai Lun"
+      ],
+      "max_percent_of_class": 9.9,
+      "percent_raw_values": [
+        "9.90",
+        "9.90%"
+      ],
+      "cusip": "00653L400",
+      "issuer_cik": 1650101,
+      "event_date_raw": "09/22/2026",
+      "structure_note": "13G persons are formData/coverPageHeaderReportingPersonDetails (classPercent); ignore signatureInformation/reportingPersonName and items/item4/classPercent ('9.90%')."
+    }
+  },
+  "submissions_owner": {
+    "file": "reference/submissions_owner.json",
+    "source_url": "https://data.sec.gov/submissions/CIK0001314773.json",
+    "cik": 1314773,
+    "why": "per-CIK submissions JSON for form4_buy_single's owner (acceptanceDateTime format check)",
+    "expect": {
+      "accession": "0000912282-25-000343",
+      "acceptanceDateTime": "2025-03-31T13:18:52.000Z",
+      "form": "4",
+      "filingDate": "2025-03-31",
+      "sgml_accepted_at": "2025-03-31T09:18:52-04:00",
+      "n_recent": 46
+    }
+  }
+}

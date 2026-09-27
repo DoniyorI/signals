@@ -1,0 +1,191 @@
+<SEC-DOCUMENT>0000950170-25-047747.txt : 20250331
+<SEC-HEADER>0000950170-25-047747.hdr.sgml : 20250331
+<ACCEPTANCE-DATETIME>20250331161605
+ACCESSION NUMBER:		0000950170-25-047747
+CONFORMED SUBMISSION TYPE:	3
+PUBLIC DOCUMENT COUNT:		2
+CONFORMED PERIOD OF REPORT:	20250329
+FILED AS OF DATE:		20250331
+DATE AS OF CHANGE:		20250331
+
+REPORTING-OWNER:	
+
+	OWNER DATA:	
+		COMPANY CONFORMED NAME:			Madormo Richard
+		CENTRAL INDEX KEY:			0002061106
+		ORGANIZATION NAME:           	
+
+	FILING VALUES:
+		FORM TYPE:		3
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	001-39675
+		FILM NUMBER:		25793475
+
+	MAIL ADDRESS:	
+		STREET 1:		955 PERIMETER ROAD
+		CITY:			MANCHESTER
+		STATE:			NH
+		ZIP:			03103
+
+ISSUER:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			ALLEGRO MICROSYSTEMS, INC.
+		CENTRAL INDEX KEY:			0000866291
+		STANDARD INDUSTRIAL CLASSIFICATION:	SEMICONDUCTORS & RELATED DEVICES [3674]
+		ORGANIZATION NAME:           	04 Manufacturing
+		EIN:				462405937
+		FISCAL YEAR END:			0331
+
+	BUSINESS ADDRESS:	
+		STREET 1:		955 PERIMETER ROAD
+		CITY:			MANCHESTER
+		STATE:			NH
+		ZIP:			03103
+		BUSINESS PHONE:		(603) 626-2300
+
+	MAIL ADDRESS:	
+		STREET 1:		955 PERIMETER ROAD
+		CITY:			MANCHESTER
+		STATE:			NH
+		ZIP:			03103
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	ALLEGRO MICROSYSTEMS INC
+		DATE OF NAME CHANGE:	19900730
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>3
+<SEQUENCE>1
+<FILENAME>ownership.xml
+<DESCRIPTION>3
+<TEXT>
+<XML>
+<?xml version="1.0"?>
+<ownershipDocument>
+
+    <schemaVersion>X0206</schemaVersion>
+
+    <documentType>3</documentType>
+
+    <periodOfReport>2025-03-29</periodOfReport>
+
+    <noSecuritiesOwned>0</noSecuritiesOwned>
+
+    <issuer>
+        <issuerCik>0000866291</issuerCik>
+        <issuerName>ALLEGRO MICROSYSTEMS, INC.</issuerName>
+        <issuerTradingSymbol>ALGM</issuerTradingSymbol>
+    </issuer>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0002061106</rptOwnerCik>
+            <rptOwnerName>Madormo Richard</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>955 PERIMETER ROAD</rptOwnerStreet1>
+            <rptOwnerStreet2></rptOwnerStreet2>
+            <rptOwnerCity>MANCHESTER</rptOwnerCity>
+            <rptOwnerState>NH</rptOwnerState>
+            <rptOwnerZipCode>03103</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>false</isDirector>
+            <isOfficer>true</isOfficer>
+            <isTenPercentOwner>false</isTenPercentOwner>
+            <isOther>false</isOther>
+            <officerTitle>SVP, Worldwide Sales</officerTitle>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <nonDerivativeTable>
+        <nonDerivativeHolding>
+            <securityTitle>
+                <value>Common Stock</value>
+            </securityTitle>
+            <postTransactionAmounts>
+                <sharesOwnedFollowingTransaction>
+                    <value>29252</value>
+                    <footnoteId id="F1"/>
+                </sharesOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>D</value>
+                </directOrIndirectOwnership>
+            </ownershipNature>
+        </nonDerivativeHolding>
+    </nonDerivativeTable>
+
+    <footnotes>
+        <footnote id="F1">Represents a previously granted award of Restricted Stock Units (&quot;RSUs&quot;), which was granted on March 24, 2025. Each RSU represents a contingent right to receive one share of common stock. The RSUs will vest 50% on March 24, 2026, 25% on March 24, 2027, and 25% on March 24, 2028.</footnote>
+    </footnotes>
+
+    <remarks>Exhibit 24 - Power of Attorney</remarks>
+
+    <ownerSignature>
+        <signatureName>/s/ Raymond Myer, Attorney-in-Fact for Richard Madormo</signatureName>
+        <signatureDate>2025-03-31</signatureDate>
+    </ownerSignature>
+</ownershipDocument>
+</XML>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-24.1
+<SEQUENCE>2
+<FILENAME>algm-ex24_1.htm
+<DESCRIPTION>EX-24.1
+<TEXT>
+<html>
+ <head>
+  <title>EX-24.1</title>
+ </head>
+ <body style="padding:8px;margin:auto!important;">
+  <div style="padding-top:0.5in;z-index:-3;min-height:0.69in;position:relative;box-sizing:border-box;"><p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:right;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p></div>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:12pt;text-align:center;"><font style="color:#000000;white-space:pre-wrap;font-weight:bold;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">POWER OF ATTORNEY</font></p>
+  <p style="text-indent:6.667%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">With respect to holdings of and transactions in securities issued by Allegro MicroSystems, Inc. (the &#x201c;</font><font style="color:#000000;white-space:pre-wrap;font-weight:bold;font-size:9.5pt;font-family:Times New Roman;font-style:italic;font-kerning:none;min-width:fit-content;">Company</font><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#x201d;), the undersigned hereby constitutes and appoints the individuals named on Schedule A attached hereto and as may be amended from time to time, or any of them signing singly, with full power of substitution and resubstitution, to act as the undersigned&#x2019;s true and lawful attorney-in-fact to:</font><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <div class="item-list-element-wrapper" style="margin-left:6.667%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:12pt;min-width:3.333%;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.571084182443509%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">1.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">prepare, execute in the undersigned&#x2019;s name and on the undersigned&#x2019;s behalf, and submit to the United States Securities and Exchange Commission (the &#x201c;SEC&#x201d;) a Form ID, including amendments thereto, and any other documents necessary or appropriate to obtain and/or regenerate codes and passwords enabling the undersigned to make electronic filings with the SEC of reports required by Section 16(a) of the Securities Exchange Act of 1934, as amended, or any rule or regulation of the SEC; </font></div></div>
+  <div class="item-list-element-wrapper" style="margin-left:6.667%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:12pt;min-width:3.333%;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.571084182443509%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">2.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">act as an account administrator for the undersigned&#x2019;s Electronic Data Gathering and Retrieval (&#x201c;EDGAR&#x201d;) account, including: (i) appointing, removing and replacing account administrators, technical administrators, account users, and delegated entities; (ii) maintaining the security of  the undersigned&#x2019;s EDGAR account, including modification of access codes; (iii) maintaining, modifying and certifying the accuracy of information on the undersigned&#x2019;s EDGAR account dashboard; and (iv) taking any other actions contemplated by Rule 10 of Regulation S-T;</font></div></div>
+  <div class="item-list-element-wrapper" style="margin-left:6.667%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:0;min-width:3.333%;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.571084182443509%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">3.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">cause the Company to accept a delegation of authority from the undersigned&#x2019;s EDGAR account administrators and authorize the Company&#x2019;s EDGAR account administrators pursuant to that delegated entity designation to appoint, remove or replace users for the undersigned&#x2019;s EDGAR account;</font></div></div>
+  <p style="margin-left:6.667%;text-indent:-3.704%;padding-left:3.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="margin-left:6.667%;text-indent:-3.704%;padding-left:3.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">4.	execute for and on behalf of the undersigned, Forms 3, 4, and 5 in accordance with Section 16 of the Securities Exchange Act of 1934, as amended, and the rules thereunder;</font><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="margin-left:6.667%;text-indent:-3.704%;padding-left:3.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="margin-left:6.667%;text-indent:-3.704%;padding-left:3.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">5.	do and perform any and all acts for and on behalf of the undersigned which may be necessary or desirable to complete and execute any such Form 3, 4, or 5, complete and execute any amendment or amendments thereto, and timely file such form with the SEC and any stock exchange or similar authority; and</font></p>
+  <p style="margin-left:6.667%;text-indent:-3.704%;padding-left:3.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="margin-left:6.667%;text-indent:-3.704%;padding-left:3.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">6.	take any other action of any type whatsoever in connection with the foregoing which, in the opinion of such attorney-in-fact, may be of benefit to, in the best interest of, or legally required by, the undersigned, it being understood that the documents executed by such attorney-in-fact on behalf of the undersigned pursuant to this Power of Attorney shall be in such form and shall contain such terms and conditions as such attorney-in-fact may approve in such attorney-in-fact&#x2019;s discretion.</font><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">	The undersigned hereby grants to each such attorney-in-fact full power and authority to do and perform any and every act and thing whatsoever requisite, necessary, or proper to be done in the exercise of any of the rights and powers herein granted, as fully to all intents and purposes as the undersigned might or could do if personally present, with full power of substitution and resubstitution or revocation, hereby ratifying and confirming all that such attorney-in-fact, or such attorneys-in-fact substitute or substitutes, shall lawfully do or cause to be done by virtue of this Power of Attorney and the rights and powers herein granted.</font><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">	The undersigned acknowledges that the foregoing attorneys-in-fact, in serving in such capacity at the request of the undersigned, are not assuming, nor is the Company assuming, any of the undersigned&#x2019;s responsibilities to comply with Section 16 of the Securities Exchange Act of 1934, as amended.</font><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">	This Power of Attorney shall remain in full force and effect until the undersigned is no longer required to file Forms 3, 4, and 5 with respect to the undersigned&#x2019;s holdings of and transactions in securities issued by Allegro MicroSystems, Inc., unless earlier revoked by the undersigned in a signed writing delivered to the foregoing attorneys-in-fact.</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:justify;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"><br>	IN WITNESS WHEREOF, the undersigned has caused this Power of Attorney to be executed as of March 31, 2025.</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="margin-left:53.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">    </font><font style="color:#000000;white-space:pre-wrap;text-decoration:underline solid;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">  /s/ Richard Madormo		</font></p>
+  <p style="margin-left:53.333%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:9.5pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">      Richard Madormo</font></p>
+  <div class="page-border-spacing"><div style="z-index:-3;flex-direction:column;display:flex;padding-bottom:0.5in;min-height:0.63in;justify-content:flex-end;position:relative;box-sizing:border-box;"><p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p></div></div>
+  <hr style="margin-inline-start:auto;margin-inline-end:auto;page-break-after:always;">
+  <div style="padding-top:0.5in;z-index:-3;min-height:0.69in;position:relative;box-sizing:border-box;"><p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p></div>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:center;"><font style="color:#000000;white-space:pre-wrap;font-weight:bold;text-decoration:underline solid;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Schedule A</font><font style="color:#000000;white-space:pre-wrap;font-weight:bold;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:center;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:center;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Individual Appointed as Attorney-in-Fact with Full Power of Substitution and Resubstitution</font><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;"> </font></p>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:center;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <div class="item-list-element-wrapper" style="margin-left:13.333%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:0;min-width:3.333%;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.8457544394060026%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">1.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Sharon Briansky</font></div></div>
+  <div class="item-list-element-wrapper" style="margin-left:13.333%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:0;min-width:3.333%;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.8457544394060026%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">2.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Matthew Frascella</font></div></div>
+  <div class="item-list-element-wrapper" style="margin-left:13.333%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:0;min-width:3.333%;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.8457544394060026%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">3.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Raymond Myer</font></div></div>
+  <div class="item-list-element-wrapper" style="margin-left:13.333%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:0;min-width:3.333%;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.8457544394060026%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">4.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Roald Webster</font></div></div>
+  <div class="item-list-element-wrapper" style="margin-left:13.333%;display:flex;margin-top:0;justify-content:flex-start;align-items:baseline;margin-bottom:0;min-width:3.333%;text-align:left;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:3.8457544394060026%;word-break:keep-all;display:inline-flex;justify-content:flex-start;">5.</font><div style="width:100%;display:inline;"><font style="color:#000000;white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">Krista Bean</font></div></div>
+  <p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:12pt;text-align:left;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <p style="text-indent:6.667%;font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:12pt;text-align:left;"><font style="white-space:pre-wrap;font-size:10pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p>
+  <div class="page-border-spacing"><div style="z-index:-3;flex-direction:column;display:flex;padding-bottom:0.5in;min-height:0.63in;justify-content:flex-end;position:relative;box-sizing:border-box;"><p style="font-size:10pt;margin-top:0;font-family:Times New Roman;margin-bottom:0;text-align:left;"><font style="white-space:pre-wrap;font-size:12pt;font-family:Times New Roman;font-kerning:none;min-width:fit-content;">&#160;</font></p></div></div>
+  <hr style="margin-inline-start:auto;margin-inline-end:auto;page-break-after:always;">
+ </body>
+</html>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

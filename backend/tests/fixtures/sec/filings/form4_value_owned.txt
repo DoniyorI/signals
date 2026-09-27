@@ -1,0 +1,170 @@
+<SEC-DOCUMENT>0001989393-25-000001.txt : 20250130
+<SEC-HEADER>0001989393-25-000001.hdr.sgml : 20250130
+<ACCEPTANCE-DATETIME>20250130173013
+ACCESSION NUMBER:		0001989393-25-000001
+CONFORMED SUBMISSION TYPE:	4
+PUBLIC DOCUMENT COUNT:		1
+CONFORMED PERIOD OF REPORT:	20250101
+FILED AS OF DATE:		20250130
+DATE AS OF CHANGE:		20250130
+
+REPORTING-OWNER:	
+
+	OWNER DATA:	
+		COMPANY CONFORMED NAME:			Partners Group Finance USD IC Ltd
+		CENTRAL INDEX KEY:			0001702074
+		ORGANIZATION NAME:           	
+		STATE OF INCORPORATION:			Y7
+		FISCAL YEAR END:			1231
+
+	FILING VALUES:
+		FORM TYPE:		4
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	811-23938
+		FILM NUMBER:		25575010
+
+	BUSINESS ADDRESS:	
+		STREET 1:		TUDOR HOUSE
+		STREET 2:		LE BORDAGE
+		CITY:			ST. PETER PORT
+		STATE:			Y7
+		ZIP:			GY1 6BD
+		BUSINESS PHONE:		441481711690
+
+	MAIL ADDRESS:	
+		STREET 1:		TUDOR HOUSE
+		STREET 2:		LE BORDAGE
+		CITY:			ST. PETER PORT
+		STATE:			Y7
+		ZIP:			GY1 6BD
+
+ISSUER:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			PARTNERS GROUP NEXT GENERATION INFRASTRUCTURE, LLC
+		CENTRAL INDEX KEY:			0001989393
+		ORGANIZATION NAME:           	
+		IRS NUMBER:				931569985
+		STATE OF INCORPORATION:			DE
+
+	BUSINESS ADDRESS:	
+		STREET 1:		C/O PARTNERS GROUP (USA) INC.
+		STREET 2:		1114 AVENUE OF THE AMERICAS, 37TH FLOOR
+		CITY:			NEW YORK
+		STATE:			NY
+		ZIP:			10036
+		BUSINESS PHONE:		2129082600
+
+	MAIL ADDRESS:	
+		STREET 1:		C/O PARTNERS GROUP (USA) INC.
+		STREET 2:		1114 AVENUE OF THE AMERICAS, 37TH FLOOR
+		CITY:			NEW YORK
+		STATE:			NY
+		ZIP:			10036
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	Partners Group Next Generation Infrastructure LLC
+		DATE OF NAME CHANGE:	20230809
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>4
+<SEQUENCE>1
+<FILENAME>primary_doc.xml
+<DESCRIPTION>PRIMARY DOCUMENT
+<TEXT>
+<XML>
+<?xml version="1.0"?>
+<ownershipDocument>
+
+    <schemaVersion>X0508</schemaVersion>
+
+    <documentType>4</documentType>
+
+    <periodOfReport>2025-01-01</periodOfReport>
+
+    <notSubjectToSection16>0</notSubjectToSection16>
+
+    <issuer>
+        <issuerCik>0001989393</issuerCik>
+        <issuerName>PARTNERS GROUP NEXT GENERATION INFRASTRUCTURE, LLC</issuerName>
+        <issuerTradingSymbol>N/A</issuerTradingSymbol>
+    </issuer>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001702074</rptOwnerCik>
+            <rptOwnerName>Partners Group Finance USD IC Ltd</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>TUDOR HOUSE</rptOwnerStreet1>
+            <rptOwnerStreet2>LE BORDAGE</rptOwnerStreet2>
+            <rptOwnerCity>ST. PETER PORT</rptOwnerCity>
+            <rptOwnerState>Y7</rptOwnerState>
+            <rptOwnerZipCode>GY1 6BD</rptOwnerZipCode>
+            <rptOwnerStateDescription>GUERNSEY</rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>0</isTenPercentOwner>
+            <isOther>1</isOther>
+            <otherText>Affiliate of the Adviser</otherText>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <aff10b5One>0</aff10b5One>
+
+    <nonDerivativeTable>
+        <nonDerivativeTransaction>
+            <securityTitle>
+                <value>Limited Liability Company Shares, Class I</value>
+            </securityTitle>
+            <transactionDate>
+                <value>2025-01-01</value>
+                <footnoteId id="F1"/>
+            </transactionDate>
+            <transactionCoding>
+                <transactionFormType>4</transactionFormType>
+                <transactionCode>P</transactionCode>
+                <equitySwapInvolved>0</equitySwapInvolved>
+            </transactionCoding>
+            <transactionTimeliness>
+                <value></value>
+            </transactionTimeliness>
+            <transactionAmounts>
+                <transactionShares>
+                    <value>3489183.531</value>
+                </transactionShares>
+                <transactionPricePerShare>
+                    <value>1.58</value>
+                </transactionPricePerShare>
+                <transactionAcquiredDisposedCode>
+                    <value>A</value>
+                </transactionAcquiredDisposedCode>
+            </transactionAmounts>
+            <postTransactionAmounts>
+                <valueOwnedFollowingTransaction>
+                    <value>97594117.8</value>
+                </valueOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>D</value>
+                </directOrIndirectOwnership>
+            </ownershipNature>
+        </nonDerivativeTransaction>
+    </nonDerivativeTable>
+
+    <footnotes>
+        <footnote id="F1">Subscription dated 01/01/2025 with NAV pricing as of 12/31/2024 that was finalized 01/30/2025.</footnote>
+    </footnotes>
+
+    <ownerSignature>
+        <signatureName>/s/ Susan Taylor</signatureName>
+        <signatureDate>2025-01-30</signatureDate>
+    </ownerSignature>
+</ownershipDocument>
+</XML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

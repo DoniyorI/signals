@@ -79,7 +79,7 @@ These changes came out of planning. Each one preserves the spec's intent. Implem
    - `decisions`: `accessions`, `lag_days`, `lag_cost`, `sell_fraction`, `is_new_position`.
    - `decision_returns`: `entry_kind` and `flags`.
    - `profile_stats` and `profile_windows`: `include_10b5_1` joins their keys.
-4. **10b5-1 in bulk data.** The Insider Transactions Data Sets have no 10b5-1 checkbox column (confirmed in SEC's readme), so bulk rows use footnote or remarks text. If a future file adds such a column, the loader uses it.
+4. **10b5-1 in bulk data.** Older Insider Transactions Data Sets (for example 2022Q4) have no 10b5-1 column, so those rows use footnote or remarks text. Recent sets (for example 2025Q1) include `AFF10B5ONE` in SUBMISSION, with values `1`/`true`/`0`/`false`/empty. The loader uses that column when present (verified during fixture recording, 2026-09-27; SEC's PDF readme is out of date).
 5. **Rebuilding derived tables.** Each table group is replaced in a single transaction. Postgres MVCC means readers see either the old or the new data, never half, which is the same guarantee as the spec's staging-and-swap.
 6. **Alpaca feed check.** The first foundation task checks whether the free key can read historical `feed=sip` bars. If SIP is denied, set `PRICE_PRIMARY=yfinance`. Alpaca's IEX-only bars miss trades in thin names, so they're never used for returns.
 

@@ -439,7 +439,7 @@ def reconcile_day(client, session_factory, day: date, *, settings, archive, form
 
 - `daily_index_url` returns `https://www.sec.gov/Archives/edgar/daily-index/{Y}/QTR{q}/form.{YYYYMMDD}.idx`.
 - `full_index_url` returns `https://www.sec.gov/Archives/edgar/full-index/{Y}/QTR{q}/form.idx`.
-- `parse_form_idx` reads fixed-width columns. The column starts come from the header line containing `Form Type`, `Company Name`, `CIK` and `Date Filed`. Data rows begin after the dashed line. Dates are `YYYYMMDD` or `YYYY-MM-DD`. `accession_no` is the file name's last path part without `.txt`.
+- `parse_form_idx` parses each data row (after the dashed line) right-anchored: the file name, date and CIK come off the right end, and the form type is everything before the first run of 2+ spaces (form types can contain single spaces, e.g. `SCHEDULE 13D`, `1-A POS`). Do not derive columns from the header: in daily indexes it wraps onto two lines (see the `daily_index` manifest `structure_note`). Dates are `YYYYMMDD` (daily) or `YYYY-MM-DD` (full). `accession_no` is the file name's last path part without `.txt`.
 - `reconcile_day`:
   - A 404 on the index (weekend or holiday) returns zeros.
   - Entries with a form in `forms` that are missing from `filings` are ingested with `source="daily_index"`, one commit per filing.

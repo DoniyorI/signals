@@ -1,0 +1,156 @@
+<SEC-DOCUMENT>0000912282-25-000343.txt : 20250331
+<SEC-HEADER>0000912282-25-000343.hdr.sgml : 20250331
+<ACCEPTANCE-DATETIME>20250331091852
+ACCESSION NUMBER:		0000912282-25-000343
+CONFORMED SUBMISSION TYPE:	4
+PUBLIC DOCUMENT COUNT:		1
+CONFORMED PERIOD OF REPORT:	20250327
+FILED AS OF DATE:		20250331
+DATE AS OF CHANGE:		20250331
+
+REPORTING-OWNER:	
+
+	OWNER DATA:	
+		COMPANY CONFORMED NAME:			Elam Nevan C
+		CENTRAL INDEX KEY:			0001314773
+		ORGANIZATION NAME:           	
+
+	FILING VALUES:
+		FORM TYPE:		4
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	001-39683
+		FILM NUMBER:		25789259
+
+	MAIL ADDRESS:	
+		STREET 1:		C/O NEKTAR THERAPEUTICS
+		STREET 2:		150 INDUSTRIAL ROAD
+		CITY:			SAN CARLOS
+		STATE:			CA
+		ZIP:			94070
+
+ISSUER:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			Rezolute, Inc.
+		CENTRAL INDEX KEY:			0001509261
+		STANDARD INDUSTRIAL CLASSIFICATION:	PHARMACEUTICAL PREPARATIONS [2834]
+		ORGANIZATION NAME:           	03 Life Sciences
+		EIN:				273440894
+		STATE OF INCORPORATION:			NV
+		FISCAL YEAR END:			0630
+
+	BUSINESS ADDRESS:	
+		STREET 1:		275 SHORELINE DRIVE, SUITE 500
+		CITY:			REDWOOD CITY
+		STATE:			CA
+		ZIP:			94065
+		BUSINESS PHONE:		650-206-4507
+
+	MAIL ADDRESS:	
+		STREET 1:		275 SHORELINE DRIVE, SUITE 500
+		CITY:			REDWOOD CITY
+		STATE:			CA
+		ZIP:			94065
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	AntriaBio, Inc.
+		DATE OF NAME CHANGE:	20130114
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	FITS MY STYLE INC
+		DATE OF NAME CHANGE:	20110104
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>4
+<SEQUENCE>1
+<FILENAME>form4.xml
+<TEXT>
+<XML>
+<?xml version="1.0"?>
+<ownershipDocument>
+
+    <schemaVersion>X0508</schemaVersion>
+
+    <documentType>4</documentType>
+
+    <periodOfReport>2025-03-27</periodOfReport>
+
+    <issuer>
+        <issuerCik>0001509261</issuerCik>
+        <issuerName>Rezolute, Inc.</issuerName>
+        <issuerTradingSymbol>RZLT</issuerTradingSymbol>
+    </issuer>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001314773</rptOwnerCik>
+            <rptOwnerName>Elam Nevan C</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>C/O REZOLUTE, INC.</rptOwnerStreet1>
+            <rptOwnerStreet2>275 SHORELINE DRIVE, SUITE 500</rptOwnerStreet2>
+            <rptOwnerCity>REDWOOD CITY</rptOwnerCity>
+            <rptOwnerState>CA</rptOwnerState>
+            <rptOwnerZipCode>94065</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>true</isDirector>
+            <isOfficer>true</isOfficer>
+            <officerTitle>CEO</officerTitle>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <aff10b5One>false</aff10b5One>
+
+    <nonDerivativeTable>
+        <nonDerivativeTransaction>
+            <securityTitle>
+                <value>Common Shares</value>
+            </securityTitle>
+            <transactionDate>
+                <value>2025-03-27</value>
+            </transactionDate>
+            <transactionCoding>
+                <transactionFormType>4</transactionFormType>
+                <transactionCode>P</transactionCode>
+                <equitySwapInvolved>0</equitySwapInvolved>
+            </transactionCoding>
+            <transactionAmounts>
+                <transactionShares>
+                    <value>12302</value>
+                </transactionShares>
+                <transactionPricePerShare>
+                    <value>2.845</value>
+                    <footnoteId id="F1"/>
+                </transactionPricePerShare>
+                <transactionAcquiredDisposedCode>
+                    <value>A</value>
+                </transactionAcquiredDisposedCode>
+            </transactionAmounts>
+            <postTransactionAmounts>
+                <sharesOwnedFollowingTransaction>
+                    <value>224119</value>
+                </sharesOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>D</value>
+                </directOrIndirectOwnership>
+            </ownershipNature>
+        </nonDerivativeTransaction>
+    </nonDerivativeTable>
+
+    <footnotes>
+        <footnote id="F1">The purchase price reported above is a weighted average price. These shares were purchased in multiple transactions at prices ranging from $2.83 to $2.87, inclusive. The reporting person undertakes to provide to Rezolute, Inc.,, any security holder of Rezolute, Inc., or the staff of the Securities and Exchange Commission, upon request, full information regarding the number of shares purchased at each separate price within the ranges set forth in this footnote.</footnote>
+    </footnotes>
+
+    <ownerSignature>
+        <signatureName>/s/ Nevan C. Elam</signatureName>
+        <signatureDate>2025-03-28</signatureDate>
+    </ownerSignature>
+</ownershipDocument>
+</XML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

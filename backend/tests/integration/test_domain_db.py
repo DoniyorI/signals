@@ -17,6 +17,7 @@ from tests.factories import make_issuer
 
 def test_canonical_symbol():
     assert canonical_symbol("brk-b") == "BRK.B"
+    assert canonical_symbol("BRK/B") == "BRK.B"  # OpenFIGI uses a slash
     assert canonical_symbol(" aapl ") == "AAPL"
     assert canonical_symbol("NONE") is None and canonical_symbol("common stock") is None
 
