@@ -31,13 +31,18 @@ def _boom(session, sgml, filing, ctx):
     raise ValueError("boom")
 
 
-def _raw(**kw):
-    return dict(source="test", raw_path=None, first_seen_at=None, **kw)
+def _ingest(session, raw: bytes, settings, archive):
+    return ingest_raw(
+        session, raw, source="test", raw_path=None, first_seen_at=None,
+        settings=settings, archive=archive,
+    )
 
 
-def test_ingest_raw_runs_registered_handler(session, settings, tmp_archive, fixture_bytes, manifest):
+def test_ingest_raw_runs_registered_handler(
+    session, settings, tmp_archive, fixture_bytes, manifest
+):
     dispatch.register_handler(["4"], _add_owner)
-    out = ingest_raw(session, fixture_bytes(KEY), settings=settings, archive=tmp_archive, **_raw())
+    out = _ingest(session, fixture_bytes(KEY), settings, tmp_archive)
     assert out.status == "parsed" and out.accession_no == manifest[KEY]["accession"]
     filing = session.get(Filing, out.accession_no)
     assert filing is not None and filing.parse_status == "parsed" and filing.parsed_at is not None
@@ -49,7 +54,7 @@ def test_ingest_raw_runs_registered_handler(session, settings, tmp_archive, fixt
 
 def test_handler_error_rolls_back_and_records(session, settings, tmp_archive, fixture_bytes):
     dispatch.register_handler(["4"], _boom)
-    out = ingest_raw(session, fixture_bytes(KEY), settings=settings, archive=tmp_archive, **_raw())
+    out = _ingest(session, fixture_bytes(KEY), settings, tmp_archive)
     assert out.status == "error" and out.error == "ValueError: boom"
     filing = session.get(Filing, out.accession_no)
     assert filing is not None
@@ -58,7 +63,7 @@ def test_handler_error_rolls_back_and_records(session, settings, tmp_archive, fi
 
 
 def test_unknown_form_skipped(session, settings, tmp_archive, fixture_bytes):
-    out = ingest_raw(session, fixture_bytes(KEY), settings=settings, archive=tmp_archive, **_raw())
+    out = _ingest(session, fixture_bytes(KEY), settings, tmp_archive)
     assert out.status == "skipped"
     assert session.get(Filing, out.accession_no).parse_status == "skipped"
 
@@ -75,7 +80,9 @@ def test_ingest_accession_duplicate_makes_no_request(session, settings, tmp_arch
     assert out.status == "duplicate" and router.requests == []
 
 
-def test_ingest_accession_fetches_and_archives(session, settings, tmp_archive, fixture_bytes, manifest):
+def test_ingest_accession_fetches_and_archives(
+    session, settings, tmp_archive, fixture_bytes, manifest
+):
     dispatch.register_handler(["4"], _add_owner)
     acc, cik = manifest[KEY]["accession"], manifest[KEY]["cik"]
     router = MockRouter({filing_txt_url(cik, acc): fixture_bytes(KEY)})
