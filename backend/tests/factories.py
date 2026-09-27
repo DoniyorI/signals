@@ -368,9 +368,7 @@ def make_profile_stats(
     include_10b5_1: bool = False,
     **metrics: object,
 ) -> ProfileStats:
-    stats = ProfileStats(
-        kind=kind, cik=cik, basis=basis, include_10b5_1=include_10b5_1, **metrics
-    )
+    stats = ProfileStats(kind=kind, cik=cik, basis=basis, include_10b5_1=include_10b5_1, **metrics)
     session.add(stats)
     session.flush()
     return stats

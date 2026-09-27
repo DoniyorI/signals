@@ -28,6 +28,4 @@ def filing_txt_url(cik: int, accession: str) -> str:
 def filing_index_url(cik: int, accession: str) -> str:
     """The human-readable filing index page on sec.gov."""
     acc = normalize_accession(accession)
-    return (
-        f"https://www.sec.gov/Archives/edgar/data/{cik}/{accession_nodash(acc)}/{acc}-index.htm"
-    )
+    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{accession_nodash(acc)}/{acc}-index.htm"

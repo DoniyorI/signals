@@ -1,6 +1,6 @@
 """Engine and session helpers. Callers own their transactions."""
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 
 from sqlalchemy import Engine, create_engine
@@ -16,7 +16,7 @@ def make_session_factory(engine: Engine) -> sessionmaker[Session]:
 
 
 @contextmanager
-def session_scope(factory: Callable[[], Session]) -> Iterator[Session]:
+def session_scope(factory: Callable[[], Session]) -> Generator[Session]:
     """Commit on success, roll back on error, always close."""
     session = factory()
     try:

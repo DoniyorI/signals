@@ -114,8 +114,10 @@ def _documents(body: bytes) -> list[SgmlDocument]:
     docs: list[SgmlDocument] = []
     for chunk in body.split(b"<DOCUMENT>")[1:]:
         chunk = chunk.split(b"</DOCUMENT>", 1)[0]
-        tags = {m.group(1).decode(): m.group(2).decode("utf-8", "replace").strip()
-                for m in _DOC_TAG.finditer(chunk.split(b"<TEXT>", 1)[0])}
+        tags = {
+            m.group(1).decode(): m.group(2).decode("utf-8", "replace").strip()
+            for m in _DOC_TAG.finditer(chunk.split(b"<TEXT>", 1)[0])
+        }
         sequence = tags.get("SEQUENCE", "")
         docs.append(
             SgmlDocument(

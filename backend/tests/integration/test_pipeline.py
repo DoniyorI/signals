@@ -33,8 +33,13 @@ def _boom(session, sgml, filing, ctx):
 
 def _ingest(session, raw: bytes, settings, archive):
     return ingest_raw(
-        session, raw, source="test", raw_path=None, first_seen_at=None,
-        settings=settings, archive=archive,
+        session,
+        raw,
+        source="test",
+        raw_path=None,
+        first_seen_at=None,
+        settings=settings,
+        archive=archive,
     )
 
 
@@ -74,8 +79,13 @@ def test_ingest_accession_duplicate_makes_no_request(session, settings, tmp_arch
     router = MockRouter({})
     client = SecClient(settings, http=router.client, sleep=lambda s: None)
     out = ingest_accession(
-        client, session, cik=manifest[KEY]["cik"], accession=acc, source="feed",
-        settings=settings, archive=tmp_archive,
+        client,
+        session,
+        cik=manifest[KEY]["cik"],
+        accession=acc,
+        source="feed",
+        settings=settings,
+        archive=tmp_archive,
     )
     assert out.status == "duplicate" and router.requests == []
 
@@ -89,8 +99,14 @@ def test_ingest_accession_fetches_and_archives(
     client = SecClient(settings, http=router.client, sleep=lambda s: None)
     first_seen = datetime.fromisoformat("2025-03-31T09:19:30-04:00")
     out = ingest_accession(
-        client, session, cik=cik, accession=acc, source="feed", first_seen_at=first_seen,
-        settings=settings, archive=tmp_archive,
+        client,
+        session,
+        cik=cik,
+        accession=acc,
+        source="feed",
+        first_seen_at=first_seen,
+        settings=settings,
+        archive=tmp_archive,
     )
     assert out.status == "parsed" and len(router.requests) == 1
     assert tmp_archive.exists("filing", acc)
@@ -102,8 +118,15 @@ def test_reparse_uses_archive(session, settings, tmp_archive, fixture_bytes, man
     acc = manifest[KEY]["accession"]
     path = tmp_archive.put("filing", acc, fixture_bytes(KEY))
     dispatch.register_handler(["4"], _boom)
-    first = ingest_raw(session, fixture_bytes(KEY), settings=settings, archive=tmp_archive,
-                       source="feed", raw_path=str(path), first_seen_at=None)
+    first = ingest_raw(
+        session,
+        fixture_bytes(KEY),
+        settings=settings,
+        archive=tmp_archive,
+        source="feed",
+        raw_path=str(path),
+        first_seen_at=None,
+    )
     assert first.status == "error"
     dispatch.reset_registry()
     dispatch.register_handler(["4"], _add_owner)

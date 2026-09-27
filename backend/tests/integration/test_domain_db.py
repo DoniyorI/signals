@@ -23,9 +23,7 @@ def test_canonical_symbol():
 
 
 def test_ticker_change_intervals(session):
-    make_issuer(
-        session, cik=1000002, name="Globex Inc", ticker="GBX", ticker_from=date(2016, 1, 5)
-    )
+    make_issuer(session, cik=1000002, name="Globex Inc", ticker="GBX", ticker_from=date(2016, 1, 5))
     record_ticker_evidence(session, 1000002, "GBX", date(2016, 1, 5), "form4")
     record_ticker_evidence(session, 1000002, "GLBX", date(2022, 6, 10), "form4")
     record_ticker_evidence(session, 1000002, "GBX", date(2021, 3, 1), "form4")  # out of order

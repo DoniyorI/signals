@@ -320,8 +320,10 @@ def alpaca() -> None:
 
 @app.command()
 def openfigi() -> None:
-    jobs = [{"idType": "ID_CUSIP", "idValue": c, "exchCode": "US"}
-            for c in ("037833100", "084670702", "000000000")]
+    jobs = [
+        {"idType": "ID_CUSIP", "idValue": c, "exchCode": "US"}
+        for c in ("037833100", "084670702", "000000000")
+    ]
     resp = httpx.post("https://api.openfigi.com/v3/mapping", json=jobs, timeout=30)
     resp.raise_for_status()
     body = resp.json()
