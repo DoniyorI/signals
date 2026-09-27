@@ -47,6 +47,10 @@ packages = ["src/signals"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = [
+    # Starlette 2026 prefers httpx2 for TestClient; httpx still works.
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated",
+]
 
 [tool.ruff]
 line-length = 100

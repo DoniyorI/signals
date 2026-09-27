@@ -97,3 +97,13 @@ def reparse(
         with session_scope(factory) as s:
             out = reparse_accession(s, acc, settings=settings, archive=archive)
         typer.echo(f"{out.accession_no}\t{out.status}\t{out.error or ''}")
+
+
+@app.command()
+def openapi(out: Annotated[Path, typer.Option(help="Where to write openapi.json")]) -> None:
+    """Write the API contract (OpenAPI JSON) used to generate the frontend types."""
+    from signals.api.main import create_app
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(create_app().openapi(), indent=2, sort_keys=True) + "\n")
+    typer.echo(f"wrote {out}")
