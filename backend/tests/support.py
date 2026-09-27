@@ -36,3 +36,29 @@ class MockRouter:
             status, body = target
             return httpx.Response(status, content=body)
         return httpx.Response(200, content=target)
+
+
+class FakeClock:
+    """Deterministic time for rate limiter and retry tests; sleep() advances both clocks."""
+
+    def __init__(self) -> None:
+        from datetime import datetime
+
+        from signals.domain.calendars import ET
+
+        self.now = datetime(2024, 6, 3, 10, 0, tzinfo=ET)
+        self.mono = 1000.0
+        self.slept: list[float] = []
+
+    def monotonic(self) -> float:
+        return self.mono
+
+    def now_et(self):
+        return self.now
+
+    def sleep(self, seconds: float) -> None:
+        from datetime import timedelta
+
+        self.slept.append(seconds)
+        self.mono += seconds
+        self.now += timedelta(seconds=seconds)

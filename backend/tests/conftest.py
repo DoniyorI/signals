@@ -19,9 +19,9 @@ from sqlalchemy.orm import Session
 
 from signals.config import Settings
 from signals.db.session import make_engine
-from tests.support import MockRouter
+from tests.support import FakeClock, MockRouter
 
-__all__ = ["FIXTURES_DIR", "MockRouter", "fixture_path"]
+__all__ = ["FIXTURES_DIR", "FakeClock", "MockRouter", "fixture_path"]
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -104,7 +104,7 @@ def settings(db_url: str, tmp_path: Path) -> Settings:
 
 @pytest.fixture
 def tmp_archive(tmp_path: Path):
-    from signals.sec.archive import RawArchive  # pyright: ignore[reportMissingImports]  # Task 6
+    from signals.sec.archive import RawArchive
 
     return RawArchive(tmp_path / "archive")
 
@@ -121,3 +121,8 @@ def fixture_bytes(manifest: dict) -> Callable[[str], bytes]:
         return fixture_path(manifest[key]["file"]).read_bytes()
 
     return _read
+
+
+@pytest.fixture
+def fake_clock() -> FakeClock:
+    return FakeClock()
