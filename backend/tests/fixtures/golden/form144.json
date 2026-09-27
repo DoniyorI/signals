@@ -1,0 +1,19 @@
+{
+  "issuer_cik": 1086222,
+  "issuer_name": "AKAMAI TECHNOLOGIES INC",
+  "seller_name": "Salem-Jackson Kim",
+  "relationships": [
+    "Officer"
+  ],
+  "security_class": "Common",
+  "broker": "Charles Schwab & Co., Inc.",
+  "shares_to_sell": 2013.0,
+  "market_value_usd": 257664.0,
+  "shares_outstanding": 143716609.0,
+  "approx_sale_date": "2026-09-25",
+  "exchange": "NASDAQ",
+  "acquired_how": "Restricted Stock Lapse",
+  "acquired_date": "2021-03-06",
+  "plan_10b5_1_adopted": "2026-03-10",
+  "sold_past_3m": []
+}
