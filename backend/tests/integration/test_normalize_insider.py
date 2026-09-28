@@ -17,7 +17,6 @@ from signals.db.models import (
 )
 from signals.domain.owner_group import owner_group_key
 from signals.domain.tickers import current_symbol
-from signals.domain.types import INSIDER_FORMS
 from signals.ingest import dispatch
 from signals.ingest.normalize_insider import (
     OwnerLine,
@@ -33,48 +32,20 @@ from signals.ingest.parsers.ownership import (
     ReportingOwner,
     parse_ownership,
 )
-from signals.ingest.pipeline import ingest_raw
-from signals.sec.sgml import SgmlFiling
 from tests.factories import make_filing, make_issuer
-
-
-def _handle(session, sgml, filing, ctx):
-    xml = next(d.xml() for d in sgml.xml_documents())
-    assert xml is not None
-    normalize_ownership(session, filing, parse_ownership(xml))
+from tests.integration.insider_support import make_loader, register_ownership_handler
 
 
 @pytest.fixture(autouse=True)
 def ownership_handler():
-    dispatch.reset_registry()
-    dispatch.register_handler(INSIDER_FORMS, _handle)
+    register_ownership_handler()
     yield
     dispatch.reset_registry()
 
 
 @pytest.fixture
 def load(fixture_bytes, settings, tmp_archive):
-    """Ingest a recorded filing through ingest_raw; skip when already parsed unless forced."""
-
-    def _load(session, key: str, force: bool = False) -> str:
-        raw = fixture_bytes(key)
-        acc = SgmlFiling.from_txt(raw).accession_no
-        existing = session.get(Filing, acc)
-        if existing is not None and existing.parse_status == "parsed" and not force:
-            return acc
-        out = ingest_raw(
-            session,
-            raw,
-            source="test",
-            raw_path=None,
-            first_seen_at=None,
-            settings=settings,
-            archive=tmp_archive,
-        )
-        assert out.status == "parsed", out.error
-        return out.accession_no
-
-    return _load
+    return make_loader(fixture_bytes, settings, tmp_archive)
 
 
 def plan_flags(session, acc: str, code: str) -> list[str]:

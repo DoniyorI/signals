@@ -38,6 +38,7 @@ from signals.domain.tickers import (
     record_ticker_evidence,
 )
 from signals.domain.types import CODE_LABELS, PlanFlag, Role
+from signals.ingest.amendments import link_amendment, refresh_original
 from signals.ingest.parsers.ownership import OwnershipDoc, OwnershipRow, ReportingOwner
 
 # "10b5-1" (or "10b51") in footnotes or remarks. The bulk loader uses the same pattern in
@@ -304,6 +305,7 @@ def normalize_ownership(session: Session, filing: Filing, doc: OwnershipDoc) -> 
     if not owners:
         raise ValueError(f"{acc}: ownership document without reporting owners")
 
+    filing.original_filed_date = doc.date_of_original_submission
     upsert_issuer_name(session, doc.issuer_cik, doc.issuer_name)
     if record_ticker_evidence(
         session, doc.issuer_cik, doc.issuer_symbol, filing.filed_date, "ownership"
@@ -434,3 +436,7 @@ def normalize_ownership(session: Session, filing: Filing, doc: OwnershipDoc) -> 
         ),
     )
     session.flush()
+    if doc.document_type.endswith("/A"):
+        link_amendment(session, acc)
+    else:
+        refresh_original(session, acc)
