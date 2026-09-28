@@ -10,8 +10,6 @@ from typing import Any, cast
 import pandas as pd
 import yfinance
 
-BAR_FIELDS = ("Open", "High", "Low", "Close", "Adj Close", "Volume")
-
 
 def _yahoo_symbol(symbol: str) -> str:
     """Canonical dot style to Yahoo's dash style (BRK.B -> BRK-B); only at this boundary."""
