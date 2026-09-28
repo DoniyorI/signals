@@ -1,0 +1,149 @@
+# SIC code -> sector (approximately GICS; each sector maps to one SPDR sector ETF).
+# Rows are checked top to bottom and the first match wins, so exceptions come before the
+# broad ranges they carve out of. An empty sector means "no sector". Every code 0-9999 is
+# covered (tests/unit/test_sectors.py). Lines starting with # are comments.
+sic_from,sic_to,sector
+# No sector: not a SIC code
+0,99,
+# Agriculture, forestry, fishing (01-09)
+800,899,Materials
+100,999,Consumer Staples
+# Mining (10-14): metal mining, coal, oil and gas, nonmetallic minerals
+1000,1099,Materials
+1100,1399,Energy
+1400,1499,Materials
+# Construction (15-17): residential builders are homebuilders
+1500,1539,Consumer Discretionary
+1540,1999,Industrials
+# Food and tobacco (20-21)
+2000,2199,Consumer Staples
+# Textiles and apparel (22-23)
+2200,2399,Consumer Discretionary
+# Lumber and wood (24): mobile homes and prefabricated buildings are homebuilding
+2450,2452,Consumer Discretionary
+2400,2499,Materials
+# Furniture (25): household furniture vs office furniture and fixtures
+2500,2519,Consumer Discretionary
+2520,2599,Industrials
+# Paper (26)
+2600,2699,Materials
+# Printing and publishing (27): publishers vs commercial printers
+2700,2749,Communication Services
+2750,2799,Industrials
+# Chemicals (28): pharmaceuticals and biologics, household and personal products
+2830,2836,Health Care
+2840,2844,Consumer Staples
+2800,2899,Materials
+# Petroleum refining (29): asphalt paving and roofing materials
+2950,2959,Materials
+2900,2999,Energy
+# Rubber and plastics (30): tires and footwear
+3000,3029,Consumer Discretionary
+3030,3099,Materials
+# Leather (31)
+3100,3199,Consumer Discretionary
+# Stone, clay, glass, concrete (32)
+3200,3299,Materials
+# Primary metals (33): nonferrous and optical-fiber wire makers are mostly technology
+3357,3357,Technology
+3300,3399,Materials
+# Fabricated metal (34): metal cans and drums are packaging
+3400,3419,Materials
+3420,3499,Industrials
+# Industrial machinery and computers (35)
+3533,3533,Energy
+3559,3559,Technology
+3570,3579,Technology
+3500,3599,Industrials
+# Electrical and electronic equipment (36)
+3630,3639,Consumer Discretionary
+3650,3651,Consumer Discretionary
+3652,3652,Communication Services
+3660,3689,Technology
+3695,3695,Technology
+3600,3699,Industrials
+# Transportation equipment (37): cars, parts, motor homes, motorcycles, recreational vehicles
+3711,3711,Consumer Discretionary
+3714,3714,Consumer Discretionary
+3716,3716,Consumer Discretionary
+3750,3759,Consumer Discretionary
+3790,3799,Consumer Discretionary
+3700,3799,Industrials
+# Instruments (38): lab and analytical instruments, measuring devices, medical, photographic, watches
+3821,3821,Health Care
+3822,3822,Industrials
+3826,3826,Health Care
+3823,3829,Technology
+3840,3859,Health Care
+3860,3869,Technology
+3870,3879,Consumer Discretionary
+3800,3899,Industrials
+# Miscellaneous manufacturing (39): jewelry, toys, sporting goods
+3990,3999,Industrials
+3900,3989,Consumer Discretionary
+# Transportation (40-47): cruise lines, pipelines, travel services
+4400,4400,Consumer Discretionary
+4600,4699,Energy
+4700,4700,Consumer Discretionary
+4000,4799,Industrials
+# Communications (48)
+4800,4899,Communication Services
+# Electric, gas, water, sanitary (49): gas transmission pipelines, waste management
+4922,4922,Energy
+4950,4959,Industrials
+4900,4999,Utilities
+# Wholesale, durable goods (50)
+5010,5029,Consumer Discretionary
+5045,5045,Technology
+5047,5047,Health Care
+5050,5059,Materials
+5064,5064,Consumer Discretionary
+5065,5065,Technology
+5094,5094,Consumer Discretionary
+5000,5099,Industrials
+# Wholesale, nondurable goods (51)
+5122,5122,Health Care
+5130,5139,Consumer Discretionary
+5140,5159,Consumer Staples
+5160,5169,Materials
+5170,5179,Energy
+5180,5189,Consumer Staples
+5100,5199,Industrials
+# Retail (52-59): general merchandise, food and drug stores are staples
+5331,5331,Consumer Staples
+5399,5399,Consumer Staples
+5400,5499,Consumer Staples
+5912,5912,Consumer Staples
+5200,5999,Consumer Discretionary
+# Finance, insurance, real estate (60-67): blank checks (SPACs) have no sector
+6770,6770,
+6324,6324,Health Care
+6500,6599,Real Estate
+6792,6793,Energy
+6794,6794,Technology
+6795,6795,Materials
+6798,6798,Real Estate
+6000,6999,Financials
+# Services (70-89)
+7000,7299,Consumer Discretionary
+7310,7319,Communication Services
+7331,7331,Communication Services
+7370,7379,Technology
+7385,7385,Technology
+7300,7499,Industrials
+7510,7519,Industrials
+7500,7599,Consumer Discretionary
+7600,7799,Industrials
+7800,7899,Communication Services
+7900,7999,Consumer Discretionary
+8000,8099,Health Care
+8100,8199,Industrials
+8200,8499,Consumer Discretionary
+8500,8699,Industrials
+8730,8733,Health Care
+8700,8799,Industrials
+# American depositary receipts and foreign governments
+8800,8899,
+8900,8999,Industrials
+# Public administration and non-classifiable establishments
+9000,9999,
