@@ -78,7 +78,7 @@ def aggregate_holdings(
     return list(merged.values())
 
 
-def _expire(session: Session, *models: type) -> None:
+def expire_instances(session: Session, *models: type) -> None:
     """Expire mapped instances that raw SQL may have changed underneath the session."""
     for obj in list(session.identity_map.values()):
         if isinstance(obj, models):
@@ -203,7 +203,7 @@ def normalize_13f(
         ),
     )
     session.flush()
-    _expire(session, FundFiling, FundPosition, FundManager)
+    expire_instances(session, FundFiling, FundPosition, FundManager)
 
 
 # Effective holdings: among a (filer, period)'s non-notice filings in filing order, the base
@@ -277,7 +277,7 @@ def refresh_effective_keys(session: Session, keys: Iterable[tuple[int, date]]) -
     params = {"filers": [p[0] for p in pairs], "periods": [p[1] for p in pairs]}
     session.execute(_REFRESH_FILINGS, params)
     session.execute(_REFRESH_POSITIONS, params)
-    _expire(session, FundFiling, FundPosition)
+    expire_instances(session, FundFiling, FundPosition)
 
 
 def refresh_effective(session: Session, filer_cik: int, period: date) -> None:
