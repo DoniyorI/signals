@@ -65,3 +65,34 @@ def register_form144_handler() -> None:
     from signals.domain.types import FORM144_FORMS
 
     dispatch.register_handler(FORM144_FORMS, form144_handler)
+
+
+def atom_entry(
+    *,
+    title: str,
+    term: str,
+    accession: str,
+    cik: int,
+    updated: str = "2026-01-02T09:00:00-05:00",
+) -> str:
+    """One synthetic Atom `<entry>` shaped like SEC's getcurrent feed."""
+    nodash = accession.replace("-", "")
+    href = f"https://www.sec.gov/Archives/edgar/data/{cik}/{nodash}/{accession}-index.htm"
+    return f"""<entry>
+<title>{title}</title>
+<link rel="alternate" type="text/html" href="{href}"/>
+<summary type="html">Filed: 2026-01-02 AccNo: {accession}</summary>
+<updated>{updated}</updated>
+<category scheme="https://www.sec.gov/" label="form type" term="{term}"/>
+<id>urn:tag:sec.gov,2008:accession-number={accession}</id>
+</entry>"""
+
+
+def atom_feed(entries: list[str]) -> bytes:
+    body = "\n".join(entries)
+    return f"""<?xml version="1.0" encoding="ISO-8859-1" ?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<title>Latest Filings</title>
+<updated>2026-01-02T09:00:00-05:00</updated>
+{body}
+</feed>""".encode()
