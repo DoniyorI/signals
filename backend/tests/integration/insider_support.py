@@ -96,3 +96,20 @@ def atom_feed(entries: list[str]) -> bytes:
 <updated>2026-01-02T09:00:00-05:00</updated>
 {body}
 </feed>""".encode()
+
+
+def idx_line(*, form_type: str, company: str, cik: int, date_filed: str, accession: str) -> str:
+    """One data row of a form.idx file. `date_filed` is YYYYMMDD (daily) or YYYY-MM-DD (full)."""
+    filename = f"edgar/data/{cik}/{accession}.txt"
+    return f"{form_type}  {company}    {cik}    {date_filed}    {filename}"
+
+
+def idx_text(lines: list[str]) -> str:
+    """A full form.idx body: the wrapped daily-index header, the dashed rule, then rows."""
+    header = (
+        "Description:           Daily Index of EDGAR Dissemination Feed by Form Type\n"
+        "Form Type   Company Name                                                  CIK\n"
+        "      Date Filed  File Name\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------\n"
+    )
+    return header + "\n".join(lines) + "\n"
