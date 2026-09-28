@@ -48,6 +48,7 @@ class IssuerSeries:
         self._open_adj = self.frame["open_adj"].to_numpy(dtype=float, na_value=np.nan)
         self._close_adj = self.frame["close_adj"].to_numpy(dtype=float, na_value=np.nan)
         self._factor = self.frame["adj_factor"].to_numpy(dtype=float, na_value=np.nan)
+        self._ordinals = np.array([d.toordinal() for d in self._dates], dtype=np.int64)
 
     @property
     def dates(self) -> list[date]:
@@ -75,6 +76,18 @@ class IssuerSeries:
     def first_on_or_after(self, d: date) -> date | None:
         i = bisect.bisect_left(self._dates, d)
         return None if i >= len(self._dates) else self._dates[i]
+
+    def aligned(self, grid: np.ndarray, column: str = "close_adj") -> np.ndarray:
+        """`column` ("close_adj" or "open_adj") on `grid` (ascending date ordinals); NaN
+        where there is no bar."""
+        values = self._open_adj if column == "open_adj" else self._close_adj
+        out = np.full(len(grid), np.nan)
+        if len(self._ordinals) == 0 or len(grid) == 0:
+            return out
+        idx = np.minimum(np.searchsorted(self._ordinals, grid), len(self._ordinals) - 1)
+        hit = self._ordinals[idx] == grid
+        out[hit] = values[idx[hit]]
+        return out
 
     def first_date(self) -> date | None:
         return self._dates[0] if self._dates else None
