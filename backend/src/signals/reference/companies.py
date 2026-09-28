@@ -161,6 +161,19 @@ def _primary_symbol(tickers: Sequence[str]) -> str | None:
     return next((t for t in tickers if canonical_symbol(t)), None)
 
 
+def _upsert_issuer_from_tickers(
+    session: Session, cik: int, name: str, exchange: str | None
+) -> None:
+    """Like `_upsert_issuer`, but only ever sets `exchange`: the name comes from
+    `submissions.zip` (fuller data), so an issuer already known keeps its existing name."""
+    stmt = insert(Issuer).values(cik=cik, name=name, exchange=exchange)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=[Issuer.cik],
+        set_={"exchange": stmt.excluded.exchange, "updated_at": func.now()},
+    )
+    session.execute(stmt)
+
+
 def _insert_acceptances(
     session: Session, cik: int, filings: Sequence[SubmissionFiling], forms: Collection[str]
 ) -> int:
@@ -252,3 +265,42 @@ def load_submissions_zip(
     return SubmissionsResult(
         entities=entities, issuers=issuers, acceptances=acceptances, errors=errors
     )
+
+
+def load_company_tickers_exchange(session: Session, data: bytes, *, seen_on: date) -> int:
+    """The current SEC ticker list (`company_tickers_exchange.json`): one row per ticker
+    class, `{"fields": ["cik","name","ticker","exchange"], "data": [[...], ...]}`.
+
+    Unlike `submissions.zip`'s per-CIK record, this file has no single "tickers" list to
+    pick a primary from -- a CIK's rows (for example CNB Financial's CCNE then CCNEP) are
+    scattered across the array. So rows are grouped by CIK first (order preserved), then
+    the same primary-ticker rule as `load_submissions_zip` applies: only the first row
+    whose ticker is a valid symbol gets recorded as evidence, using the *first* row's name
+    (existing issuers keep their name) and exchange -- rebuild_tickers models one symbol
+    per issuer at a time, so a later-seen class would otherwise become the "current" one.
+    Returns the number of rows read (not the number of distinct issuers).
+    """
+    doc = json.loads(data)
+    col = {name: i for i, name in enumerate(doc["fields"])}
+    rows: list[list[Any]] = doc.get("data") or []
+    order: list[int] = []
+    names: dict[int, str] = {}
+    exchanges: dict[int, str | None] = {}
+    tickers_by_cik: dict[int, list[str]] = {}
+    for row in rows:
+        cik = int(row[col["cik"]])
+        if cik not in names:
+            order.append(cik)
+            names[cik] = _text(row[col["name"]]) or ""
+            exchanges[cik] = _text(row[col["exchange"]])
+        tickers_by_cik.setdefault(cik, []).append(row[col["ticker"]])
+    touched: set[int] = set()
+    for cik in order:
+        _upsert_issuer_from_tickers(session, cik, names[cik], exchanges[cik])
+        symbol = _primary_symbol(tickers_by_cik[cik])
+        if symbol is not None:
+            record_ticker_evidence(session, cik, symbol, seen_on, "company_tickers")
+            touched.add(cik)
+    _rebuild_in_chunks(session, touched)
+    log.info("company_tickers_loaded", rows=len(rows), issuers=len(order))
+    return len(rows)
