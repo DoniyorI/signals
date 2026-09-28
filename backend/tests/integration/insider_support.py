@@ -50,3 +50,18 @@ def make_loader(fixture_bytes, settings, archive) -> Loader:
         return out.accession_no
 
     return load
+
+
+def form144_handler(session, sgml, filing, ctx) -> None:
+    from signals.ingest.normalize_form144 import normalize_form144
+    from signals.ingest.parsers.form144 import parse_form144
+
+    xml = next(d.xml() for d in sgml.xml_documents())
+    assert xml is not None
+    normalize_form144(session, filing, parse_form144(xml), sgml)
+
+
+def register_form144_handler() -> None:
+    from signals.domain.types import FORM144_FORMS
+
+    dispatch.register_handler(FORM144_FORMS, form144_handler)
