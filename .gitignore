@@ -1,6 +1,6 @@
 # Secrets and local data — never commit
 .env
-data/
+/data/
 
 # Python
 **/__pycache__/
