@@ -1,0 +1,44 @@
+{
+  "form_type": "SCHEDULE 13D",
+  "issuer_cik": 2088082,
+  "issuer_name": "Electra Therapeutics, Inc.",
+  "cusip": "284825106",
+  "event_date": "2026-09-21",
+  "amendment_no": null,
+  "persons": [
+    {
+      "name": "ORBIMED ADVISORS LLC",
+      "cik": 1055951,
+      "sole_voting": 0.0,
+      "shared_voting": 6885170.0,
+      "sole_dispositive": 0.0,
+      "shared_dispositive": 6885170.0,
+      "aggregate_owned": 6885170.0,
+      "percent_of_class": 0.11,
+      "type_of_reporting_person": "IA"
+    },
+    {
+      "name": "ORBIMED CAPITAL GP VII LLC",
+      "cik": 1760648,
+      "sole_voting": 0.0,
+      "shared_voting": 5126891.0,
+      "sole_dispositive": 0.0,
+      "shared_dispositive": 5126891.0,
+      "aggregate_owned": 5126891.0,
+      "percent_of_class": 0.08199999999999999,
+      "type_of_reporting_person": "OO"
+    },
+    {
+      "name": "OrbiMed Genesis GP LLC",
+      "cik": 1808744,
+      "sole_voting": 0.0,
+      "shared_voting": 1758279.0,
+      "sole_dispositive": 0.0,
+      "shared_dispositive": 1758279.0,
+      "aggregate_owned": 1758279.0,
+      "percent_of_class": 0.027999999999999997,
+      "type_of_reporting_person": "OO"
+    }
+  ],
+  "purpose": "This Statement on Schedule 13D relates to the acquisition of Shares by the Reporting Persons. The Shares acquired by the Reporting Persons were acquired for the purpose of making an investment in the Issuer and not with the intention of acquiring control of the Issuer's business on behalf of the Reporting Persons' respective advisory clients.\n\nThe Reporting Persons from time to time intend to review their investment in the Issuer on the basis of various factors, including the Issuer's business, financial condition, results of operations and prospects, general economic and industry conditions, the securities markets in general and those for the Issuer's Shares in particular, as well as other developments and other investment opportunities. Based upon such review, the Reporting Persons will take such actions in the future as the Reporting Persons may deem appropriate in light of the circumstances existing from time to time. If the Reporting Persons believe that further investment in the Issuer is attractive, whether because of the market price of Shares or otherwise, they may acquire Shares or other securities of the Issuer either in the open market or in privately negotiated transactions. Similarly, depending on market and other factors, the Reporting Persons may determine to dispose of some or all of the Shares currently owned by the Reporting Persons or otherwise acquired by the Reporting Persons either in the open market or in privately negotiated transactions.\n\nExcept as set forth in this Schedule 13D, the Reporting Persons have not formulated any plans or proposals which relate to or would result in: (a) the acquisition by any person of additional securities of the Issuer or the disposition of securities of the Issuer, (b) an extraordinary corporate transaction, such as a merger, reorganization or liquidation, involving the Issuer or any of its subsidiaries, (c) a sale or transfer of a material amount of the assets of the Issuer or any of its subsidiaries, (d) any change in the present Board of Directors or management of the Issuer, including any plans or proposals to change the number or term of directors or to fill any existing vacancies on the board, (e) any material change in the Issuer's capitalization or dividend policy of the Issuer, (f) any other material change in the Issuer's business or corporate structure, (g) any change in the Issuer's charter or bylaws or other instrument corresponding thereto or other action which may impede the acquisition of control of the Issuer by any person, (h) causing a class of the Issuer's securities to be deregistered or delisted from a national securities exchange or to cease to be authorized to be quoted in an inter-dealer quotation system of a registered national securities association, (i) a class of equity securities of the Issuer becoming eligible for termination of registration pursuant to Section 12(g)(4) of the Act or (j) any action similar to any of those enumerated above."
+}
