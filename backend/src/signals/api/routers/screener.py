@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from signals.api.csv import csv_response
 from signals.api.deps import get_db
 from signals.api.params import (
     BasisQ,
@@ -15,7 +16,8 @@ from signals.api.params import (
     StrList,
     WindowQ,
 )
-from signals.api.schemas import FundScreenPage, InsiderScreenPage
+from signals.api.queries import screener as queries
+from signals.api.schemas import FundScreenPage, FundScreenRow, InsiderScreenPage, InsiderScreenRow
 
 router = APIRouter(prefix="/screener", tags=["screener"])
 Db = Annotated[Session, Depends(get_db)]
@@ -43,7 +45,29 @@ def screen_insiders(
     limit: Limit = 50,
     format: Format = "json",
 ):
-    raise NotImplementedError
+    page = queries.screen_insiders(
+        db,
+        roles=roles,
+        sectors=sectors,
+        min_decisions=min_decisions,
+        last_trade_from=last_trade_from,
+        last_trade_to=last_trade_to,
+        min_rating=min_rating,
+        confidence=confidence,
+        window=window,
+        min_return=min_return,
+        max_return=max_return,
+        risk=risk,
+        basis=basis,
+        include_10b5_1=include_10b5_1,
+        sort=sort,
+        order=order,
+        cursor=cursor,
+        limit=limit,
+    )
+    if format == "csv":
+        return csv_response(page.items, "insider_screener.csv", model=InsiderScreenRow)
+    return page
 
 
 @router.get("/funds", response_model=FundScreenPage)
@@ -64,4 +88,22 @@ def screen_funds(
     limit: Limit = 50,
     format: Format = "json",
 ):
-    raise NotImplementedError
+    page = queries.screen_funds(
+        db,
+        sectors=sectors,
+        min_rating=min_rating,
+        confidence=confidence,
+        window=window,
+        min_return=min_return,
+        max_return=max_return,
+        risk=risk,
+        basis=basis,
+        tracked_only=tracked_only,
+        sort=sort,
+        order=order,
+        cursor=cursor,
+        limit=limit,
+    )
+    if format == "csv":
+        return csv_response(page.items, "fund_screener.csv", model=FundScreenRow)
+    return page

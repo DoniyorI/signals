@@ -629,6 +629,23 @@ def _seed_profiles(session: Session, ids: dict[str, int]) -> None:
             risk_label="medium",
             sector="Technology",
         )
+    # Untracked fund: has its own profile_stats row (unlike NEWBIE, who has none) so the
+    # screener's tracked_only filter has something real to exclude (E6 pre-flight ruling).
+    make_profile_stats(
+        session,
+        kind="fund",
+        cik=SMALL_FUND,
+        basis="filed",
+        include_10b5_1=False,
+        n_decisions=1,
+        n_complete=1,
+        avg_roi_6m=0.01,
+        hit_rate=0.5,
+        rating=20,
+        confidence="low",
+        risk_label="low",
+        sector="Technology",
+    )
     windows = (  # kind, cik, window, ret, ret_spy
         ("insider", DOE, "ytd", 0.05, 0.08), ("insider", DOE, "1y", 0.20, 0.15),
         ("insider", DOE, "3y", 0.35, 0.30), ("insider", DOE, "5y", None, None),
