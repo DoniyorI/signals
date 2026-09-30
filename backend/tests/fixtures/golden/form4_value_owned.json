@@ -1,0 +1,57 @@
+{
+  "document_type": "4",
+  "period_of_report": "2025-01-01",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": false,
+  "issuer_cik": 1989393,
+  "issuer_name": "PARTNERS GROUP NEXT GENERATION INFRASTRUCTURE, LLC",
+  "issuer_symbol": "N/A",
+  "owners": [
+    {
+      "cik": 1702074,
+      "name": "Partners Group Finance USD IC Ltd",
+      "is_director": false,
+      "is_officer": false,
+      "officer_title": null,
+      "is_ten_pct_owner": false,
+      "is_other": true,
+      "other_text": "Affiliate of the Adviser"
+    }
+  ],
+  "aff10b5one": false,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Limited Liability Company Shares, Class I",
+      "transaction_date": "2025-01-01",
+      "deemed_execution_date": null,
+      "code": "P",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 3489183.531,
+      "price": 1.58,
+      "acquired_disposed": "A",
+      "shares_owned_after": null,
+      "value_owned_after": 97594117.8,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "transaction_date": [
+          "F1"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "Subscription dated 01/01/2025 with NAV pricing as of 12/31/2024 that was finalized 01/30/2025."
+  },
+  "remarks": null
+}

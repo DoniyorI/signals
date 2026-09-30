@@ -1,0 +1,90 @@
+{
+  "document_type": "4",
+  "period_of_report": "2022-10-27",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": false,
+  "issuer_cik": 1596532,
+  "issuer_name": "Arista Networks, Inc.",
+  "issuer_symbol": "ANET",
+  "owners": [
+    {
+      "cik": 1299634,
+      "name": "Giancarlo Charles H",
+      "is_director": true,
+      "is_officer": false,
+      "officer_title": null,
+      "is_ten_pct_owner": false,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": null,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": "2022-10-27",
+      "deemed_execution_date": null,
+      "code": "S",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 2000.0,
+      "price": 125.9382,
+      "acquired_disposed": "D",
+      "shares_owned_after": 94946.0,
+      "value_owned_after": null,
+      "direct_indirect": "I",
+      "nature_of_ownership": "by Trust",
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "code": [
+          "F1"
+        ],
+        "nature_of_ownership": [
+          "F3"
+        ],
+        "price": [
+          "F2"
+        ]
+      }
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "holding",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": null,
+      "deemed_execution_date": null,
+      "code": null,
+      "form_type": null,
+      "equity_swap": null,
+      "timeliness": null,
+      "shares": null,
+      "price": null,
+      "acquired_disposed": null,
+      "shares_owned_after": 51043.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {}
+    }
+  ],
+  "footnotes": {
+    "F1": "This sale was effected pursuant to a Rule 10b5-1 trading plan entered into by the reporting person on June 12, 2022.",
+    "F2": "The price reported in Column 4 is a weighted average price. These shares were sold in multiple transactions at prices ranging from $125.62 to $126.15, inclusive. The reporting person undertakes to provide Arista Networks, Inc., any security holder of Arista Networks, Inc. or the staff of the Securities and Exchange Commission, upon request, full information regarding the number of shares sold at each separate price within the range set forth in this footnote.",
+    "F3": "These shares are held by a family trust for which the reporting person is co-trustee."
+  },
+  "remarks": null
+}

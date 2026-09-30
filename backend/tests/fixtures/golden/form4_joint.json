@@ -1,0 +1,129 @@
+{
+  "document_type": "4",
+  "period_of_report": "2025-03-27",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": false,
+  "issuer_cik": 1789029,
+  "issuer_name": "Aeva Technologies, Inc.",
+  "issuer_symbol": "AEVA",
+  "owners": [
+    {
+      "cik": 2003074,
+      "name": "SYLEBRA CAPITAL LLC",
+      "is_director": false,
+      "is_officer": false,
+      "officer_title": null,
+      "is_ten_pct_owner": true,
+      "is_other": false,
+      "other_text": null
+    },
+    {
+      "cik": 1745725,
+      "name": "Gibson Daniel Patrick",
+      "is_director": false,
+      "is_officer": false,
+      "officer_title": null,
+      "is_ten_pct_owner": true,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": false,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-27",
+      "deemed_execution_date": null,
+      "code": "P",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 1157742.0,
+      "price": 6.15,
+      "acquired_disposed": "A",
+      "shares_owned_after": 13827068.0,
+      "value_owned_after": null,
+      "direct_indirect": "I",
+      "nature_of_ownership": "See Footnote",
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "nature_of_ownership": [
+          "F1",
+          "F2"
+        ]
+      }
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 2,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-28",
+      "deemed_execution_date": null,
+      "code": "P",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 1333188.0,
+      "price": 6.7,
+      "acquired_disposed": "A",
+      "shares_owned_after": 15160256.0,
+      "value_owned_after": null,
+      "direct_indirect": "I",
+      "nature_of_ownership": "See Footnote",
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "nature_of_ownership": [
+          "F1",
+          "F2"
+        ]
+      }
+    },
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 3,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-31",
+      "deemed_execution_date": null,
+      "code": "P",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 1068297.0,
+      "price": 6.77,
+      "acquired_disposed": "A",
+      "shares_owned_after": 16228553.0,
+      "value_owned_after": null,
+      "direct_indirect": "I",
+      "nature_of_ownership": "See Footnote",
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "nature_of_ownership": [
+          "F1",
+          "F2"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "Sylebra Capital Limited (Sylebra HK) and Sylebra Capital LLC (Sylebra US) are the investment sub-advisers to Sylebra Capital Partners Master Fund, Ltd. (SCP MF), Sylebra Capital Parc Master Fund (PARC MF), Sylebra Capital Menlo Master Fund (MENLO MF), and other advisory clients. SCP MF, PARC MF, MENLO MF and other advisory clients are referred to collectively as the Affiliated Investment Entities. Sylebra Capital Management (Sylebra Cayman) is the investment manager and parent of Sylebra HK. Sylebra Cayman owns 100% of the shares of Sylebra HK, and Daniel Patrick Gibson (Gibson) owns 100% of the Class A shares of Sylebra Cayman and 100% of the membership interests of Sylebra US. Gibson is a founder and Chief Investment Officer of Sylebra Cayman. In such capacities, Sylebra HK, Sylebra US, Sylebra Cayman and Gibson may be deemed to share voting and dispositive power over the securities of the Issuer held by the Affiliated Investment Entities.",
+    "F2": "These securities are held by the Affiliated Investment Entities. Sylebra HK, Sylebra US, Sylebra Cayman, and Gibson disclaim beneficial ownership of these securities, and this report shall not be deemed an admission that Sylebra HK, Sylebra US, Sylebra Cayman, and Gibson are the beneficial owners of such securities, except to the extent of their pecuniary interest, if any, therein."
+  },
+  "remarks": null
+}

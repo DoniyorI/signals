@@ -1,0 +1,93 @@
+{
+  "document_type": "4",
+  "period_of_report": "2025-03-30",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": null,
+  "issuer_cik": 882184,
+  "issuer_name": "HORTON D R INC /DE/",
+  "issuer_symbol": "DHI",
+  "owners": [
+    {
+      "cik": 1488288,
+      "name": "Miller Maribess L",
+      "is_director": true,
+      "is_officer": false,
+      "officer_title": null,
+      "is_ten_pct_owner": false,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": false,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Common Stock",
+      "transaction_date": "2025-03-30",
+      "deemed_execution_date": null,
+      "code": "M",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 224.0,
+      "price": null,
+      "acquired_disposed": "A",
+      "shares_owned_after": 21205.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "price": [
+          "F1"
+        ]
+      }
+    },
+    {
+      "table_kind": "deriv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Restricted Stock Unit",
+      "transaction_date": "2025-03-30",
+      "deemed_execution_date": null,
+      "code": "M",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 224.0,
+      "price": 0.0,
+      "acquired_disposed": "D",
+      "shares_owned_after": 448.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": "Common Stock",
+      "underlying_shares": 224.0,
+      "field_footnotes": {
+        "exercise_date": [
+          "F2"
+        ],
+        "exercise_price": [
+          "F1"
+        ],
+        "expiration_date": [
+          "F2"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "Each restricted stock unit converts into one share of DHI common stock.",
+    "F2": "On March 30, 2022, the reporting person was granted 1,120 restricted stock units, vesting in five annual installments beginning March 30, 2023."
+  },
+  "remarks": null
+}

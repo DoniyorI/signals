@@ -1,0 +1,57 @@
+{
+  "document_type": "4",
+  "period_of_report": "2025-03-27",
+  "date_of_original_submission": null,
+  "not_subject_to_section16": null,
+  "issuer_cik": 1509261,
+  "issuer_name": "Rezolute, Inc.",
+  "issuer_symbol": "RZLT",
+  "owners": [
+    {
+      "cik": 1314773,
+      "name": "Elam Nevan C",
+      "is_director": true,
+      "is_officer": true,
+      "officer_title": "CEO",
+      "is_ten_pct_owner": false,
+      "is_other": false,
+      "other_text": null
+    }
+  ],
+  "aff10b5one": false,
+  "rows": [
+    {
+      "table_kind": "nonderiv",
+      "row_kind": "transaction",
+      "row_no": 1,
+      "security_title": "Common Shares",
+      "transaction_date": "2025-03-27",
+      "deemed_execution_date": null,
+      "code": "P",
+      "form_type": "4",
+      "equity_swap": false,
+      "timeliness": null,
+      "shares": 12302.0,
+      "price": 2.845,
+      "acquired_disposed": "A",
+      "shares_owned_after": 224119.0,
+      "value_owned_after": null,
+      "direct_indirect": "D",
+      "nature_of_ownership": null,
+      "exercise_price": null,
+      "exercise_date": null,
+      "expiration_date": null,
+      "underlying_title": null,
+      "underlying_shares": null,
+      "field_footnotes": {
+        "price": [
+          "F1"
+        ]
+      }
+    }
+  ],
+  "footnotes": {
+    "F1": "The purchase price reported above is a weighted average price. These shares were purchased in multiple transactions at prices ranging from $2.83 to $2.87, inclusive. The reporting person undertakes to provide to Rezolute, Inc.,, any security holder of Rezolute, Inc., or the staff of the Securities and Exchange Commission, upon request, full information regarding the number of shares purchased at each separate price within the ranges set forth in this footnote."
+  },
+  "remarks": null
+}
