@@ -16,7 +16,8 @@ const SERIES_META: Record<CurveKey, { label: string; token: string }> = {
 const ORDER: CurveKey[] = ["nav", "spy", "qqq", "sector"];
 
 interface EquityChartProps {
-  points: Schema<"CurvePoint">[];
+  points?: Schema<"CurvePoint">[];
+  profiles?: { id: string; label: string; points: Schema<"CurvePoint">[] }[];
   /** Which series to draw; omitted or not `false` means visible. Defaults to all four. */
   show?: Partial<Record<CurveKey, boolean>>;
   height?: number;
@@ -24,7 +25,12 @@ interface EquityChartProps {
 
 /** An indexed nav-vs-benchmarks line chart. Always paired with a WindowsTable (the "table
  * twin" the dataviz review calls for on a >2-series light-mode legend). */
-export function EquityChart({ points, show, height = 240 }: EquityChartProps) {
+export function EquityChart({ points = [], profiles, show, height = 240 }: EquityChartProps) {
+  if (profiles) return <ProfileEquityChart profiles={profiles} height={height} />;
+  return <PortfolioEquityChart points={points} show={show} height={height} />;
+}
+
+function PortfolioEquityChart({ points = [], show, height = 240 }: EquityChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const keys = ORDER.filter((k) => show?.[k] !== false);
   const keysSignature = keys.join(",");
@@ -83,4 +89,43 @@ export function EquityChart({ points, show, height = 240 }: EquityChartProps) {
 function cssColor(theme: ReturnType<typeof readChartTheme>, key: CurveKey): string {
   const index = ORDER.indexOf(key);
   return theme.series[index] ?? theme.seriesOther;
+}
+
+
+/** Stable identity hashing keeps each profile's color when profiles are added or removed. */
+function profileColorIndex(id: string): number {
+  let hash = 0;
+  for (const char of id) hash = ((hash * 31) + char.charCodeAt(0)) >>> 0;
+  return hash % 8;
+}
+
+function ProfileEquityChart({ profiles, height }: { profiles: NonNullable<EquityChartProps["profiles"]>; height: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || profiles.length === 0) return;
+    const theme = readChartTheme();
+    const chart = createChart(container, baseChartOptions(theme, container.clientWidth, height));
+    const series = profiles.map((profile) => {
+      const line = chart.addSeries(LineSeries, {
+        title: profile.label, color: theme.series[profileColorIndex(profile.id)], lineWidth: 2,
+        lineStyle: profile.id.startsWith("fund:") ? 2 : 0,
+      });
+      line.setData(toLines(profile.points, ["nav"]).nav);
+      return line;
+    });
+    chart.timeScale().fitContent();
+    const stop = watchChart(container, (width) => chart.applyOptions({ width }), () => {
+      const next = readChartTheme();
+      chart.applyOptions(baseChartOptions(next, container.clientWidth, height));
+      series.forEach((line, i) => line.applyOptions({ color: next.series[profileColorIndex(profiles[i].id)] }));
+    });
+    return () => { stop(); chart.remove(); };
+  }, [profiles, height]);
+  return <div>
+    <div ref={containerRef} className="w-full" style={{ height }} />
+    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">{profiles.map((profile) =>
+      <span key={profile.id} className="inline-flex items-center gap-1.5"><span className="inline-block w-4 border-t-2"
+        style={{ borderColor: `var(--series-${profileColorIndex(profile.id) + 1})`, borderTopStyle: profile.id.startsWith("fund:") ? "dashed" : "solid" }} aria-hidden />{profile.label}</span>)}</div>
+  </div>;
 }
