@@ -110,9 +110,11 @@ def test_saves_offset_every_200(session_factory, settings, tmp_archive):
 
     assert result.listed == 450
     offsets = [s["current"]["offset"] for s in saved if "current" in s]
-    assert offsets == [200, 400]
-    assert saved[-1].get("quarters_done") == ["2025Q1"]
-    assert "current" not in saved[-1]
+    assert offsets == [200, 400, 450]
+    # These attempts all return 404. Keep the scan offset, but never mark the quarter done.
+    assert result.errors == 450
+    assert not saved[-1].get("quarters_done")
+    assert len(saved[-1]["pending_failures"]["2025Q1"]) == 450
 
 
 def test_current_quarter_uses_daily_index(session_factory, settings, tmp_archive):

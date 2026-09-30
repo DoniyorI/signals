@@ -5,6 +5,7 @@ run picks back up mid-quarter instead of re-walking everything already done.
 """
 
 from collections.abc import Callable, Collection
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date, timedelta
 
@@ -111,6 +112,39 @@ def gap_fill(
     errors = 0
     quarters_done: list[str] = list(progress.get("quarters_done", []))
     resume = dict(progress.get("current", {}))
+    pending: dict[str, list[dict]] = deepcopy(progress.get("pending_failures", {}))
+
+    def attempt(cik: int, accession: str) -> dict | None:
+        nonlocal listed, ingested, skipped_existing, errors
+        listed += 1
+        try:
+            with session_scope(session_factory) as s:
+                outcome = ingest_accession(
+                    client,
+                    s,
+                    cik=cik,
+                    accession=accession,
+                    source=source,
+                    settings=settings,
+                    archive=archive,
+                )
+            if outcome.status == "duplicate":
+                skipped_existing += 1
+                return None
+            if outcome.status == "parsed":
+                ingested += 1
+                return None
+            message = outcome.error or f"Unexpected ingest status: {outcome.status}"
+        except Exception as exc:
+            message = f"{type(exc).__name__}: {exc}"
+            log.warning("gap_fill_fetch_error", accession=accession, error=message)
+        errors += 1
+        return {"cik": cik, "accession_no": accession, "error": message}
+
+    def checkpoint(key: str, offset: int) -> None:
+        progress["current"] = {"quarter": key, "offset": offset}
+        progress["pending_failures"] = deepcopy(pending)
+        save_progress(deepcopy(progress))
 
     for year, quarter in _quarters_between(start, end):
         key = _quarter_key(year, quarter)
@@ -124,46 +158,40 @@ def gap_fill(
         ]
 
         offset = resume.get("offset", 0) if resume.get("quarter") == key else 0
+        # The attempted offset stays monotonic; a separate queue retries its failed entries.
+        retry_entries = pending.pop(key, [])
+        failures: list[dict] = []
+        pending[key] = failures
+        for failed in retry_entries:
+            error = attempt(failed["cik"], failed["accession_no"])
+            if error is not None:
+                failures.append(error)
         for i, entry in enumerate(filtered):
             if i < offset:
                 continue
-            listed += 1
-            with session_scope(session_factory) as s:
-                try:
-                    outcome = ingest_accession(
-                        client,
-                        s,
-                        cik=entry.cik,
-                        accession=entry.accession_no,
-                        source=source,
-                        settings=settings,
-                        archive=archive,
-                    )
-                except Exception as exc:
-                    outcome = None
-                    errors += 1
-                    log.warning(
-                        "gap_fill_fetch_error", accession=entry.accession_no, error=str(exc)
-                    )
-            if outcome is not None:
-                if outcome.status == "duplicate":
-                    skipped_existing += 1
-                elif outcome.status == "parsed":
-                    ingested += 1
-                elif outcome.status == "error":
-                    errors += 1
+            error = attempt(entry.cik, entry.accession_no)
+            if error is not None:
+                failures.append(error)
 
             # The offset must advance for every attempted entry (success or failure) so a
-            # resumed run never re-attempts one we already accounted for above.
+            # resumed scan skips entries it already accounted for. Failed entries retry
+            # through pending_failures rather than moving this offset backwards.
             if (i + 1) % SAVE_EVERY == 0:
-                progress["current"] = {"quarter": key, "offset": i + 1}
-                save_progress(dict(progress))
+                checkpoint(key, i + 1)
 
+        if failures:
+            checkpoint(key, max(offset, len(filtered)))
+            # Leave this quarter unfinished. The caller fails the parent job, so its
+            # documented re-request continues from this checkpoint and retry queue.
+            break
+
+        pending.pop(key, None)
+        progress["pending_failures"] = deepcopy(pending)
         quarters_done.append(key)
         progress["quarters_done"] = quarters_done
         progress.pop("current", None)
         resume = {}
-        save_progress(dict(progress))
+        save_progress(deepcopy(progress))
 
     return GapFillResult(
         listed=listed, ingested=ingested, skipped_existing=skipped_existing, errors=errors

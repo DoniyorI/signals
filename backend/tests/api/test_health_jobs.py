@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 
-from signals.db.models import Filing
+from signals.db.models import FeedItem, Filing
 from signals.domain.appstate import set_state
 from tests.api.seed import FROZEN_NOW
 
@@ -10,6 +10,7 @@ from tests.api.seed import FROZEN_NOW
 def test_feed_delay_percentiles(api, session):
     base = FROZEN_NOW - timedelta(hours=2)
     for i, delay in enumerate([30, 60, 90, 120]):
+        session.add(FeedItem(accession_no=f"0009999999-24-00000{i}", form_type="4"))
         session.add(
             Filing(
                 accession_no=f"0009999999-24-00000{i}",

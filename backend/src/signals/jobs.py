@@ -8,6 +8,7 @@ all outside traffic shares the worker's single SEC rate limiter.
 import importlib
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -40,6 +41,7 @@ BACKFILL_STEPS = (
     "backfill_prices",
     "analytics_full",
 )
+RESUMABLE_JOBS = frozenset((*BACKFILL_STEPS, "backfill_all"))
 
 
 @dataclass
@@ -75,6 +77,9 @@ def register_job(kind: str, *, cron: dict | None = None, interval_seconds: int |
 
 
 def load_all_jobs() -> dict[str, JobSpec]:
+    from signals.ingest.handlers import register_all_handlers
+
+    register_all_handlers()
     for module in JOB_MODULES:
         importlib.import_module(module)
     return JOBS
@@ -84,9 +89,39 @@ def load_all_jobs() -> dict[str, JobSpec]:
 def request_job(
     session: Session, kind: str, params: dict | None = None, *, coalesce: bool = True
 ) -> int:
-    """Queue a job. A pending request of the same kind absorbs this one (list params union)."""
+    """Queue/coalesce a job; identical backfill retries retain their existing checkpoint."""
     params = dict(params or {})
-    if coalesce:
+    if kind in RESUMABLE_JOBS:
+        existing = session.scalars(
+            select(JobRequest)
+            .where(
+                JobRequest.kind == kind,
+                JobRequest.params == params,
+                JobRequest.status.in_(("requested", "running")),
+            )
+            .order_by(JobRequest.id)
+            .limit(1)
+            .with_for_update()
+        ).one_or_none()
+        if existing is not None:
+            return existing.id
+        if coalesce:
+            failed = session.scalars(
+                select(JobRequest)
+                .where(
+                    JobRequest.kind == kind,
+                    JobRequest.params == params,
+                    JobRequest.status == "failed",
+                )
+                .order_by(JobRequest.id.desc())
+                .limit(1)
+                .with_for_update()
+            ).one_or_none()
+            if failed is not None:
+                _requeue(failed)
+                session.flush()
+                return failed.id
+    elif coalesce:
         existing = session.execute(
             select(JobRequest)
             .where(JobRequest.kind == kind, JobRequest.status == "requested")
@@ -110,6 +145,31 @@ def request_job(
     return req.id
 
 
+def _requeue(req: JobRequest) -> None:
+    req.status = "requested"
+    req.requested_at = now_et()
+    req.started_at = req.finished_at = req.error = None
+
+
+def recover_interrupted_requests(session: Session) -> int:
+    """Requeue interrupted idempotent jobs at exclusive worker startup, retaining progress.
+
+    Call only after acquiring the worker's exclusive advisory lock. Without that lock,
+    status alone cannot distinguish an interrupted request from another worker's live run.
+    Failed jobs are deliberately untouched; only resumable backfill retries reuse them.
+    """
+    rows = session.scalars(
+        select(JobRequest)
+        .where(JobRequest.status == "running")
+        .order_by(JobRequest.id)
+        .with_for_update()
+    ).all()
+    for req in rows:
+        _requeue(req)
+    session.flush()
+    return len(rows)
+
+
 def claim_next_request(session: Session) -> JobRequest | None:
     req = session.execute(
         select(JobRequest)
@@ -126,6 +186,7 @@ def claim_next_request(session: Session) -> JobRequest | None:
 
 
 def _save_progress(session_factory: Callable[[], Session], request_id: int, progress: dict):
+    progress["updated_at"] = now_et().isoformat()
     with session_scope(session_factory) as s:
         req = s.get(JobRequest, request_id)
         if req is not None:
@@ -172,6 +233,11 @@ def run_request(
             raise KeyError(f"unknown job kind {kind!r}")
         result = spec.func(ctx) or {}
         ctx.progress["result"] = result
+        count, details = reported_errors(result)
+        if count:
+            raise RuntimeError(
+                "; ".join(details) if details else f"{count} errors reported by {kind}"
+            )
     except Exception as exc:  # recorded on the request row, surfaced by /api/health
         status, error = "failed", f"{type(exc).__name__}: {exc}"
         log.error("job_failed", kind=kind, request_id=request_id, error=error)
@@ -184,6 +250,18 @@ def run_request(
             req.finished_at = now_et()
 
 
+def reported_errors(result: dict) -> tuple[int, list[str]]:
+    """Read explicit error counters, including per-day results; aliases count once."""
+    count = max((result[k] for k in ("errors", "error") if type(result.get(k)) is int), default=0)
+    details = [str(message) for message in result.get("error_details", [])]
+    for row in result.get("results", []):
+        if isinstance(row, dict):
+            child_count, child_details = reported_errors(row)
+            count += child_count
+            details.extend(child_details)
+    return count, details
+
+
 # ----------------------------------------------------------------------------- run log
 @dataclass
 class RunTracker:
@@ -194,11 +272,19 @@ class RunTracker:
     notes: dict[str, Any] = field(default_factory=dict)
 
 
+_ACTIVE_RUN: ContextVar[tuple[str, RunTracker] | None] = ContextVar("active_run", default=None)
+
+
 @contextmanager
 def track_run(session_factory: Callable[[], Session], job: str) -> Generator[RunTracker]:
     """Always writes an ingest_runs row, even when the body raises (then re-raises)."""
+    active = _ACTIVE_RUN.get()
+    if active is not None and active[0] == job:
+        yield active[1]
+        return
     started = now_et()
     tracker = RunTracker()
+    token = _ACTIVE_RUN.set((job, tracker))
     try:
         yield tracker
     except BaseException as exc:
@@ -206,6 +292,7 @@ def track_run(session_factory: Callable[[], Session], job: str) -> Generator[Run
         tracker.notes["exception"] = f"{type(exc).__name__}: {exc}"
         raise
     finally:
+        _ACTIVE_RUN.reset(token)
         with session_scope(session_factory) as s:
             s.add(
                 IngestRun(
@@ -236,6 +323,7 @@ def backfill_all(ctx: JobContext) -> dict:
         sub = dict(steps.get(kind, {}))
 
         def save_sub(p: dict, kind: str = kind) -> None:
+            p["updated_at"] = ctx.now().isoformat()
             steps[kind] = dict(p)
             ctx.progress["steps"] = steps
             ctx.save_progress(ctx.progress)
@@ -254,6 +342,7 @@ def backfill_all(ctx: JobContext) -> dict:
         log.info("backfill_step_start", step=kind)
         result = spec.func(step_ctx) or {}
         sub["result"] = result
+        sub["updated_at"] = ctx.now().isoformat()
         steps[kind] = sub
         done.append(kind)
         ctx.progress.update({"steps": steps, "done_steps": done})
@@ -275,8 +364,13 @@ def reparse(ctx: JobContext) -> dict:
                 )
             )
     counts = {"parsed": 0, "error": 0}
+    details: list[str] = []
     for acc in accessions:
         with session_scope(ctx.session_factory) as s:
             outcome = reparse_accession(s, acc, settings=ctx.settings, archive=ctx.archive)
         counts["parsed" if outcome.status == "parsed" else "error"] += 1
+        if outcome.status != "parsed":
+            details.append(f"{acc}: {outcome.error or outcome.status}")
+    if details:
+        return {**counts, "error_details": details}
     return counts

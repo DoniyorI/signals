@@ -82,6 +82,7 @@ def reparse(
     from signals.ingest.pipeline import reparse_accession
     from signals.sec.archive import RawArchive
 
+    load_all_jobs()
     settings = get_settings()
     archive = RawArchive(settings.raw_archive_dir)
     factory = _session_factory()

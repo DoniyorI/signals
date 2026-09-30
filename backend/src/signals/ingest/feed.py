@@ -15,10 +15,11 @@ from urllib.parse import quote_plus
 from sqlalchemy.orm import Session
 
 from signals.config import Settings
-from signals.db.models import Filing
+from signals.db.models import FeedItem, Filing
 from signals.db.session import session_scope
 from signals.domain.accession import normalize_accession
 from signals.domain.appstate import set_state
+from signals.domain.calendars import now_et
 from signals.domain.types import FEED_POLL_FORMS, FUND_FORMS
 from signals.ingest.amendments import relink_orphans
 from signals.ingest.parsers.xmlutil import parse_xml
@@ -55,6 +56,7 @@ class PollResult:
     issuer_ciks: frozenset[int]
     owner_ciks: frozenset[int]
     filer_ciks: frozenset[int]
+    error_details: tuple[str, ...] = ()
 
 
 def feed_url(form_type: str, start: int) -> str:
@@ -141,6 +143,7 @@ def poll_feed(
     total_entries = 0
     new = 0
     errors = 0
+    error_details: list[str] = []
     issuer_ciks: set[int] = set()
     owner_ciks: set[int] = set()
     filer_ciks: set[int] = set()
@@ -169,12 +172,13 @@ def poll_feed(
                             accession=entry.accession_no,
                             source="feed",
                             priority=Priority.LIVE,
-                            first_seen_at=now,
+                            first_seen_at=None,
                             settings=settings,
                             archive=archive,
                         )
                     except Exception as exc:  # network/SEC error for this one entry
                         errors += 1
+                        error_details.append(f"{entry.accession_no}: {type(exc).__name__}: {exc}")
                         log.warning(
                             "feed_fetch_error", accession=entry.accession_no, error=str(exc)
                         )
@@ -183,18 +187,31 @@ def poll_feed(
                         page_has_known = True
                     elif outcome.status == "error":
                         errors += 1
+                        error_details.append(
+                            f"{entry.accession_no}: {outcome.error or 'parse failed'}"
+                        )
                     elif outcome.status == "parsed":
                         new += 1
                         filing = s.get(Filing, outcome.accession_no)
                         if filing is not None:
                             _bucket_new_filing(filing, issuer_ciks, owner_ciks, filer_ciks)
 
+                if outcome.status == "parsed":
+                    # The first transaction committed the feed row. Sampling after that
+                    # commit includes fetch, parse and DB latency, never poll-start time.
+                    available_at = now_et()
+                    with session_scope(session_factory) as s:
+                        if s.get(FeedItem, outcome.accession_no) is not None:
+                            filing = s.get(Filing, outcome.accession_no)
+                            if filing is not None:
+                                filing.first_seen_at = available_at
+
             if page_has_known:
                 break
 
     with session_scope(session_factory) as s:
         relink_orphans(s)
-        set_state(s, "live_poll_last_success", {"at": now.isoformat(), "new": new})
+        set_state(s, "live_poll_last_success", {"at": now_et().isoformat(), "new": new})
         if issuer_ciks or owner_ciks:
             request_job(
                 s,
@@ -212,4 +229,5 @@ def poll_feed(
         issuer_ciks=frozenset(issuer_ciks),
         owner_ciks=frozenset(owner_ciks),
         filer_ciks=frozenset(filer_ciks),
+        error_details=tuple(error_details),
     )

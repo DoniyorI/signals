@@ -640,4 +640,14 @@ def apply_acceptance_times(session: Session) -> int:
             """
         )
     )
+    session.execute(
+        text(
+            """
+            UPDATE fund_filings ff
+            SET accepted_at = fa.accepted_at
+            FROM filing_acceptance fa
+            WHERE ff.accession_no = fa.accession_no AND ff.accepted_at IS NULL
+            """
+        )
+    )
     return result.rowcount or 0  # pyright: ignore[reportAttributeAccessIssue]

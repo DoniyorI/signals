@@ -39,11 +39,12 @@ def _frame_quarters(today: date, *, last_n: int | None = None) -> list[tuple[int
     return quarters[-last_n:] if last_n is not None and last_n < len(quarters) else quarters
 
 
-def _load_submissions(ctx: JobContext) -> None:
+def _load_submissions(ctx: JobContext) -> int:
     zip_path = ctx.settings.raw_archive_dir / "reference" / "submissions.zip"
     ctx.sec.download(SUBMISSIONS_URL, zip_path)
     with session_scope(ctx.session_factory) as s:
-        load_submissions_zip(s, zip_path, seen_on=ctx.now().date())
+        result = load_submissions_zip(s, zip_path, seen_on=ctx.now().date())
+    return result.errors
 
 
 def _load_company_tickers(ctx: JobContext) -> None:
@@ -75,7 +76,12 @@ def _run_reference_steps(ctx: JobContext, quarters: Iterable[tuple[int, int]]) -
         ctx.save_progress(ctx.progress)
 
     if "submissions" not in done:
-        _load_submissions(ctx)
+        errors = _load_submissions(ctx) or 0
+        ctx.progress["errors"] = errors
+        if errors:
+            # Leave this unit resumable; a malformed member is not a completed load.
+            ctx.save_progress(ctx.progress)
+            raise ValueError(f"submissions.zip contains {errors} malformed members")
         mark("submissions")
     if "company_tickers" not in done:
         _load_company_tickers(ctx)
@@ -92,7 +98,11 @@ def _run_reference_steps(ctx: JobContext, quarters: Iterable[tuple[int, int]]) -
         ctx.progress["sectors_changed"] = changed
         mark("sectors")
 
-    return {"done": sorted(done), "sectors_changed": ctx.progress.get("sectors_changed", 0)}
+    return {
+        "done": sorted(done),
+        "sectors_changed": ctx.progress.get("sectors_changed", 0),
+        "errors": ctx.progress.get("errors", 0),
+    }
 
 
 @register_job("backfill_reference")

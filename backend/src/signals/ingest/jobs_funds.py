@@ -53,7 +53,7 @@ def _gap_fill(ctx: JobContext, form_types: frozenset[str], *, start: date, key: 
         ctx.progress[key] = dict(p)
         ctx.save_progress(ctx.progress)
 
-    return gap_fill(
+    result = gap_fill(
         ctx.sec,
         ctx.session_factory,
         form_types=form_types,
@@ -64,6 +64,9 @@ def _gap_fill(ctx: JobContext, form_types: frozenset[str], *, start: date, key: 
         progress=sub,
         save_progress=save,
     )
+    if result.errors:
+        raise RuntimeError(f"{key} has {result.errors} unresolved errors")
+    return result
 
 
 def _openfigi_client(ctx: JobContext) -> OpenFigiClient:

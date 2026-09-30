@@ -89,6 +89,7 @@ def test_live_poll_within_window_runs_poll_feed(
         "entries": 2,
         "new": 1,
         "errors": 0,
+        "error_details": [],
         "issuer_ciks": [42],
         "owner_ciks": [7],
         "filer_ciks": [],

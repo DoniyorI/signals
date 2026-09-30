@@ -20,6 +20,7 @@ from signals.api.schemas import BackfillStep, Coverage, HealthOut, JobStatusOut,
 from signals.db.models import (
     Decision,
     DecisionReturn,
+    FeedItem,
     Filing,
     FundPositionChange,
     IngestRun,
@@ -30,6 +31,7 @@ from signals.db.models import (
 )
 from signals.domain.appstate import get_state
 from signals.domain.calendars import is_sec_business_day
+from signals.jobs import BACKFILL_STEPS
 
 
 # --------------------------------------------------------------------------- jobs
@@ -70,7 +72,8 @@ def _job_statuses(session: Session) -> list[JobStatusOut]:
                     last_started_at=ingest.started_at,
                     last_finished_at=ingest.finished_at,
                     last_status=status,
-                    last_error=(ingest.notes or {}).get("error"),
+                    last_error=(ingest.notes or {}).get("error")
+                    or (ingest.notes or {}).get("exception"),
                 )
             )
     return out
@@ -97,6 +100,10 @@ def _feed_delay(
     rows = session.execute(
         select(Filing.first_seen_at, Filing.accepted_at).where(
             Filing.source == "feed",
+            Filing.parse_status == "parsed",
+            select(FeedItem.accession_no)
+            .where(FeedItem.accession_no == Filing.accession_no)
+            .exists(),
             Filing.first_seen_at.isnot(None),
             Filing.first_seen_at >= cutoff,
         )
@@ -149,30 +156,104 @@ def _backfill_steps(session: Session) -> list[BackfillStep]:
     latest: dict[str, JobRequest] = {}
     for row in session.execute(
         select(JobRequest)
-        .where(JobRequest.kind.like("backfill_%"))
-        .order_by(JobRequest.kind, JobRequest.requested_at)
+        .where(JobRequest.kind.like("backfill_%") | JobRequest.kind.in_(BACKFILL_STEPS))
+        .order_by(JobRequest.kind, JobRequest.requested_at, JobRequest.id)
     ).scalars():
         latest[row.kind] = row  # ascending: last write per kind is the latest request
 
-    out = []
-    for kind in sorted(latest):
-        row = latest[kind]
+    # Parent and standalone requests both describe real steps; prefer the latest run.
+    candidates: dict[str, tuple[JobRequest, dict, str, datetime | None]] = {}
+    for kind, row in latest.items():
         progress = row.progress or {}
-        done_units = (
-            progress["done_units"]
-            if "done_units" in progress
-            else len(progress.get("datasets_done", []))
-        )
+        if kind != "backfill_all":
+            candidates[kind] = (row, progress, row.status, _checkpoint_time(progress, row))
+    parent = latest.get("backfill_all")
+    if parent is not None:
+        progress = parent.progress or {}
+        done = set(progress.get("done_steps", []))
+        active = next((kind for kind in BACKFILL_STEPS if kind not in done), None)
+        for kind in BACKFILL_STEPS:
+            standalone = candidates.get(kind)
+            if standalone is not None and (standalone[0].requested_at, standalone[0].id) > (
+                parent.requested_at,
+                parent.id,
+            ):
+                continue
+            sub = progress.get("steps", {}).get(kind, {})
+            status = (
+                "done"
+                if kind in done or parent.status == "done"
+                else (
+                    parent.status if kind == active and parent.status != "requested" else "pending"
+                )
+            )
+            timestamp_progress = sub or (progress if kind == active else {})
+            if kind == active and "updated_at" not in sub:
+                timestamp_progress = {**sub, "updated_at": progress.get("updated_at")}
+            candidates[kind] = (parent, sub, status, _checkpoint_time(timestamp_progress, parent))
+
+    out: list[BackfillStep] = []
+    for kind, (row, progress, status, updated_at) in sorted(candidates.items()):
+        units, total = _progress_units(progress, status)
         out.append(
             BackfillStep(
-                step=kind,
-                status=row.status,
-                done_units=done_units,
-                total_units=progress.get("total_units"),
-                updated_at=row.finished_at or row.started_at or row.requested_at,
+                step=kind, status=status, done_units=units, total_units=total, updated_at=updated_at
             )
         )
+        # Keep heterogeneous units separate: ZIP counts never mix with filing offsets.
+        for name, gap in sorted(progress.items()):
+            if not name.startswith("gap_fill_") or not isinstance(gap, dict):
+                continue
+            current = gap.get("current", {})
+            # One completed quarter does not imply the whole gap step finished.
+            gap_status = "done" if name in progress.get("result", {}) else status
+            out.append(
+                BackfillStep(
+                    step=f"{kind}.{name}",
+                    status=gap_status,
+                    done_units=current.get("offset", 0),
+                    total_units=None,
+                    updated_at=_checkpoint_time(gap, row) if gap.get("updated_at") else updated_at,
+                )
+            )
     return out
+
+
+def _checkpoint_time(progress: dict, row: JobRequest) -> datetime | None:
+    stamp = progress.get("updated_at")
+    if isinstance(stamp, str):
+        try:
+            return datetime.fromisoformat(stamp)
+        except ValueError:
+            pass
+    return row.finished_at or row.started_at or row.requested_at
+
+
+def _progress_units(progress: dict, status: str) -> tuple[int, int | None]:
+    if "done_units" in progress:
+        return progress["done_units"], progress.get("total_units")
+    for key in ("datasets_done", "done"):
+        if isinstance(progress.get(key), list):
+            return len(progress[key]), progress.get("total_units")
+    if "step" in progress:
+        stages = (
+            "positions",
+            "decisions",
+            "returns",
+            "badges",
+            "insider_stats",
+            "funds",
+            "feed",
+            "version",
+        )
+        stage = progress["step"]
+        if stage in stages:
+            return len(stages) if status == "done" else stages.index(stage), len(stages)
+    # Price jobs currently return their counters rather than checkpoint each symbol.
+    result = progress.get("result", {})
+    if isinstance(result.get("loaded"), int):
+        return result["loaded"], result.get("requested")
+    return 0, progress.get("total_units")
 
 
 # --------------------------------------------------------------------------- coverage
@@ -254,6 +335,7 @@ def _status(
     sec_blocked_until: datetime | None,
     live_poll_last_success: datetime | None,
     has_recent_parse_errors: bool,
+    has_job_errors: bool = False,
 ) -> Literal["ok", "warn", "error"]:
     if sec_blocked_until is not None and sec_blocked_until > as_of:
         return "error"
@@ -264,7 +346,7 @@ def _status(
         )
         if stale and business_hours:
             return "error"
-    if has_recent_parse_errors:
+    if has_recent_parse_errors or has_job_errors:
         return "warn"
     return "ok"
 
@@ -279,10 +361,17 @@ def get_health(session: Session) -> HealthOut:
     poll_raw = get_state(session, "live_poll_last_success")
     live_poll_last_success = datetime.fromisoformat(poll_raw["at"]) if poll_raw else None
     has_recent = _has_recent_parse_errors(session, as_of)
+    jobs = _job_statuses(session)
 
     return HealthOut(
-        status=_status(as_of, sec_blocked_until, live_poll_last_success, has_recent),
-        jobs=_job_statuses(session),
+        status=_status(
+            as_of,
+            sec_blocked_until,
+            live_poll_last_success,
+            has_recent,
+            any(job.last_status in ("error", "failed") for job in jobs),
+        ),
+        jobs=jobs,
         feed_delay_p50_s=p50,
         feed_delay_p95_s=p95,
         last_filing_seen_at=last_seen,

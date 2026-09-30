@@ -120,6 +120,8 @@ def ingest_raw(
         assert filing is not None
         filing.parse_status = "error"
         filing.parse_error = message
+        # `parsed_at` is the last parse attempt, including a failed reparse.
+        filing.parsed_at = now_et()
         session.flush()
         return IngestOutcome(sgml.accession_no, "error", message)
 

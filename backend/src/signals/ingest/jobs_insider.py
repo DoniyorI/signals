@@ -49,6 +49,7 @@ def _poll_result_dict(result: PollResult) -> dict:
         "entries": result.entries,
         "new": result.new,
         "errors": result.errors,
+        "error_details": list(result.error_details),
         "issuer_ciks": sorted(result.issuer_ciks),
         "owner_ciks": sorted(result.owner_ciks),
         "filer_ciks": sorted(result.filer_ciks),
@@ -166,6 +167,8 @@ def backfill_insiders(ctx: JobContext) -> dict:
         progress=insiders_progress,
         save_progress=_save_insiders,
     )
+    if gap_insiders.errors:
+        raise RuntimeError(f"Insider gap fill has {gap_insiders.errors} unresolved errors")
 
     form144_progress = progress.setdefault("gap_fill_144", {})
 
@@ -184,6 +187,8 @@ def backfill_insiders(ctx: JobContext) -> dict:
         progress=form144_progress,
         save_progress=_save_144,
     )
+    if gap_144.errors:
+        raise RuntimeError(f"Form 144 gap fill has {gap_144.errors} unresolved errors")
 
     return {
         "datasets_loaded": len(done),
