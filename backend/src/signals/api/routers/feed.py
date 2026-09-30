@@ -3,9 +3,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from signals.api.csv import csv_response
 from signals.api.deps import get_db
 from signals.api.params import Cursor, Format, Limit, OptDate, OptFloat, OptInt, StrList
-from signals.api.schemas import FeedPage, FeedSummary
+from signals.api.queries import common
+from signals.api.queries.feed import feed_summary, list_feed
+from signals.api.schemas import FeedItemOut, FeedPage, FeedSummary
 
 router = APIRouter(tags=["feed"])
 Db = Annotated[Session, Depends(get_db)]
@@ -36,9 +39,34 @@ def get_feed(
     limit: Limit = 50,
     format: Format = "json",
 ):
-    raise NotImplementedError
+    page = list_feed(
+        db,
+        forms=forms,
+        direction=direction,
+        codes=codes,
+        roles=roles,
+        sectors=sectors,
+        badges=badges,
+        min_value=min_value,
+        max_value=max_value,
+        min_mcap=min_mcap,
+        max_mcap=max_mcap,
+        include_10b5_1=include_10b5_1,
+        trade_from=trade_from,
+        trade_to=trade_to,
+        filed_from=filed_from,
+        filed_to=filed_to,
+        max_lag_days=max_lag_days,
+        issuer_cik=issuer_cik,
+        owner_cik=owner_cik,
+        cursor=cursor,
+        limit=limit,
+    )
+    if format == "csv":
+        return csv_response(page.items, "feed.csv", model=FeedItemOut)
+    return page
 
 
 @router.get("/feed/summary", response_model=FeedSummary)
 def get_feed_summary(db: Db, date: OptDate = None):
-    raise NotImplementedError
+    return feed_summary(db, date or common.today())

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from signals.api.deps import get_db
+from signals.api.queries import search as queries
 from signals.api.schemas import SearchOut
 
 router = APIRouter(tags=["search"])
@@ -16,4 +17,4 @@ def search(
     q: Annotated[str, Query(min_length=2)],
     limit: Annotated[int, Query(ge=1, le=50)] = 8,
 ):
-    raise NotImplementedError
+    return queries.search(db, q, limit=limit)

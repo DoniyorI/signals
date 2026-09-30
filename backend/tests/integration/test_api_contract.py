@@ -40,8 +40,16 @@ def test_openapi_has_every_path(client):
     assert set(client.get("/api/openapi.json").json()["paths"]) == PATHS
 
 
-def test_stub_returns_501(client):
-    r = client.get("/api/feed")
+def test_stub_returns_501():
+    # Not /api/feed: workstream E implements it, so it's no longer a stub. A throwaway
+    # route still exercises main.py's NotImplementedError -> 501 handler directly.
+    app = create_app()
+
+    @app.get("/api/_test_stub")
+    def _stub():
+        raise NotImplementedError
+
+    r = TestClient(app).get("/api/_test_stub")
     assert r.status_code == 501 and r.json() == {"detail": "not implemented"}
 
 
