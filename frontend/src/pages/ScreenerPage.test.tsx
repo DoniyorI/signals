@@ -80,3 +80,21 @@ it("validates integer rating filters before requesting the server", async () => 
   await waitFor(() => expect(requests.at(-1)?.searchParams.get("min_rating")).toBe("40"));
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 });
+
+it("every displayed insider and fund column exposes server sorting", async () => {
+  const user = userEvent.setup();
+  render(<AppWithRouter initialPath="/screener" />);
+  await screen.findByRole("link", { name: "Doe Jane" });
+  for (const header of ["Insider", "Company", "Roles", "Sector", "Rating", "Avg ROI", "Hit rate", "Decisions", "Last trade", "1Y return", "Risk"]) {
+    expect(screen.getByRole("button", { name: header })).toBeInTheDocument();
+  }
+  await user.click(screen.getByRole("button", { name: "Insider" }));
+  await waitFor(() => expect(requests.at(-1)?.searchParams.get("sort")).toBe("owner"));
+  await user.click(screen.getByRole("tab", { name: "Funds" }));
+  await screen.findByRole("link", { name: "Example Capital Management" });
+  for (const header of ["Fund", "Portfolio value", "Positions", "Top sector", "Rating (quarterly)", "1Y return", "Risk", "Coverage"]) {
+    expect(screen.getByRole("button", { name: header })).toBeInTheDocument();
+  }
+  await user.click(screen.getByRole("button", { name: "Coverage" }));
+  await waitFor(() => expect(requests.at(-1)?.searchParams.get("sort")).toBe("coverage_pct"));
+});

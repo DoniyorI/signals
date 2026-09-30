@@ -110,7 +110,7 @@ function sortRows<T>(
   rows: T[],
   sort: string | null,
   order: string,
-  accessors: Record<string, (r: T) => number | null>,
+  accessors: Record<string, (r: T) => number | string | null>,
 ): T[] {
   const accessor = sort ? accessors[sort] : undefined;
   if (!accessor) return rows;
@@ -120,7 +120,7 @@ function sortRows<T>(
     if (av === null && bv === null) return 0;
     if (av === null) return 1;
     if (bv === null) return -1;
-    return (av - bv) * dir;
+    return (typeof av === "number" && typeof bv === "number" ? av - bv : String(av).localeCompare(String(bv))) * dir;
   });
 }
 
@@ -142,6 +142,13 @@ export function screenInsiders(sp: URLSearchParams): InsiderScreenRow[] {
     return true;
   });
   return sortRows(rows, common.sort, common.order, {
+    owner: (r) => r.owner.name.toLowerCase(),
+    issuer: (r) => (r.primary_issuer?.ticker ?? r.primary_issuer?.name)?.toLowerCase() ?? null,
+    roles: (r) => r.roles.join(", ") || null,
+    sector: (r) => r.sector?.toLowerCase() ?? null,
+    risk_label: (r) => r.risk_label ? ["low", "medium", "high"].indexOf(r.risk_label) : null,
+    last_trade_date: (r) => r.last_trade_date,
+    return: (r) => r.windows[common.window],
     avg_roi_6m: (r) => r.avg_roi_6m,
     hit_rate: (r) => r.hit_rate,
     rating: (r) => r.rating.score,
@@ -159,6 +166,11 @@ export function screenFunds(sp: URLSearchParams): FundScreenRow[] {
   });
   return sortRows(rows, common.sort, common.order, {
     rating: (r) => r.rating.score,
+    fund: (r) => r.fund.name.toLowerCase(),
+    top_sector: (r) => r.top_sector?.toLowerCase() ?? null,
+    risk_label: (r) => r.risk_label ? ["low", "medium", "high"].indexOf(r.risk_label) : null,
+    coverage_pct: (r) => r.coverage_pct,
+    return: (r) => r.windows[common.window],
     latest_value_usd: (r) => r.latest_value_usd,
     positions: (r) => r.positions,
   });

@@ -12,11 +12,19 @@ separately afterward, following the `{row.window: row for row in ...}` pattern f
 from collections.abc import Callable, Sequence
 from datetime import date
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, case, func, select
 from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.orm import Session, aliased
 
-from signals.api.pagination import SortColumn, SortKey, paginate, parse_date, parse_float, parse_int
+from signals.api.pagination import (
+    SortColumn,
+    SortKey,
+    paginate,
+    parse_date,
+    parse_float,
+    parse_int,
+    parse_str,
+)
 from signals.api.queries.common import WINDOW_ORDER, issuer_refs, rating_of
 from signals.api.schemas import (
     FundScreenPage,
@@ -28,16 +36,20 @@ from signals.api.schemas import (
 from signals.db.models import (
     FundManager,
     FundNavDaily,
+    Issuer,
     Owner,
     OwnerRole,
     ProfileStats,
     ProfileWindow,
+    Ticker,
 )
 
 Windows = dict[int, dict[str, float | None]]
 
 
-def _sort_column(sort: str, return_col: SortColumn) -> tuple[SortColumn, Callable]:
+def _sort_column(
+    sort: str, return_col: SortColumn, extra: dict[str, tuple[SortColumn, Callable]]
+) -> tuple[SortColumn, Callable]:
     columns: dict[str, tuple[SortColumn, Callable]] = {
         "rating": (ProfileStats.rating, parse_int),
         "avg_roi_6m": (ProfileStats.avg_roi_6m, parse_float),
@@ -46,6 +58,15 @@ def _sort_column(sort: str, return_col: SortColumn) -> tuple[SortColumn, Callabl
         "last_trade_date": (ProfileStats.last_trade_date, parse_date),
         "return": (return_col, parse_float),
     }
+    columns.update(extra)
+    columns["risk_label"] = (
+        case(
+            (ProfileStats.risk_label == "low", 0),
+            (ProfileStats.risk_label == "medium", 1),
+            (ProfileStats.risk_label == "high", 2),
+        ),
+        parse_int,
+    )
     return columns.get(sort, columns["rating"])
 
 
@@ -142,7 +163,26 @@ def screen_insiders(
     if risk:
         stmt = stmt.where(ProfileStats.risk_label.in_(risk))
 
-    sort_col, parse = _sort_column(sort, window_row.ret)
+    symbol = (
+        select(Ticker.symbol)
+        .where(Ticker.issuer_cik == ProfileStats.primary_issuer_cik)
+        .order_by(Ticker.valid_to.desc().nulls_first(), Ticker.valid_from.desc())
+        .limit(1)
+        .scalar_subquery()
+    )
+    issuer_name = (
+        select(Issuer.name).where(Issuer.cik == ProfileStats.primary_issuer_cik).scalar_subquery()
+    )
+    sort_col, parse = _sort_column(
+        sort,
+        window_row.ret,
+        {
+            "owner": (func.lower(Owner.name), parse_str),
+            "issuer": (func.lower(func.coalesce(symbol, issuer_name)), parse_str),
+            "roles": (func.nullif(func.array_to_string(OwnerRole.roles, ", "), ""), parse_str),
+            "sector": (func.lower(ProfileStats.sector), parse_str),
+        },
+    )
     is_desc = order != "asc"
     keys = [
         SortKey("v", sort_col, desc=is_desc, nullable=True, parse=parse),
@@ -245,7 +285,24 @@ def screen_funds(
     if risk:
         stmt = stmt.where(ProfileStats.risk_label.in_(risk))
 
-    sort_col, parse = _sort_column(sort, window_row.ret)
+    coverage = (
+        select(FundNavDaily.coverage)
+        .where(FundNavDaily.cik == ProfileStats.cik, FundNavDaily.basis == "filed")
+        .order_by(FundNavDaily.date.desc())
+        .limit(1)
+        .scalar_subquery()
+    )
+    sort_col, parse = _sort_column(
+        sort,
+        window_row.ret,
+        {
+            "fund": (func.lower(FundManager.name), parse_str),
+            "latest_value_usd": (FundManager.latest_value_usd, parse_float),
+            "positions": (FundManager.latest_positions, parse_int),
+            "top_sector": (func.lower(ProfileStats.sector), parse_str),
+            "coverage_pct": (coverage, parse_float),
+        },
+    )
     is_desc = order != "asc"
     keys = [
         SortKey("v", sort_col, desc=is_desc, nullable=True, parse=parse),
