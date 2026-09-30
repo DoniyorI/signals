@@ -103,12 +103,12 @@ def test_universe_includes_tracked_fund_holdings(session):
 def test_incremental_start(session, session_factory):
     make_prices(session, "ACME", date(2024, 1, 2), [1.0] * 7)
     primary = FakeProvider(name="fake_primary")
-    universe = [UniverseEntry(symbol="ACME", start=date(2020, 1, 1))]
+    universe = [UniverseEntry(symbol="ACME", start=date(2024, 1, 2))]
 
     load_prices(session_factory, primary, None, universe, end=date(2024, 1, 31))
 
     assert len(primary.calls) == 1
-    assert primary.calls[0].start == date(2024, 1, 11)
+    assert primary.calls[0].start == date(2024, 1, 10)  # overlap checks the adjustment factor
     assert primary.calls[0].end == date(2024, 1, 31)
 
 
@@ -134,7 +134,7 @@ def test_idempotent(session, session_factory):
         name="fake_primary",
         bars={"ACME": [_bar(date(2024, 1, 11), 2.0), _bar(date(2024, 1, 12), 2.1)]},
     )
-    universe = [UniverseEntry(symbol="ACME", start=date(2020, 1, 1))]
+    universe = [UniverseEntry(symbol="ACME", start=date(2024, 1, 2))]
 
     first = load_prices(session_factory, primary, None, universe, end=date(2024, 1, 31))
     assert first.rows == 2  # the two new bars past what was already stored

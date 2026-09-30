@@ -16,7 +16,14 @@ def _load_prices_through(ctx: JobContext, end: date) -> dict:
     with session_scope(ctx.session_factory) as s:
         universe = build_price_universe(s, backfill_start=ctx.settings.backfill_start)
     primary, fallback = make_providers(ctx.settings)
-    result = load_prices(ctx.session_factory, primary, fallback, universe, end=end)
+    result = load_prices(
+        ctx.session_factory,
+        primary,
+        fallback,
+        universe,
+        end=end,
+        refresh_history=ctx.params.get("refresh_history") is True,
+    )
     payload = {
         "requested": result.requested,
         "loaded": result.loaded,
