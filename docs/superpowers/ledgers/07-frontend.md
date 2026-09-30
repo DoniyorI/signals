@@ -187,3 +187,147 @@ it's a progressive-disclosure UI choice over already-correct URL/query wiring.
 F4 counts: vitest 59/59 (54 from F1-F3 + 5 FeedPage), build 0, lint 0 (same pre-existing
 react-hooks/incompatible-library warning), tsc -b 0.
 Task 4: complete (commits 8241041..25603f1, tests: npm --prefix frontend test →    Duration  2.10s (transform 692ms, setup 2.65s, import 1.26s, tests 964ms, environment 4.68s))
+
+## Task F5 (insider profile page)
+
+New shared, non-produced-interface helpers added (small enough not to warrant their own
+ledger heading, but used by F6/F7 too): `src/lib/httpError.ts` (`HttpError`, `required(data,
+response)`, `isNotFound(error)` — openapi-fetch decides `data` vs `error` by `response.ok`, not
+by which status codes a path's schema documents, so an undocumented 404 like
+`/api/companies/{ref}` or `/api/funds/{cik}/performance` for an untracked fund still needs a
+real status to branch on) and `src/lib/queryParams.ts` (`basisParam`/`includeParam`, reading the
+same `basis`/`include_10b5_1` URL keys `BasisToggle`/`TenB51Toggle` already own, so a page's
+fetch always agrees with what its own toggles show).
+
+Ruling F5.1: every profile/entity header's `<h1>` renders the bare name only (ticker, rating,
+stats, badges all live in sibling elements), never inline text appended to the heading — the
+plan's own test wording for F6 ("a heading `Globex Inc`") and by the same pattern F5/F7 need the
+heading's accessible name to be exactly the entity name; appending anything inline (e.g. a
+ticker) would extend that accessible name and break an exact-string heading query — cost if
+wrong: a heading query in a later task needs a regex/substring matcher instead of an exact
+string, and the header's own tests here would need rewriting.
+
+Ruling F5.2: this workstream's own F2-F4 handoff note ("Radix ToggleGroup items appear as plain
+buttons... query with getByRole('button', ...) or getByText, not 'radio'") is only half right —
+rendering `BasisToggle` and reading the accessible-roles dump on a failed query shows Radix's
+single-select `ToggleGroup` (`type="single"`) actually sets `role=radiogroup`/`role=radio` in
+this radix-ui version. `getByRole("button", ...)` fails outright (confirmed: it was the first
+failure here). Tests here use `getByText` instead, matching the pattern F4's own FeedPage.test
+already used for the same component (`screen.getByText("Buys")`) — cost if wrong: a
+`getByRole("button", ...)` query on any BasisToggle/TenB51Toggle item in a later task fails
+immediately; `getByRole("radio", ...)` would also work but `getByText` needs no role knowledge.
+
+F5 counts: vitest 64/64 (59 from F1-F4 + 5 InsiderPage), build 0, lint 0 (same pre-existing
+react-hooks/incompatible-library warning), tsc -b 0.
+Task 5: complete (commits 25603f1..9a68ada, tests: npm --prefix frontend test →    Duration  5.27s (transform 1.46s, setup 7.12s, import 5.26s, tests 2.19s, environment 14.30s))
+
+## Task F6 (company page)
+
+Ruling F6.1: added jsdom shims to `src/test/setup.ts`, project-wide (same rationale/pattern as
+F3's Ruling F3.2): `Element.prototype.hasPointerCapture`/`setPointerCapture`/
+`releasePointerCapture`/`scrollIntoView`. jsdom (checked: v30.1.1, confirmed absent by grepping
+its source) implements none of these; Radix's `Select` (`QuarterSelect`'s base, first exercised
+by an interactive test in this task) calls them from its pointer-down handling and throws
+"is not a function" the instant a test opens the dropdown otherwise — cost if wrong: any test
+that opens a Select (here or in later tasks) fails immediately with that TypeError, so it would
+have been caught right away.
+
+Ruling F6.2 (see the comment on `InstitutionsTab`): the Institutions tab's totals row always
+renders a `ChangeChip change="NEW"` and `ChangeChip change="EXIT"` next to their counts, even
+when a count is 0, rather than only showing per-row chips — `InstitutionsOut.rows` only lists
+*current* holders (exits are the count `exit_count`, with no row detail, unlike
+`FundHoldingsOut`'s separate `exits` array), so no single company/period in the seed world is
+guaranteed to have an EXIT-changed row to show inline next to a NEW one, but the plan's own test
+("change chips render": the NEW and EXIT labels are visible) needs both visible from one render.
+Reusing the row-level chip vocabulary for the summary counts satisfies this deterministically —
+cost if wrong: purely cosmetic (plain-text counts instead of chips); no other code depends on it.
+
+Ruling F6.3: every `useQuery` that can 404 for an expected, non-transient reason (an unknown
+company ref, later an untracked fund's performance in F7) passes the new
+`retry: retryUnlessNotFound` (added to `src/lib/httpError.ts` alongside F5's `HttpError`/
+`required`/`isNotFound`) instead of falling through to the app's default `retry: 1`. Found via a
+real test failure: the default retry adds a ~1s backoff delay before a 404 settles to the
+query's `error` state, which blew past `findByText`'s default 1000ms timeout and made
+"unknown company shows not found" flaky/failing even though the UI was otherwise correct —
+retrying a 404 can't change the outcome anyway. Applied retroactively to F5's insider header
+query too, for the same latent reason (untested there, but the same shape of bug). Cost if
+wrong: none, it only removes a pointless retry on a definitive error.
+
+Note (not a ruling, a correction to this same task's own work): the first draft of
+`CompanyHeader` put the ticker and "formerly GBX" note in one `<p>` as adjacent text/fragment
+children. `screen.getByText("formerly GBX")` failed with testing-library's "text is broken up by
+multiple elements" hint even though visually it looked like one line — the ticker text before it
+made the paragraph's own `textContent` (the match target) longer than just "formerly GBX". Every
+header in this workstream now gives a fact its own leaf element when a test (here, or plausibly
+a later one) might match it by exact text.
+
+F6 counts: vitest 68/68 (64 from F1-F5 + 4 CompanyPage), build 0, lint 0 (same pre-existing
+react-hooks/incompatible-library warning), tsc -b 0.
+Task 6: complete (commits 9a68ada..cf3b455, tests: npm --prefix frontend test →    Duration  5.99s (transform 1.79s, setup 7.28s, import 7.35s, tests 2.91s, environment 20.82s))
+
+## Task F7 (fund page)
+
+No new rulings: F7 reused F5/F6's established patterns directly (bare-name `<h1>` per F5.1,
+`retryUnlessNotFound` on the header and performance queries per F6.3 — the performance query is
+exactly the review-focus "untracked fund" 404 case that ruling was written for) and all three
+tests (renders holdings and exits separately, untracked fund message, high conviction star
+shown) passed on the first implementation without needing a test rewrite.
+
+F7 counts: vitest 71/71 (68 from F1-F6 + 3 FundPage), build 0, lint 0 (same pre-existing
+react-hooks/incompatible-library warning), tsc -b 0.
+Task 7: complete (commits cf3b455..54797e1, tests: npm --prefix frontend test →    Duration  4.57s (transform 2.24s, setup 7.43s, import 6.71s, tests 2.80s, environment 14.77s))
+
+## Continuation 2026-09-30 (Codex)
+Task F8: Ruling: use up to three subagents concurrently, with one frontend writer and read-only reviewers — the user explicitly authorized up to three agents, superseding the earlier no-subagent note — cost if wrong: coordination overhead only; task ownership stays unchanged.
+Task F8: Ruling: preserve live progress ledgers and copy them into docs at integration — repository instructions require durable task/ruling history — cost if wrong: retained small documentation files.
+
+| Pre-flight | Interface or consistency check | Result |
+|---|---|---|
+| F8 → F9 | basis/include toggles and fund summary semantics | Reuse URL hooks; fund summary ROI is quarterly, never labeled 6m. |
+| F8 → DataTable | controlled sorting and pagination | Existing manualSorting props support server sorting; cursor belongs to the selected filters. |
+| F9 → EquityChart | overlay named profile curves | Existing chart supports lines; verify before implementation. |
+| F10 → F4/useWatch | feed columns and watchlist query cache | Reuse feed columns; invalidate the shared watchlists query. |
+| F11 → API | HealthOut and POST jobs | Frozen contract supports all required controls. |
+| F12 → AppShell | trigger, keyboard events, CommandDialog | Existing trigger is unwired; connect once at shell level. |
+| F13 → F8–F12 | route coverage, mobile, console errors | Run after every page exists; browser failures must be fixed. |
+| F8 | specified files, tests, endpoint filters | Consistent. |
+| F9 | URL ids, picker, chart and comparison tests | Consistent; use quarterly labels for funds. |
+| F10 | CRUD confirmations, URL id, activity tests | Consistent. |
+| F11 | status, reparse, confirmation tests | Consistent. |
+| F12 | debounce, grouped results, keyboard tests | Consistent. |
+| F13 | e2e file outside src | Explicit plan ownership includes frontend/e2e and playwright.config.ts for this task. |
+Task F8: Ruling: parent implemented F8 after the assigned implementer hit an account usage limit; read-only integration agent reviewed the change — continuation remained authorized — cost if wrong: review independence reduced, mitigated by endpoint and behavior checks.
+Task F8: Ruling: F10 and F11 may be implemented concurrently in disjoint page/test files; parent owns shared files and all commits — these pages have no dependency on F9 and user authorized three agents — cost if wrong: transient full-suite failures while RED tests exist; commits wait for GREEN.
+Task F8: Ruling: expose sorting only for server-supported keys until integration extends the whitelist to every display column — unsupported keys silently fall back to rating in current backend — cost if wrong: temporarily limited header sorting; integration must reconcile with spec.
+Task F8: Ruling: reject fractional/out-of-range ratings and nonpositive/fractional decision counts locally — real API expects integers, MSW does not validate — cost if wrong: narrower invalid-input behavior only.
+Task 8: complete (commits 54797e1..5e733d2, tests: npm test -- ScreenerPage → 6 passed; npm test → 77 passed; npm run build && npm run lint → exit 0, existing DataTable compiler warning and bundle-size warning)
+Task F9: Ruling: add named comparison series to EquityChart while preserving its existing points API — the fixed nav/benchmark interface cannot overlay up to four profiles — cost if wrong: additive shared-chart maintenance; component tests and browser smoke protect existing profiles.
+Task F9: Ruling: keep identity-stable curve colors and use dashed fund curves versus solid insider curves, mirrored in the legend — independent review found the default CIKs collide in the eight-color palette — cost if wrong: categorical dash styling adds one visual distinction; regression confirms two profile series are drawn with distinct styles.
+Task 9: complete (commits 5e733d2..6af117b, tests: npm test -- ComparePage → 4 passed after initial RED 4 failures and review RED for colliding styles; npm test → 107 passed; npm run build && npm run lint → exit 0)
+Task 10: complete (commits 6af117b..78ed6ec, tests: npm test -- WatchlistsPage → 12 passed after initial RED 11 failures and pending-pagination RED; npm test → 107 passed; npm run build && npm run lint → exit 0)
+Task 11: complete (commits 78ed6ec..69e27f5, tests: npm test -- HealthPage → 14 passed after initial RED 14 failures and reparse-retry RED; npm test → 107 passed; npm run build && npm run lint → exit 0)
+Task F10: Ruling: a missing URL id selects the first list and writes its id with replace;
+an explicit unknown id shows a not-found state, keeping list navigation available — views
+must be shareable while stale saved URLs must not silently show another list — cost if wrong:
+one URL default-selection policy may need adjusting; no API changes.
+
+Task F10: Ruling: after deleting the selected list, select the first surviving list;
+remove id when no lists remain, and preserve unrelated parameters — avoids a stale selection
+after a successful deletion while retaining URL state — cost if wrong: only fallback choice.
+
+Task F10: Ruling: Watch items use kind+CIK profile routes, including company CIK; activity
+uses unchanged shared feedColumns, with SEC source links — identity is CIK and the plan
+requires feed-column reuse — cost if wrong: none, company route supports CIK.
+
+Task F10: Ruling: named-list creation and deletion are available here; adding items follows
+the existing profile Watch action, which targets the first list — F10 asks for list CRUD,
+linked removable items and activity, while shared useWatch is outside this task's ownership —
+cost if wrong: arbitrary target-list item adding needs a separate shared-hook change.
+
+Task F12: Ruling: expose CommandDialog shouldFilter and disable local filtering for API results — server search ranks names, ticker aliases and subtitles, which local ID-based filtering would hide — cost if wrong: palette relies on the API ranking authority.
+Task F12: Ruling: place dialog title/description inside dialog content and supply Command's label — existing wrapper did not provide an accessible input name — cost if wrong: shared wrapper accessibility only; keyboard and dialog tests cover it.
+Task 12: complete (commits 69e27f5..af2497c, tests: npm test -- SearchPalette initial RED → 4 failures; npm test → 111 passed; npm run build && npm run lint → exit 0)
+Task F13: Ruling: Browser plugin not available; use repository Playwright workflow — frontend-testing-debugging skill permits this fallback, and plan explicitly requires Playwright — cost if wrong: browser QA uses Chromium only.
+Task 13: complete (commits af2497c..c011c78, tests: npx playwright test initial RED shortcut readiness failure → 12 passed after awaiting mounted route; npm test → 111 passed; npm run build && npm run lint → exit 0)
+Task F13: Ruling: include DOM library types for browser-evaluated Playwright callbacks — e2e files share tsconfig.node with config files, and build caught missing document type — cost if wrong: config type context has additional browser globals.
+Task F13: browser QA: desktop screener, compare light/dark and insider phone inspected; filter persists through reload; no route console errors or phone page overflow. Initial immediate checkbox.check raced React URL navigation; click plus retrying checked assertion verifies final state. Existing TanStack compiler and Vite bundle warnings remain.

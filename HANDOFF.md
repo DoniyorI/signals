@@ -14,7 +14,7 @@ Everything lives in this local git repo. There is **no remote**, so nothing is b
 | `ws/b-funds` | `agent-a8381fc340cab38a6` | 03 funds + stakes | Done 8/8 |
 | `ws/d-analytics` | `agent-aa2bbeb312058b04a` | 05 analytics | Done 12/12 |
 | `ws/e-api` | `agent-afc758e1ee8030ef4` | 06 API | Done 9/9 |
-| `ws/f-frontend` | `agent-a4052ed686f556203` | 07 frontend | F1–F4 done; F5–F7 in progress at snapshot time |
+| `ws/f-frontend` | `agent-a4052ed686f556203` | 07 frontend | Done 13/13; merged, mock smoke 12/12 |
 
 - Spec (binding authority): `docs/superpowers/specs/2026-09-27-sec-dashboard-design.md`.
 - Plans: `docs/superpowers/plans/2026-09-27-sec-dashboard/` (start with `00-overview.md`; integration is `08-integration.md`).
@@ -25,9 +25,9 @@ Everything lives in this local git repo. There is **no remote**, so nothing is b
 
 ## What's left
 
-1. **F8–F13 on `ws/f-frontend`** (plan 07): screener, compare, watchlists, data health, the ⌘K search palette, and the Playwright smoke test. Work in the F worktree. Its ledger has a handoff section with the shared components, the `ColumnDef` cast pattern (Ruling F4.1), and test-harness gotchas.
+1. **Frontend complete F1–F13.** All workstreams merged C, A, B, D, E, F into `feat/sec-dashboard`. Integration readiness fixes committed: worker bootstrap/singleton/recovery, visible failure diagnostics, retryable historical gaps, fund acceptance repair, bounded atomic adjusted-price repair, and every screener column sortable. Recorded SEC filings pass the real parsers → prices → analytics → API test, including both bases and repeatability. Frontend 112 tests, build/lint and mock browser 12 tests pass. Live data criteria remain unverified.
 2. **Integration** (plan 08):
-   - **I1:** merge into `feat/sec-dashboard` in the order C, A, B, D, E, F, then run the cross-workstream test.
+   - **I1:** complete after cross-workstream commit; full backend suite/static checks and OpenAPI drift pass; migration has one head (`0001_initial`).
    - **I2:** bring up the stack.
    - **I3:** run the real backfill with checkpoints.
    - **I4:** run the spot-check script.
@@ -55,7 +55,7 @@ Everything lives in this local git repo. There is **no remote**, so nothing is b
   - `compute_badges` loads every decision into memory.
   - `refresh_feed_items` issues about 3 queries per issuer.
   - A cold insider curve against the 300 ms target, and the whole nightly run against its 30-minute target.
-- **Frontend gaps.** The feed's "N new filings" 30-second poll pill has no automated test. No page has been visually checked in a browser yet; do that during integration.
+- **Frontend gaps.** The feed's "N new filings" 30-second poll pill has no automated test. Desktop screener, compare light/dark and phone insider visually inspected; browser route and filter persistence checks pass.
 - **By design.** Scheduled reference jobs restart from scratch after a crash. Only requested jobs resume.
 
 ## How to work (same process as the build)
@@ -69,3 +69,6 @@ Everything lives in this local git repo. There is **no remote**, so nothing is b
   - Add a `Task N: complete (commits <base>..<head>, tests: <command> → <result>)` line to the ledger.
 - **Rulings:** decide conflicts against the spec. Record each one as `Task N: Ruling: <what> — <why> — <cost if wrong>`.
 - **Secrets:** `.env` holds them. It is git-ignored; never commit or print it. `data/` (raw SEC archive) is never committed either.
+
+## Latest continuation (2026-09-30 evening)
+Docker live rebuild is starting. I2–I7 remain pending live evidence. I4 script is under test-first development; its tests are not included in the preceding green readiness suite. Subagents reached account usage limit after finishing readiness fixes; parent continues. Never treat mock/fixture tests as real coverage, latency or backfill evidence. Detailed rulings and test-first reports are copied into ledger 08.
