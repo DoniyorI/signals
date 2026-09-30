@@ -39,3 +39,17 @@ export function useUrlState<T>(
 
   return [value, setValue];
 }
+
+/**
+ * A multi-select filter as one comma-joined URL param (`?roles=CEO,CFO`) rather than a
+ * repeated key — simpler to build and read back from `useSearchParams`. Pages translate this
+ * into the API's repeated-key array param when they build the actual request.
+ */
+export function useUrlListState(key: string): [string[], (value: string[]) => void] {
+  return useUrlState<string[]>(
+    key,
+    [],
+    (raw) => (raw ? raw.split(",").filter(Boolean) : []),
+    (value) => (value.length ? value.join(",") : null),
+  );
+}

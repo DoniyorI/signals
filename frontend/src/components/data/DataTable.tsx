@@ -34,6 +34,9 @@ interface DataTableProps<T> {
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
+  /** Extra classes for a data row, e.g. the feed's 3px buy/sell margin rule (spec principle:
+   * direction is the one loud signal). */
+  rowClassName?: (row: T) => string | undefined;
 }
 
 /** A sticky-header, virtualized table. Sorts the loaded rows client-side by default; pass
@@ -50,6 +53,7 @@ export function DataTable<T>({
   sorting: controlledSorting,
   onSortingChange,
   manualSorting = false,
+  rowClassName,
 }: DataTableProps<T>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
   const sorting = controlledSorting ?? internalSorting;
@@ -158,7 +162,7 @@ export function DataTable<T>({
             {virtualRows.map((virtualRow) => {
               const row = rows[virtualRow.index];
               return (
-                <tr key={row.id} className={cn("border-b border-border hover:bg-muted/50")}>
+                <tr key={row.id} className={cn("border-b border-border hover:bg-muted/50", rowClassName?.(row.original))}>
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="p-2 align-middle whitespace-nowrap">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
