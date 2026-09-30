@@ -1,12 +1,17 @@
 import { expect, test } from "@playwright/test";
 
+const insider = process.env.E2E_INSIDER ?? "2000001";
+const company = process.env.E2E_COMPANY ?? "ACME";
+const fund = process.env.E2E_FUND ?? "3000001";
+const real = Boolean(process.env.E2E_BASE_URL);
+
 const routes = [
   { path: "/", heading: "Live feed" },
-  { path: "/insider/2000001", heading: "Doe Jane" },
-  { path: "/company/ACME", heading: /Acme Corp/ },
-  { path: "/fund/3000001", heading: "Example Capital Management" },
+  { path: `/insider/${insider}`, heading: real ? /.+/ : "Doe Jane" },
+  { path: `/company/${encodeURIComponent(company)}`, heading: real ? /.+/ : /Acme Corp/ },
+  { path: `/fund/${fund}`, heading: real ? /.+/ : "Example Capital Management" },
   { path: "/screener", heading: "Screener" },
-  { path: "/compare?ids=insider:2000001,fund:3000001", heading: "Compare" },
+  { path: `/compare?ids=insider:${insider},fund:${fund}`, heading: "Compare" },
   { path: "/watchlists", heading: "Watchlists" },
   { path: "/health", heading: "Data health" },
 ];
@@ -23,11 +28,13 @@ for (const route of routes) {
     // Readiness includes all queries and charts, not just a static route title.
     await expect(page.getByText(/^Loading(?:…| data health…| profile…)?$/)).toHaveCount(0);
     await page.waitForLoadState("networkidle");
+    await expect(page.getByText(/^(Insider|Company|Fund) not found$/)).toHaveCount(0);
+    await expect(page.getByText(/didn.t load/)).toHaveCount(0);
     expect(errors).toEqual([]);
   });
 }
 
-for (const path of ["/", "/insider/2000001"]) {
+for (const path of ["/", `/insider/${insider}`]) {
   test(`phone has no page overflow at ${path}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(path);
@@ -38,6 +45,7 @@ for (const path of ["/", "/insider/2000001"]) {
 }
 
 test("search shortcut navigates to a profile and theme switches", async ({ page }) => {
+  test.skip(real, "Mock search identity and theme interaction; real profile routes tested above");
   await page.goto("/screener");
   await expect(page.getByRole("heading", { name: "Screener", level: 1 })).toBeVisible();
   await page.keyboard.press("Control+k");
@@ -52,6 +60,7 @@ test("search shortcut navigates to a profile and theme switches", async ({ page 
 });
 
 test("screener role filter stays selected after navigation and reload", async ({ page }) => {
+  test.skip(real, "Mock CEO identity; real screener route tested above");
   await page.goto("/screener");
   await expect(page.getByRole("link", { name: "Doe Jane" })).toBeVisible();
   await page.getByRole("button", { name: "Filters", exact: true }).click();
