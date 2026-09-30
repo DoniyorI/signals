@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from signals.config import Settings, get_settings
 from signals.db.models import IngestRun
 from signals.db.session import make_engine, make_session_factory, session_scope
-from signals.domain.appstate import set_state
+from signals.domain.appstate import get_state, set_state
 from signals.domain.calendars import ET, now_et
 from signals.jobs import (
     JobContext,
@@ -159,6 +159,12 @@ def _serve_worker(settings: Settings, session_factory: Callable[[], Session]) ->
             set_state(s, "sec_blocked_until", {"until": until.isoformat()})
 
     sec = build_sec_client(settings, archive=archive, on_block=on_block)
+    with session_scope(session_factory) as s:
+        pause = get_state(s, "sec_blocked_until")
+    if pause and pause.get("until"):
+        until = datetime.fromisoformat(pause["until"])
+        if until > now_et():
+            sec.blocked_until = until
     specs = load_all_jobs()
     # The lifetime advisory lock prevents recovery from stealing another live worker's run.
     with session_scope(session_factory) as s:

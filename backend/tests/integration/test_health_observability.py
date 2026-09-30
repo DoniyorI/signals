@@ -461,3 +461,30 @@ def test_interrupted_unfinished_ingest_run_becomes_health_visible(session):
     assert "interrupted" in result.jobs[0].last_error.lower()
     assert result.status == "warn"
     assert worker.recover_unfinished_runs(session) == 0
+
+
+def test_worker_restores_sec_pause_before_scheduling(
+    session, session_factory, settings, tmp_archive, monkeypatch
+):
+    from types import SimpleNamespace
+
+    from signals.domain.appstate import set_state
+    from signals.sec.client import SecBlockedError, SecClient
+    from tests.support import MockRouter
+
+    until = NOW + timedelta(minutes=10)
+    set_state(session, "sec_blocked_until", {"until": until.isoformat()})
+    session.flush()
+    sec = SecClient(settings, http=MockRouter({}).client, archive=tmp_archive, clock=lambda: NOW)
+    monkeypatch.setattr(worker, "build_sec_client", lambda *args, **kwargs: sec)
+    monkeypatch.setattr(worker, "now_et", lambda: NOW)
+
+    def scheduler(*args, ctx_factory, specs, **kwargs):
+        ctx = ctx_factory(next(iter(specs.values())))
+        with pytest.raises(SecBlockedError):
+            ctx.sec.get("https://www.sec.gov/blocked-probe")
+        assert ctx.sec.blocked_until == until
+        return SimpleNamespace(start=lambda: None)
+
+    monkeypatch.setattr(worker, "build_scheduler", scheduler)
+    worker._serve_worker(settings, session_factory)
