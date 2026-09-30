@@ -25,3 +25,13 @@ export function required<T>(data: T | undefined, response: Response): T {
 export function isNotFound(error: unknown): boolean {
   return error instanceof HttpError && error.status === 404;
 }
+
+/**
+ * A TanStack Query `retry` option that never retries a 404 (the app's own query-client default
+ * otherwise retries once): a 404 here means "this profile doesn't exist" or "performance isn't
+ * available for this fund" — a fact that won't change on retry — so retrying only delays
+ * showing the right message. Any other error still gets the app's usual one retry.
+ */
+export function retryUnlessNotFound(failureCount: number, error: unknown): boolean {
+  return !isNotFound(error) && failureCount < 1;
+}

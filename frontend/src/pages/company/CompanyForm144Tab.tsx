@@ -1,0 +1,92 @@
+import { useQuery } from "@tanstack/react-query";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { api, type Schema } from "@/api/client";
+import { DataTable } from "@/components/data/DataTable";
+import { SecLink } from "@/components/data/SecLink";
+import { EmptyState } from "@/components/state/EmptyState";
+import { ErrorState } from "@/components/state/ErrorState";
+import { fmtDate, fmtShares, fmtUsd } from "@/lib/format";
+
+type Form144Out = Schema<"Form144Out">;
+
+const STATUS_LABEL: Record<Form144Out["status"], string> = {
+  pending: "Pending",
+  matched: "Sale executed",
+  expired: "Expired",
+};
+
+const columnHelper = createColumnHelper<Form144Out>();
+
+const columns = [
+  columnHelper.accessor("filed_date", {
+    header: "Filed",
+    cell: ({ getValue }) => fmtDate(getValue()),
+  }),
+  columnHelper.accessor("seller_name", {
+    header: "Seller",
+    cell: ({ getValue }) => getValue() ?? "—",
+  }),
+  columnHelper.accessor("relationship", {
+    header: "Relationship",
+    cell: ({ getValue }) => getValue() ?? "—",
+  }),
+  columnHelper.accessor("shares_to_sell", {
+    header: "Shares to sell",
+    cell: ({ getValue }) => <span className="tabular-nums">{fmtShares(getValue())}</span>,
+  }),
+  columnHelper.accessor("market_value_usd", {
+    header: "Value",
+    cell: ({ getValue }) => <span className="tabular-nums">{fmtUsd(getValue())}</span>,
+  }),
+  columnHelper.accessor("approx_sale_date", {
+    header: "Approx. sale date",
+    cell: ({ getValue }) => fmtDate(getValue()),
+  }),
+  columnHelper.accessor("status", {
+    header: "Status",
+    cell: ({ getValue }) => STATUS_LABEL[getValue()],
+  }),
+  columnHelper.display({
+    id: "sec",
+    header: "",
+    cell: ({ row }) => <SecLink href={row.original.sec_url} label="SEC" />,
+  }),
+];
+
+// See ledger Ruling F4.1.
+const form144Columns = columns as unknown as ColumnDef<Form144Out>[];
+
+/** Pending and matched Form 144 notices of proposed sale for this issuer, across every
+ * insider (spec 11, company page). */
+export function CompanyForm144Tab({ cik }: { cik: number }) {
+  const query = useQuery({
+    queryKey: ["company-form144", cik],
+    queryFn: async () => {
+      const { data } = await api.GET("/api/companies/{cik}/form144", { params: { path: { cik }, query: {} } });
+      return data ?? [];
+    },
+  });
+
+  if (query.status === "pending") return <p className="py-10 text-center text-sm text-muted-foreground">Loading…</p>;
+  if (query.status === "error") {
+    return (
+      <ErrorState
+        title="Form 144 notices didn't load"
+        action={
+          <button type="button" onClick={() => query.refetch()} className="text-sm text-link hover:underline">
+            Try again
+          </button>
+        }
+      />
+    );
+  }
+
+  return (
+    <DataTable
+      columns={form144Columns}
+      data={query.data}
+      getRowId={(n) => n.accession_no}
+      empty={<EmptyState title="No Form 144 notices" />}
+    />
+  );
+}

@@ -23,6 +23,18 @@ if (typeof globalThis.ResizeObserver === "undefined") {
 Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, value: 1024 });
 Object.defineProperty(HTMLElement.prototype, "offsetHeight", { configurable: true, value: 768 });
 
+// jsdom implements none of these: Radix's `Select` (and other pointer-capture-aware primitives)
+// call them from their pointer-down handling, which throws "not a function" the first time a
+// test opens a Select in jsdom otherwise (ledger Ruling F6.1).
+for (const method of ["hasPointerCapture", "setPointerCapture", "releasePointerCapture"] as const) {
+  if (typeof Element.prototype[method] === "undefined") {
+    Object.defineProperty(Element.prototype, method, { configurable: true, value: () => false });
+  }
+}
+if (typeof Element.prototype.scrollIntoView === "undefined") {
+  Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, value: () => {} });
+}
+
 // Listening here (a setup-file side effect), rather than in `beforeAll`, patches
 // `globalThis.fetch` before any test file imports `@/api/client`. openapi-fetch's
 // `createClient` captures `globalThis.fetch` as a default argument at import time, so if MSW

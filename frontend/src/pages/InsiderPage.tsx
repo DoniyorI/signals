@@ -6,7 +6,7 @@ import { WindowsTable } from "@/components/data/WindowsTable";
 import { ErrorState } from "@/components/state/ErrorState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlState } from "@/hooks/useUrlState";
-import { isNotFound, required } from "@/lib/httpError";
+import { isNotFound, required, retryUnlessNotFound } from "@/lib/httpError";
 import { basisParam, includeParam } from "@/lib/queryParams";
 import { DecisionsTab } from "./insider/DecisionsTab";
 import { Form144Tab } from "./insider/Form144Tab";
@@ -36,6 +36,7 @@ export default function InsiderPage() {
       });
       return required(data, response);
     },
+    retry: retryUnlessNotFound,
   });
 
   const performanceQuery = useQuery({
