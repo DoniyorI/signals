@@ -1,0 +1,82 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { HttpResponse, http } from "msw";
+import { afterEach, beforeEach, expect, it } from "vitest";
+import { AppWithRouter } from "@/App";
+import { server } from "@/mocks/node";
+import { screenInsiders } from "@/mocks/data/screener";
+
+let requests: URL[] = [];
+function record({ request }: { request: Request }) {
+  const url = new URL(request.url);
+  if (url.pathname.startsWith("/api/screener/")) requests.push(url);
+}
+beforeEach(() => { requests = []; server.events.on("request:start", record); });
+afterEach(() => server.events.removeListener("request:start", record));
+
+it("sort click sends sort and order and retains profile links", async () => {
+  const user = userEvent.setup();
+  render(<AppWithRouter initialPath="/screener" />);
+  expect(await screen.findByRole("link", { name: "Doe Jane" })).toHaveAttribute("href", "/insider/2000001");
+  await user.click(screen.getByRole("button", { name: "Avg ROI" }));
+  await waitFor(() => expect(requests.at(-1)?.searchParams.get("sort")).toBe("avg_roi_6m"));
+  expect(requests.at(-1)?.searchParams.get("order")).toBe("desc");
+  await user.click(await screen.findByRole("button", { name: "Avg ROI" }));
+  await waitFor(() => expect(requests.at(-1)?.searchParams.get("order")).toBe("asc"));
+});
+
+it("role filter sends roles=CEO and hides planned trades by default", async () => {
+  const user = userEvent.setup();
+  render(<AppWithRouter initialPath="/screener" />);
+  await screen.findByRole("link", { name: "Doe Jane" });
+  await user.click(screen.getByRole("button", { name: "Filters" }));
+  await user.click(screen.getByRole("checkbox", { name: "CEO" }));
+  await waitFor(() => expect(requests.at(-1)?.searchParams.getAll("roles")).toEqual(["CEO"]));
+  expect(requests.at(-1)?.searchParams.get("include_10b5_1")).toBe("false");
+});
+
+it("funds tab requests /api/screener/funds with tracked funds by default", async () => {
+  render(<AppWithRouter initialPath="/screener" />);
+  await userEvent.setup().click(screen.getByRole("tab", { name: "Funds" }));
+  expect(await screen.findByRole("link", { name: "Example Capital Management" })).toHaveAttribute("href", "/fund/3000001");
+  expect(requests.at(-1)?.pathname).toBe("/api/screener/funds");
+  expect(requests.at(-1)?.searchParams.get("tracked_only")).toBe("true");
+});
+
+it("restores URL filters and includes them in the CSV export", async () => {
+  render(<AppWithRouter initialPath="/screener?roles=CEO&basis=executed&window=3y&min_return=0.1&sort=return&order=asc" />);
+  const csv = await screen.findByRole("link", { name: "Export CSV" });
+  const query = new URL(csv.getAttribute("href")!, "http://localhost").searchParams;
+  expect(query.getAll("roles")).toEqual(["CEO"]);
+  expect(query.get("basis")).toBe("executed");
+  expect(query.get("window")).toBe("3y");
+  expect(query.get("min_return")).toBe("0.1");
+  expect(query.get("format")).toBe("csv");
+});
+
+it("loads another cursor page without losing the existing rows", async () => {
+  const rows = screenInsiders(new URLSearchParams("include_10b5_1=false"));
+  server.use(http.get("/api/screener/insiders", ({ request }) => {
+    const next = new URL(request.url).searchParams.get("cursor");
+    return HttpResponse.json({ items: [rows[next ? 1 : 0]], next_cursor: next ? null : "page-two" });
+  }));
+  render(<AppWithRouter initialPath="/screener" />);
+  await screen.findByRole("link", { name: rows[0].owner.name });
+  await userEvent.setup().click(screen.getByRole("button", { name: "Load more" }));
+  expect(await screen.findByRole("link", { name: rows[1].owner.name })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: rows[0].owner.name })).toBeInTheDocument();
+  expect(requests.at(-1)?.searchParams.get("cursor")).toBe("page-two");
+});
+
+it("validates integer rating filters before requesting the server", async () => {
+  render(<AppWithRouter initialPath="/screener?min_rating=40.5" />);
+  expect(await screen.findByRole("alert")).toHaveTextContent("Minimum rating must be a whole number from 0 to 100");
+  expect(requests).toHaveLength(0);
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "Filters" }));
+  const rating = screen.getByRole("spinbutton", { name: "Minimum rating" });
+  await user.clear(rating);
+  await user.type(rating, "40");
+  await waitFor(() => expect(requests.at(-1)?.searchParams.get("min_rating")).toBe("40"));
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
