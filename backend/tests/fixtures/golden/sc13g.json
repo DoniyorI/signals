@@ -1,0 +1,22 @@
+{
+  "form_type": "SCHEDULE 13G",
+  "issuer_cik": 1650101,
+  "issuer_name": "ADDENTAX GROUP CORP.",
+  "cusip": "00653L400",
+  "event_date": "2026-09-22",
+  "amendment_no": null,
+  "persons": [
+    {
+      "name": "Yip Wai Lun",
+      "cik": null,
+      "sole_voting": 208334.0,
+      "shared_voting": 0.0,
+      "sole_dispositive": 208334.0,
+      "shared_dispositive": 0.0,
+      "aggregate_owned": 208334.0,
+      "percent_of_class": 0.099,
+      "type_of_reporting_person": "IN"
+    }
+  ],
+  "purpose": null
+}
