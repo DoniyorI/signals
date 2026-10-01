@@ -28,11 +28,11 @@ Everything lives in this local git repo. There is **no remote**, so nothing is b
 1. **Frontend complete F1–F13.** All workstreams merged C, A, B, D, E, F into `feat/sec-dashboard`. Integration readiness fixes committed: worker bootstrap/singleton/recovery, visible failure diagnostics, retryable historical gaps, fund acceptance repair, bounded atomic adjusted-price repair, and every screener column sortable. Recorded SEC filings pass the real parsers → prices → analytics → API test, including both bases and repeatability. Frontend 112 tests, build/lint and mock browser 12 tests pass. Live data criteria remain unverified.
 2. **Integration** (plan 08):
    - **I1:** complete after cross-workstream commit; full backend suite/static checks and OpenAPI drift pass; migration has one head (`0001_initial`).
-   - **I2:** bring up the stack.
+   - **I2:** complete; Docker stack and partial real-browser routes verified.
    - **I3:** run the real backfill with checkpoints.
-   - **I4:** run the spot-check script.
+   - **I4:** script and tests committed; fresh SEC historical comparison and five user eye checks pending.
    - **I5:** measure live latency.
-   - **I6:** run the Playwright smoke test on real data and the performance checks.
+   - **I6:** environment-driven routes committed; 12 mock and 5 partial real-stack smoke tests pass; full real profiles, coverage and timings pending.
    - **I7:** run the security sweep, do a whole-branch review, update the docs, and finish the branch.
 3. **Integration follow-ups** found during the build (below).
 
@@ -71,4 +71,8 @@ Everything lives in this local git repo. There is **no remote**, so nothing is b
 - **Secrets:** `.env` holds them. It is git-ignored; never commit or print it. `data/` (raw SEC archive) is never committed either.
 
 ## Latest continuation (2026-09-30 evening)
-Docker live rebuild is starting. I2–I7 remain pending live evidence. I4 script is under test-first development; its tests are not included in the preceding green readiness suite. Subagents reached account usage limit after finishing readiness fixes; parent continues. Never treat mock/fixture tests as real coverage, latency or backfill evidence. Detailed rulings and test-first reports are copied into ledger 08.
+I2 passed. Request **3 backfill_all** resumed at **20:38 ET** on the rebuilt worker after a real 2016 Q3 ticker-evidence deadlock. Reference is complete: **6,169,515 acceptance records**, **74,031 issuers with SIC**. Completed insider quarters **2016 Q1/Q2** remain in `progress.steps.backfill_insiders.datasets_done`; `progress.done_steps` retains `backfill_reference`. Request 3 is running at `backfill_insiders`; never reset its checkpoints or delete archives.
+
+Fixes committed: `acda20e` releases the idle transaction on the lifetime advisory-lock connection while preserving singleton ownership; `a7125b0` retries complete quarterly load transactions on 40P01/40001 up to three times with backoff/jitter and fresh sessions, sorts canonical ticker-evidence keys, and aligns live/bulk owner-before-ticker writes. Actual concurrent Postgres regression, sorted SQL writes, rollback/replay, exhausted and nonretryable failures pass. Full backend **708 tests**, Ruff and Pyright pass. `.serena/` is locally excluded in `.git/info/exclude`; never stage it or `.claude/`.
+
+I3–I7 live criteria remain pending. Do not restart the active worker for a spot-check during a healthy quarter; after a suitable checkpoint stop it, run `scripts/spot_check.py` through the same advisory lock using a read-only scripts mount, and restart. The script must respect any persisted SEC pause before fetching. The I5 window is now closed: measure after at least one continuous worker hour on **2026-10-01 between 09:00 and 20:00 ET**, preserving startup catch-up observations. A one-time thread follow-up, `signals-live-latency-validation`, is scheduled for 09:15 on 2026-10-01. Detailed rulings and evidence are in ledger 08. Subagents reached account usage limit; parent continues. Never treat fixtures or mock tests as live historical coverage, latency or performance evidence.

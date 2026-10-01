@@ -74,3 +74,15 @@ Run checks with their exit codes enforced (don't pipe them through `tail` before
 - HTTP is mocked with `tests.support.MockRouter` (`httpx.MockTransport`). Unit tests never touch the network.
 - Real SEC, Alpaca and OpenFIGI samples live in `backend/tests/fixtures/sec/` and are described in `MANIFEST.json`. Each entry's `expect` holds anchors read independently from the source document, and some entries carry a `structure_note` describing format quirks (13D vs 13G XML, the wrapped daily-index header, and so on). Use `fixture_bytes(key)` and `manifest[key]`.
 - Row builders live in `tests/factories.py`.
+
+## Integrated maintenance
+
+All six workstreams are merged into `feat/sec-dashboard`. The ownership table above records the original build boundaries; the main maintainer now owns cross-module integration changes. Keep parser, analytics and API responsibilities in their existing modules, and preserve the generated API contract unless a deliberate contract change is required.
+
+The worker holds a lifetime PostgreSQL advisory lock before startup recovery or SEC-client use. Running requests resume after a restart; failed resumable backfills reuse checkpoints only when kind and parameters match. Scheduled jobs have durable run records; requested partial error results fail visibly. Reference, bulk and gap-fill checkpoints must never mark a failed unit complete.
+
+Price loading bounds provider windows and database batches, probes the latest stored bar for adjusted-history revisions, and refreshes revised history atomically. Use `signals jobs request backfill_prices --params '{"refresh_history":true}'` for older corrections that leave the latest sentinel unchanged or previously unavailable historical bars. Missing prices remain missing.
+
+Live `first_seen_at` measures successful feed availability after its transaction commits. Initial catch-up filings can make latency high; never claim the two-minute target from mock data or exclude those observations without an explicit spec decision.
+
+Integration continuation and rulings: `HANDOFF.md`, `docs/superpowers/ledgers/08-integration.md`, and the current `RESULTS.md`. Real data validation uses `E2E_BASE_URL`, `E2E_INSIDER`, `E2E_COMPANY`, `E2E_FUND` for Playwright. The manual SEC spot-check uses the same worker lock; stop the worker, run the script with a read-only scripts mount, then restart. Never run two independent SEC clients concurrently.
