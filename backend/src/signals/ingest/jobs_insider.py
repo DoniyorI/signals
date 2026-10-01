@@ -3,7 +3,7 @@
 from dataclasses import asdict
 from datetime import date, datetime, time, timedelta
 
-from signals.db.session import session_scope
+from signals.db.session import run_transaction, session_scope
 from signals.domain.appstate import get_state, set_state
 from signals.domain.calendars import ET, is_sec_business_day
 from signals.domain.types import FORM144_FORMS, INSIDER_FORMS
@@ -73,8 +73,7 @@ def _fetch_listing(ctx: JobContext) -> str:
 def _load_dataset(ctx: JobContext, ds: DatasetLink) -> None:
     zip_bytes = ctx.sec.get(ds.url, priority=Priority.BULK)
     ctx.archive.put("bulk", ds.name, zip_bytes, "zip")
-    with session_scope(ctx.session_factory) as s:
-        load_345_zip(s, zip_bytes, name=ds.name)
+    run_transaction(ctx.session_factory, lambda s: load_345_zip(s, zip_bytes, name=ds.name))
 
 
 @register_job("live_poll", interval_seconds=60)

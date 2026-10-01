@@ -1,5 +1,12 @@
+import time
 from datetime import date, datetime
 
+import pytest
+from sqlalchemy import delete, select, text
+from sqlalchemy.exc import DBAPIError
+
+from signals.db.models import Issuer
+from signals.db.session import make_session_factory, session_scope
 from signals.domain.appstate import get_state
 from signals.domain.calendars import ET
 from signals.ingest import jobs_insider
@@ -8,6 +15,7 @@ from signals.ingest.gap_fill import GapFillResult
 from signals.ingest.indexes import ReconcileResult
 from signals.jobs import JOBS, JobContext, load_all_jobs
 from signals.sec.client import SecClient
+from tests.factories import make_issuer
 from tests.support import MockRouter
 
 _BASE = "/files/structureddata/data/insider-transactions-data-sets"
@@ -18,6 +26,79 @@ LISTING_HTML = f"""
 
 FIRST_URL = f"https://www.sec.gov{_BASE}/2024q4_form345.zip"
 SECOND_URL = f"https://www.sec.gov{_BASE}/2025q1_form345.zip"
+
+
+@pytest.mark.parametrize("sqlstate", ["40P01", "40001"])
+def test_dataset_retries_whole_transaction_after_concurrency_abort(
+    db_engine, settings, tmp_archive, monkeypatch, sqlstate
+):
+    factory = make_session_factory(db_engine)
+    router = MockRouter({FIRST_URL: b"archived dataset"})
+    ctx = _ctx(settings, factory, tmp_archive, now=lambda: datetime.now(ET))
+    ctx.sec = SecClient(settings, http=router.client, sleep=lambda s: None)
+    attempts, delays = [], []
+    base = 9700000 if sqlstate == "40P01" else 9710000
+
+    def load(session, raw, *, name):
+        attempts.append(session)
+        make_issuer(session, cik=base + len(attempts))
+        if len(attempts) < 3:
+            session.execute(
+                text(f"DO $$ BEGIN RAISE EXCEPTION 'retry test' USING ERRCODE='{sqlstate}'; END $$")
+            )
+
+    monkeypatch.setattr(jobs_insider, "load_345_zip", load)
+    monkeypatch.setattr(time, "sleep", delays.append)
+    jobs_insider._load_dataset(
+        ctx,
+        jobs_insider.DatasetLink(year=2024, quarter=4, url=FIRST_URL, name="2024q4_form345.zip"),
+    )
+    with session_scope(factory) as session:
+        assert list(
+            session.scalars(select(Issuer.cik).where(Issuer.cik.between(base, base + 3)))
+        ) == [base + 3]
+    assert len({id(s) for s in attempts}) == 3
+    assert len(delays) == 2 and 0 < delays[0] < delays[1]
+    assert len(router.requests) == 1
+    with session_scope(factory) as session:
+        session.execute(delete(Issuer).where(Issuer.cik == base + 3))
+
+
+@pytest.mark.parametrize("sqlstate, expected_attempts", [("40P01", 4), ("40001", 4), ("23505", 1)])
+def test_dataset_exhausted_or_nonretryable_failure_rolls_back_and_propagates(
+    db_engine, settings, tmp_archive, monkeypatch, sqlstate, expected_attempts
+):
+    factory = make_session_factory(db_engine)
+    ctx = _ctx(
+        settings, factory, tmp_archive, now=lambda: datetime.now(ET), routes={FIRST_URL: b"zip"}
+    )
+    attempts, delays = [], []
+    base = 9720000 + ["40P01", "40001", "23505"].index(sqlstate) * 100
+
+    def load(session, raw, *, name):
+        attempts.append(session)
+        make_issuer(session, cik=base + len(attempts))
+        session.execute(
+            text(f"DO $$ BEGIN RAISE EXCEPTION 'retry test' USING ERRCODE='{sqlstate}'; END $$")
+        )
+
+    monkeypatch.setattr(jobs_insider, "load_345_zip", load)
+    monkeypatch.setattr(time, "sleep", delays.append)
+    with pytest.raises(DBAPIError) as error:
+        jobs_insider._load_dataset(
+            ctx,
+            jobs_insider.DatasetLink(
+                year=2024, quarter=4, url=FIRST_URL, name="2024q4_form345.zip"
+            ),
+        )
+    assert getattr(error.value.orig, "sqlstate", None) == sqlstate
+    assert len(attempts) == expected_attempts
+    assert len(delays) == expected_attempts - 1
+    with session_scope(factory) as session:
+        assert (
+            list(session.scalars(select(Issuer.cik).where(Issuer.cik.between(base, base + 4))))
+            == []
+        )
 
 
 def _ctx(settings, session_factory, archive, *, now, routes=None, progress=None) -> JobContext:

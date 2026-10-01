@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import event, select
 
 from signals.db.models import FeedItem, Filing, FilingAcceptance, InsiderHolding, InsiderTransaction
 from signals.domain.owner_group import owner_group_key
@@ -137,3 +137,20 @@ def test_apply_acceptance_times(session, fixture_bytes, manifest):
     assert filing.accepted_at_source == "submissions"
     feed_item = session.get(FeedItem, acc)
     assert feed_item.accepted_at == accepted
+
+
+def test_bulk_ticker_evidence_locks_follow_canonical_key_order(session, fixture_bytes):
+    keys = []
+
+    def observe(connection, cursor, statement, parameters, context, executemany):
+        if statement.startswith("INSERT INTO ticker_evidence"):
+            keys.append((parameters["issuer_cik"], parameters["symbol"]))
+
+    connection = session.connection()
+    event.listen(connection, "before_cursor_execute", observe)
+    try:
+        load_345_zip(session, fixture_bytes("bulk_345_slice"))
+    finally:
+        event.remove(connection, "before_cursor_execute", observe)
+    assert len(set(keys)) > 1
+    assert keys == sorted(keys)

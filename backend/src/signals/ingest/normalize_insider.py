@@ -307,13 +307,10 @@ def normalize_ownership(session: Session, filing: Filing, doc: OwnershipDoc) -> 
 
     filing.original_filed_date = doc.date_of_original_submission
     upsert_issuer_name(session, doc.issuer_cik, doc.issuer_name)
-    if record_ticker_evidence(
-        session, doc.issuer_cik, doc.issuer_symbol, filing.filed_date, "ownership"
-    ):
-        rebuild_tickers(session, [doc.issuer_cik])
 
     owner_lines: list[OwnerLine] = []
-    for o in owners:
+    # Bulk ingestion also locks owners before ticker evidence, in CIK order.
+    for o in sorted(owners, key=lambda owner: owner.cik):
         upsert_owner(session, o.cik, o.name, classify_owner_type(o))
         upsert_owner_role(
             session,
@@ -335,6 +332,14 @@ def normalize_ownership(session: Session, filing: Filing, doc: OwnershipDoc) -> 
             is_other=o.is_other,
         )
         owner_lines.append(OwnerLine(o.cik, o.name, tuple(r.value for r in roles)))
+
+    # Keep the source's display order while acquiring shared owner locks by CIK.
+    lines_by_cik = {line.cik: line for line in owner_lines}
+    owner_lines = [lines_by_cik[o.cik] for o in owners]
+    if record_ticker_evidence(
+        session, doc.issuer_cik, doc.issuer_symbol, filing.filed_date, "ownership"
+    ):
+        rebuild_tickers(session, [doc.issuer_cik])
 
     session.execute(delete(FilingOwner).where(FilingOwner.accession_no == acc))
     session.execute(

@@ -341,7 +341,8 @@ def load_345_zip(
             upsert_issuer_name(session, cik, sub["issuername"])
             seen_issuers.add(cik)
 
-    # The newest filing wins (A3's convention): apply owner/role upserts oldest-first.
+    # Match live parsing's owner lock order, with oldest-first history per owner so
+    # the newest filing still wins (A3's convention).
     owner_events = sorted(
         (
             (submissions[acc]["filing_date"], acc, o)
@@ -349,7 +350,7 @@ def load_345_zip(
             if acc in valid_accessions
             for o in owners_by_acc.get(acc, [])
         ),
-        key=lambda item: _to_date(item[0]) or date.min,
+        key=lambda item: (_cik(item[2]["rptownercik"]), _to_date(item[0]) or date.min, item[1]),
     )
     for filed_text, acc, o in owner_events:
         cik = _cik(o["rptownercik"])
@@ -542,16 +543,16 @@ def load_345_zip(
 
     # 8. Ticker evidence, once per distinct (issuer, symbol, filing date).
     touched_issuers: set[int] = set()
-    seen_evidence: set[tuple[int, str | None, str | None]] = set()
+    seen_evidence: set[tuple[int, str, date]] = set()
     for acc in valid_accessions:
         sub = submissions[acc]
         cik = _cik(sub["issuercik"])
-        symbol, filed_text = sub.get("issuertradingsymbol"), sub["filing_date"]
-        key = (cik, symbol, filed_text)
-        if key in seen_evidence:
-            continue
-        seen_evidence.add(key)
-        if record_ticker_evidence(session, cik, symbol, _req_date(filed_text), "bulk_345"):
+        symbol = canonical_symbol(sub.get("issuertradingsymbol"))
+        if symbol is not None:
+            seen_evidence.add((cik, symbol, _req_date(sub["filing_date"])))
+    # Canonical keys, not accession/set iteration, determine row lock acquisition.
+    for cik, symbol, filed in sorted(seen_evidence):
+        if record_ticker_evidence(session, cik, symbol, filed, "bulk_345"):
             touched_issuers.add(cik)
     if touched_issuers:
         rebuild_tickers(session, touched_issuers)
