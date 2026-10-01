@@ -1,9 +1,12 @@
-from datetime import date, timedelta
+from datetime import date, datetime
+from importlib import import_module
 
-from signals.domain.calendars import is_sec_business_day
+import pytest
+
+from signals.domain.calendars import ET
 from signals.ingest.gap_fill import gap_fill
 from signals.ingest.indexes import daily_index_url, full_index_url
-from signals.sec.client import SecClient
+from signals.sec.client import SecClient, SecNotFoundError
 from signals.sec.ratelimit import TokenBucket
 from tests.integration.insider_support import idx_line, idx_text
 from tests.support import MockRouter
@@ -117,10 +120,13 @@ def test_saves_offset_every_200(session_factory, settings, tmp_archive):
     assert len(saved[-1]["pending_failures"]["2025Q1"]) == 450
 
 
-def test_current_quarter_uses_daily_index(session_factory, settings, tmp_archive):
-    day = date.today()
-    while not is_sec_business_day(day):
-        day -= timedelta(days=1)
+def test_current_quarter_uses_daily_index(session_factory, settings, tmp_archive, monkeypatch):
+    monkeypatch.setattr(
+        import_module("signals.ingest.gap_fill"),
+        "now_et",
+        lambda: datetime(2026, 9, 30, 12, tzinfo=ET),
+    )
+    day = date(2026, 9, 29)
     client, router = _client(settings, {daily_index_url(day): idx_text([]).encode()})
 
     gap_fill(
@@ -139,3 +145,110 @@ def test_current_quarter_uses_daily_index(session_factory, settings, tmp_archive
     assert daily_index_url(day) in fetched
     year, quarter = day.year, (day.month - 1) // 3 + 1
     assert full_index_url(year, quarter) not in fetched
+
+
+def test_missing_full_index_retains_checkpoint_until_retry(session_factory, settings, tmp_archive):
+    url = full_index_url(2025, 2)
+    client, router = _client(settings, {url: 404})
+    progress = {
+        "quarters_done": ["2025Q1"],
+        "current": {"quarter": "2025Q2", "offset": 200},
+    }
+    saved = []
+
+    def fill():
+        return gap_fill(
+            client,
+            session_factory,
+            form_types=["144"],
+            start=date(2025, 1, 1),
+            end=date(2025, 6, 30),
+            settings=settings,
+            archive=tmp_archive,
+            progress=progress,
+            save_progress=saved.append,
+        )
+
+    with pytest.raises(SecNotFoundError, match=r"2025/QTR2/form\.idx"):
+        fill()
+    assert saved == []
+    assert progress == {
+        "quarters_done": ["2025Q1"],
+        "current": {"quarter": "2025Q2", "offset": 200},
+    }
+
+    router.routes[url] = idx_text([]).encode()
+    assert fill().errors == 0
+    assert progress["quarters_done"] == ["2025Q1", "2025Q2"]
+    assert "current" not in progress
+    assert [str(r.url) for r in router.requests] == [url, url]
+
+
+def test_missing_current_quarter_day_is_retryable(
+    session_factory, settings, tmp_archive, monkeypatch
+):
+    monkeypatch.setattr(
+        import_module("signals.ingest.gap_fill"),
+        "now_et",
+        lambda: datetime(2026, 9, 30, 12, tzinfo=ET),
+    )
+    day = date(2026, 9, 29)
+    url = daily_index_url(day)
+    client, router = _client(settings, {url: 404})
+    progress, saved = {}, []
+
+    def fill():
+        return gap_fill(
+            client,
+            session_factory,
+            form_types=["144"],
+            start=day,
+            end=day,
+            settings=settings,
+            archive=tmp_archive,
+            progress=progress,
+            save_progress=saved.append,
+        )
+
+    with pytest.raises(SecNotFoundError, match=f"form.{day:%Y%m%d}.idx"):
+        fill()
+    assert progress == {} and saved == []
+    router.routes[url] = idx_text([]).encode()
+    assert fill().errors == 0
+    assert progress["quarters_done"] == [f"{day.year}Q{(day.month - 1) // 3 + 1}"]
+    assert [str(r.url) for r in router.requests] == [url, url]
+
+
+def test_current_quarter_follows_eastern_date_at_utc_rollover(
+    session_factory, settings, tmp_archive, monkeypatch
+):
+    module = import_module("signals.ingest.gap_fill")
+
+    class UtcDate(date):
+        @classmethod
+        def today(cls):
+            return cls(2026, 10, 1)
+
+    # Docker is already in Q4 while the SEC is still on the last evening of Q3.
+    monkeypatch.setattr(module, "date", UtcDate)
+    monkeypatch.setattr(
+        module, "now_et", lambda: datetime(2026, 9, 30, 21, tzinfo=ET), raising=False
+    )
+    day = date(2026, 9, 29)
+    daily_url = daily_index_url(day)
+    full_url = full_index_url(2026, 3)
+    client, router = _client(
+        settings, {daily_url: idx_text([]).encode(), full_url: idx_text([]).encode()}
+    )
+    gap_fill(
+        client,
+        session_factory,
+        form_types=["144"],
+        start=day,
+        end=day,
+        settings=settings,
+        archive=tmp_archive,
+        progress={},
+        save_progress=lambda p: None,
+    )
+    assert [str(r.url) for r in router.requests] == [daily_url]

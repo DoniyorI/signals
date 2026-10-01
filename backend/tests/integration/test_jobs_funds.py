@@ -1,15 +1,19 @@
-from datetime import date
+from datetime import UTC, date, datetime
 
 import httpx
+import pytest
 
 from signals.db.models import FundManager, FundPosition, Security
 from signals.domain.appstate import get_state, set_state
+from signals.domain.calendars import ET
 from signals.domain.types import FUND_FORMS, STAKE_FORMS
 from signals.ingest import jobs_funds
+from signals.ingest.indexes import daily_index_url
 from signals.jobs import JOBS, JobContext
 from signals.reference.cusip import MapResult, OpenFigiClient
 from signals.sec.client import SecClient
 from tests.factories import make_fund_filing, make_fund_manager, make_fund_position, make_issuer
+from tests.integration.insider_support import idx_text
 from tests.support import MockRouter
 
 LISTING_HTML = (
@@ -121,6 +125,42 @@ def test_backfill_funds_resumes(session_factory, settings, tmp_archive, fixture_
     assert gap_fill_calls[0] == (FUND_FORMS, date(2026, 7, 1))
     assert gap_fill_calls[1] == (STAKE_FORMS, settings.stakes_start)
     assert ctx.progress["datasets_done"] == ["2016q1_form13f.zip", "2026q2_form13f.zip"]
+
+
+@pytest.mark.parametrize(
+    "instant,start,index_days",
+    [
+        (
+            datetime(2026, 10, 1, 1, tzinfo=UTC),
+            date(2026, 9, 27),
+            [date(2026, 9, 28), date(2026, 9, 29)],
+        ),
+        (
+            datetime(2026, 11, 2, 4, 30, tzinfo=UTC),
+            date(2026, 10, 29),
+            [date(2026, 10, 29), date(2026, 10, 30)],
+        ),
+    ],
+)
+def test_fund_gap_fill_excludes_today_in_eastern_time(
+    session_factory, settings, tmp_archive, monkeypatch, instant, start, index_days
+):
+    from importlib import import_module
+
+    monkeypatch.setattr(
+        import_module("signals.ingest.gap_fill"),
+        "now_et",
+        lambda: instant.astimezone(ET),
+        raising=False,
+    )
+    expected_urls = [daily_index_url(day) for day in index_days]
+    router = MockRouter({url: idx_text([]).encode() for url in expected_urls})
+    sec = SecClient(settings, http=router.client)
+    ctx = _ctx(session_factory, settings, tmp_archive, sec=sec)
+    ctx.now = lambda: instant
+    result = jobs_funds._gap_fill(ctx, FUND_FORMS, start=start, key="gap_fill_funds")
+    assert result.errors == 0
+    assert [str(r.url) for r in router.requests] == expected_urls
 
 
 def test_bulk_check_funds_loads_missing_datasets(

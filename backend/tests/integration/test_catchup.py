@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
@@ -8,7 +8,8 @@ from signals.db.models import IngestRun, JobRequest
 from signals.domain.appstate import get_state, set_state
 from signals.domain.calendars import ET, is_sec_business_day
 from signals.jobs import JobContext, JobSpec
-from signals.sec.client import SecClient
+from signals.sec.client import SecClient, SecNotFoundError
+from tests.integration.insider_support import idx_text
 from tests.support import MockRouter
 
 NOW = datetime(2026, 9, 30, 12, tzinfo=ET)
@@ -290,6 +291,46 @@ def test_failed_reconcile_day_keeps_checkpoint_before_gap(
     result = jobs_insider.reconcile_daily(ctx)
     assert len(result["results"]) == 1
     assert get_state(session, "reconcile_last_day") == {"day": last.isoformat()}
+
+
+def test_missing_reconcile_index_stays_health_visible_and_retries(
+    session, session_factory, settings, tmp_archive
+):
+    from signals.api.queries.health import _job_statuses
+    from signals.ingest import jobs_insider
+    from signals.ingest.indexes import daily_index_url
+
+    last = date(2026, 9, 28)
+    missing = date(2026, 9, 29)
+    url = daily_index_url(missing)
+    set_state(session, "reconcile_last_day", {"day": last.isoformat()})
+    router = MockRouter({url: 404})
+    ctx = JobContext(
+        settings,
+        session_factory,
+        SecClient(settings, http=router.client),
+        tmp_archive,
+        None,
+        {"catch_up": True},
+        {},
+        lambda p: None,
+        lambda: NOW,
+    )
+
+    with pytest.raises(SecNotFoundError, match=f"form.{missing:%Y%m%d}.idx"):
+        jobs_insider.reconcile_daily(ctx)
+    assert get_state(session, "reconcile_last_day") == {"day": last.isoformat()}
+    status = next(s for s in _job_statuses(session) if s.kind == "reconcile_daily")
+    assert status.last_status == "error" and status.last_error is not None
+    assert url in status.last_error
+    run = session.scalar(select(IngestRun).where(IngestRun.job == "reconcile_daily"))
+    assert run is not None
+    assert run.errors == 1 and run.finished_at is not None
+
+    router.routes[url] = idx_text([]).encode()
+    jobs_insider.reconcile_daily(ctx)
+    assert get_state(session, "reconcile_last_day") == {"day": missing.isoformat()}
+    assert [str(r.url) for r in router.requests] == [url, url]
 
 
 def test_catchup_waits_out_persisted_sec_pause(

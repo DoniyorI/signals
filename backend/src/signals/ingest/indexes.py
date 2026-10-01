@@ -15,13 +15,14 @@ from sqlalchemy.orm import Session
 
 from signals.config import Settings
 from signals.db.session import session_scope
+from signals.domain.calendars import is_sec_business_day
 from signals.domain.types import TRACKED_FORMS
 from signals.ingest.amendments import relink_orphans
 from signals.ingest.pipeline import ingest_accession
 from signals.jobs import track_run
 from signals.logging import get_logger
 from signals.sec.archive import RawArchive
-from signals.sec.client import SecClient, SecNotFoundError
+from signals.sec.client import SecClient
 
 log = get_logger(__name__)
 
@@ -111,10 +112,12 @@ def reconcile_day(
     forms: frozenset[str] = TRACKED_FORMS,
 ) -> ReconcileResult:
     with track_run(session_factory, "reconcile_daily") as tracker:
-        try:
-            body = client.get(daily_index_url(day))
-        except SecNotFoundError:
+        if not is_sec_business_day(day):
             return ReconcileResult(day=day, listed=0, missing=0, ingested=0, errors=0)
+
+        # SEC may not have published a business day's index yet. Propagate the
+        # failure and retain the reconcile checkpoint rather than skipping the day.
+        body = client.get(daily_index_url(day))
 
         archive.put("daily_index", f"{day:%Y%m%d}", body, "idx")
         entries = [

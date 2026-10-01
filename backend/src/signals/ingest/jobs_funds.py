@@ -17,6 +17,7 @@ import httpx
 
 from signals.db.session import session_scope
 from signals.domain.appstate import get_state, set_state
+from signals.domain.calendars import ET
 from signals.domain.types import FUND_FORMS, STAKE_FORMS
 from signals.ingest.bulk_13f import list_13f_datasets, load_13f_zip
 from signals.ingest.fund_changes import (
@@ -58,7 +59,7 @@ def _gap_fill(ctx: JobContext, form_types: frozenset[str], *, start: date, key: 
         ctx.session_factory,
         form_types=form_types,
         start=start,
-        end=ctx.now().date(),
+        end=ctx.now().astimezone(ET).date() - timedelta(days=1),
         settings=ctx.settings,
         archive=ctx.archive,
         progress=sub,

@@ -13,12 +13,12 @@ from sqlalchemy.orm import Session
 
 from signals.config import Settings
 from signals.db.session import session_scope
-from signals.domain.calendars import is_sec_business_day
+from signals.domain.calendars import is_sec_business_day, now_et
 from signals.ingest.indexes import IndexEntry, daily_index_url, full_index_url, parse_form_idx
 from signals.ingest.pipeline import ingest_accession
 from signals.logging import get_logger
 from signals.sec.archive import RawArchive
-from signals.sec.client import SecClient, SecNotFoundError
+from signals.sec.client import SecClient
 
 log = get_logger(__name__)
 
@@ -74,20 +74,16 @@ def _quarter_entries(
     end: date,
 ) -> list[IndexEntry]:
     """The full index for a past quarter; daily indexes (the full index lags) for today's."""
-    if (year, quarter) != _quarter_of(date.today()):
-        try:
-            body = client.get(full_index_url(year, quarter))
-        except SecNotFoundError:
-            return []
+    if (year, quarter) != _quarter_of(now_et().date()):
+        # A missing index is not evidence of an empty quarter. Let the parent fail
+        # visibly before any checkpoint advances, so its next request can retry it.
+        body = client.get(full_index_url(year, quarter))
         archive.put("full_index", _quarter_key(year, quarter), body, "idx")
         return parse_form_idx(body.decode("utf-8", errors="replace"))
 
     entries: list[IndexEntry] = []
     for day in _business_days(quarter_start, end):
-        try:
-            body = client.get(daily_index_url(day))
-        except SecNotFoundError:
-            continue
+        body = client.get(daily_index_url(day))
         archive.put("daily_index", f"{day:%Y%m%d}", body, "idx")
         entries.extend(parse_form_idx(body.decode("utf-8", errors="replace")))
     return entries
