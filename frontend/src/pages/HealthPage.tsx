@@ -57,6 +57,17 @@ export default function HealthPage() {
         <p className="font-semibold">{statusText[health.status]}</p>
         {health.sec_blocked_until && <p className="mt-1 text-sm">SEC paused requests until {fmtDateET(health.sec_blocked_until)}</p>}
       </div>
+      {health.catch_up && <Section title="Catch-up">
+        <p className="text-sm">{health.catch_up.status === "running" ? "Catching up on missed updates…"
+          : health.catch_up.status === "error" ? "Catch-up needs attention"
+          : health.catch_up.status === "done" ? "Catch-up completed" : "No catch-up run yet"}</p>
+        <p className="mt-1 text-sm text-muted-foreground">Last catch-up: <time dateTime={health.catch_up.finished_at ?? undefined}>
+          {fmtDateET(health.catch_up.finished_at ?? health.catch_up.started_at ?? null)}</time></p>
+        <p className="mt-1 text-sm">Ran: {(health.catch_up.ran ?? []).join(", ") || "None"}</p>
+        {(health.catch_up.behind ?? []).length > 0 && <p className="mt-1 text-sm text-warn">Behind: {(health.catch_up.behind ?? []).join(", ")}</p>}
+        {health.catch_up.deferred && <p className="mt-1 text-sm text-muted-foreground">{health.catch_up.deferred}</p>}
+        {health.catch_up.error && <p className="mt-1 text-sm text-neg">{health.catch_up.error}</p>}
+      </Section>}
       <Section title="Feed delay">
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Metric label="p50" value={health.feed_delay_p50_s === null ? DASH : `${fmtShares(health.feed_delay_p50_s)} s`} />

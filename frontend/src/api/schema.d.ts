@@ -537,6 +537,29 @@ export interface components {
             /** Volume */
             volume: number | null;
         };
+        /** CatchUpOut */
+        CatchUpOut: {
+            /** Behind */
+            behind?: string[];
+            /** Deferred */
+            deferred?: string | null;
+            /** Error */
+            error?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Last Updated At */
+            last_updated_at?: string | null;
+            /** Ran */
+            ran?: string[];
+            /** Started At */
+            started_at?: string | null;
+            /**
+             * Status
+             * @default idle
+             * @enum {string}
+             */
+            status: "idle" | "running" | "done" | "error";
+        };
         /** ClusterEvent */
         ClusterEvent: {
             /**
@@ -918,6 +941,7 @@ export interface components {
         HealthOut: {
             /** Backfill */
             backfill: components["schemas"]["BackfillStep"][];
+            catch_up?: components["schemas"]["CatchUpOut"];
             coverage: components["schemas"]["Coverage"];
             /** Feed Delay P50 S */
             feed_delay_p50_s: number | null;

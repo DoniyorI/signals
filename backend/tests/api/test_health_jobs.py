@@ -77,3 +77,68 @@ def test_jobs_post_and_list(api):
 
     bad = api.post("/api/jobs", json={"kind": "nope"})
     assert bad.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "status,ran",
+    [("running", []), ("done", ["prices_daily", "analytics_full"]), ("error", ["reconcile_daily"])],
+)
+def test_health_exposes_catchup_state_and_current_behind_jobs(
+    api, session, monkeypatch, status, ran
+):
+    from signals import jobs
+    from signals.db.models import IngestRun
+    from signals.jobs import JobSpec
+
+    monkeypatch.setattr(
+        jobs,
+        "load_all_jobs",
+        lambda: {"prices_daily": JobSpec("prices_daily", lambda ctx: {}, cron={"hour": 2})},
+    )
+    finished = FROZEN_NOW - timedelta(minutes=5)
+    set_state(
+        session,
+        "catch_up",
+        {
+            "status": status,
+            "started_at": (finished - timedelta(minutes=1)).isoformat(),
+            "finished_at": finished.isoformat() if status != "running" else None,
+            "ran": ran,
+            "behind": [],
+            "error": "provider failed" if status == "error" else None,
+        },
+    )
+    session.add(
+        IngestRun(
+            job="live_poll",
+            started_at=finished - timedelta(seconds=2),
+            finished_at=finished,
+            errors=0,
+        )
+    )
+    session.flush()
+    body = api.get("/api/health").json()
+    assert body["catch_up"]["status"] == status
+    assert body["catch_up"]["ran"] == ran
+    assert body["catch_up"]["behind"] == ["prices_daily"]
+    assert body["catch_up"]["last_updated_at"] is not None
+    assert body["status"] == "warn"
+
+
+def test_interrupted_catchup_is_not_reported_as_running(api, session):
+    from signals.db.models import IngestRun
+
+    set_state(session, "catch_up", {"status": "running", "ran": [], "behind": []})
+    session.add(
+        IngestRun(
+            job="catch_up",
+            started_at=FROZEN_NOW - timedelta(minutes=20),
+            finished_at=FROZEN_NOW - timedelta(minutes=1),
+            errors=1,
+            notes={"exception": "Worker interrupted before completion"},
+        )
+    )
+    session.flush()
+    body = api.get("/api/health").json()
+    assert body["catch_up"]["status"] == "error"
+    assert body["catch_up"]["error"] == "Worker interrupted before completion"

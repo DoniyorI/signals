@@ -53,9 +53,11 @@ def test_stub_returns_501():
     assert r.status_code == 501 and r.json() == {"detail": "not implemented"}
 
 
-def test_health_ok(client):
+def test_health_warns_before_first_scheduled_updates(client):
     r = client.get("/api/health")
-    assert r.status_code == 200 and r.json()["status"] == "ok"
+    assert r.status_code == 200 and r.json()["status"] == "warn"
+    assert r.json()["catch_up"]["status"] == "idle"
+    assert "prices_daily" in r.json()["catch_up"]["behind"]
 
 
 def test_get_bars_sorted(session):

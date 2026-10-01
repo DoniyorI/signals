@@ -16,7 +16,15 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from signals.api.queries.common import now, sec_url
-from signals.api.schemas import BackfillStep, Coverage, HealthOut, JobStatusOut, ParseErrorOut
+from signals.api.schemas import (
+    BackfillStep,
+    CatchUpOut,
+    Coverage,
+    HealthOut,
+    JobStatusOut,
+    ParseErrorOut,
+)
+from signals.catchup import find_missed
 from signals.db.models import (
     Decision,
     DecisionReturn,
@@ -366,6 +374,35 @@ def get_health(session: Session) -> HealthOut:
     live_poll_last_success = datetime.fromisoformat(poll_raw["at"]) if poll_raw else None
     has_recent = _has_recent_parse_errors(session, as_of)
     jobs = _job_statuses(session)
+    catch_raw = get_state(session, "catch_up") or {}
+    catch_up = CatchUpOut.model_validate(catch_raw)
+    latest_catch = session.scalar(
+        select(IngestRun)
+        .where(IngestRun.job == "catch_up")
+        .order_by(IngestRun.started_at.desc(), IngestRun.id.desc())
+        .limit(1)
+    )
+    if latest_catch is not None:
+        if latest_catch.finished_at is None:
+            catch_up.status = "running"
+            catch_up.started_at = latest_catch.started_at
+        elif catch_up.status == "running" and latest_catch.errors:
+            catch_up.status = "error"
+            catch_up.finished_at = latest_catch.finished_at
+            catch_up.error = (latest_catch.notes or {}).get("exception") or "Catch-up interrupted"
+    catch_up.behind = find_missed(session, as_of)
+    catch_up.last_updated_at = session.scalar(
+        select(func.max(IngestRun.finished_at)).where(
+            IngestRun.errors == 0, IngestRun.job != "catch_up"
+        )
+    )
+    requested_update = session.scalar(
+        select(func.max(JobRequest.finished_at)).where(JobRequest.status == "done")
+    )
+    if requested_update is not None and (
+        catch_up.last_updated_at is None or requested_update > catch_up.last_updated_at
+    ):
+        catch_up.last_updated_at = requested_update
 
     return HealthOut(
         status=_status(
@@ -373,7 +410,9 @@ def get_health(session: Session) -> HealthOut:
             sec_blocked_until,
             live_poll_last_success,
             has_recent,
-            any(job.last_status in ("error", "failed") for job in jobs),
+            bool(catch_up.behind)
+            or catch_up.status == "error"
+            or any(job.last_status in ("error", "failed") for job in jobs),
         ),
         jobs=jobs,
         feed_delay_p50_s=p50,
@@ -383,4 +422,5 @@ def get_health(session: Session) -> HealthOut:
         backfill=_backfill_steps(session),
         coverage=_coverage(session),
         sec_blocked_until=sec_blocked_until,
+        catch_up=catch_up,
     )

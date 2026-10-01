@@ -521,6 +521,17 @@ class Coverage(BaseModel):
     decisions_last_price_exit_pct: float | None
 
 
+class CatchUpOut(BaseModel):
+    status: Literal["idle", "running", "done", "error"] = "idle"
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    ran: list[str] = Field(default_factory=list)
+    behind: list[str] = Field(default_factory=list)
+    error: str | None = None
+    deferred: str | None = None
+    last_updated_at: datetime | None = None
+
+
 class HealthOut(BaseModel):
     status: Literal["ok", "warn", "error"]
     jobs: list[JobStatusOut]
@@ -531,6 +542,7 @@ class HealthOut(BaseModel):
     backfill: list[BackfillStep]
     coverage: Coverage
     sec_blocked_until: datetime | None
+    catch_up: CatchUpOut = Field(default_factory=CatchUpOut)
 
 
 class JobRequestIn(BaseModel):

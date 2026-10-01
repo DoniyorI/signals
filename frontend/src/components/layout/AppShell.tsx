@@ -2,6 +2,7 @@ import { Moon, Search, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router";
 import { cn } from "@/lib/utils";
+import { FreshnessIndicator } from "./FreshnessIndicator";
 import { SearchPalette } from "@/components/search/SearchPalette";
 
 const NAV = [
@@ -90,6 +91,7 @@ export default function AppShell() {
             </button>
           </div>
         </nav>
+        <div className="mx-auto max-w-[1600px] px-4 pb-2"><FreshnessIndicator /></div>
       </header>
       <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-4">
         <Outlet />

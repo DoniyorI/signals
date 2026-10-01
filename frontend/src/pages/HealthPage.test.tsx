@@ -202,3 +202,13 @@ it("keeps the last snapshot visible when a refresh fails and marks it stale", as
   await waitFor(() => expect(screen.getByText(/Refresh failed.*last successful snapshot/)).toBeInTheDocument());
   expect(screen.getByText("All systems normal")).toBeInTheDocument();
 });
+
+it("shows catch-up timing, completed work and behind jobs", async () => {
+  snapshot({catch_up: { status: "done", started_at: "2024-06-07T20:00:00Z", finished_at: "2024-06-07T20:05:00Z",
+    ran: ["reconcile_daily", "prices_daily"], behind: ["analytics_full"], error: null, deferred: null, last_updated_at: null }});
+  renderHealth();
+  expect(await screen.findByRole("heading", {name:"Catch-up"})).toBeInTheDocument();
+  expect(screen.getByText("Ran: reconcile_daily, prices_daily")).toBeInTheDocument();
+  expect(screen.getByText("Behind: analytics_full")).toBeInTheDocument();
+  expect(screen.getByText("Jun 7, 2024 4:05 PM ET")).toBeInTheDocument();
+});
