@@ -36,7 +36,9 @@ After the backfill, the worker keeps everything current by itself:
 - It loads prices after the close.
 - It recomputes analytics nightly.
 
-Live updates only happen while your Mac is awake and Docker is running.
+Live updates only happen while your Mac is awake and Docker is running. On startup and every 15 minutes, the worker checks durable job history and automatically catches up missed or failed schedules. It repairs filings and reference data, fills missing trading days from each symbol's last stored price, then runs analytics once at the end. Reconciliation resumes at its last completed day, including outages of 90 days or longer when a checkpoint exists; a first catch-up without a checkpoint checks the last 90 days. The full historical backfill is still required for older history.
+
+Catch-up waits while a historical backfill or other scheduled maintenance is active, and honors SEC pauses. The header shows freshness or a warning; Health lists the last catch-up time, jobs it ran, and jobs still behind.
 
 ## Development
 
@@ -51,7 +53,7 @@ See `CLAUDE.md` for the architecture, rules and commands. On macOS, run `bash sc
 - **Screener:** filter insider or fund profiles and sort every displayed column. CSV exports the endpoint's current page, with the selected filters.
 - **Compare:** overlay up to four insider/fund profiles on the same basis and compare windows and allocations.
 - **Watchlists:** create named lists, remove watched entities and read their activity. Profile Watch buttons add to the first list.
-- **Health:** job errors, SEC pauses, parse failures, checkpoint progress, coverage and acceptance-to-feed delays.
+- **Health:** catch-up and freshness, job errors, SEC pauses, parse failures, checkpoint progress, coverage and acceptance-to-feed delays.
 
 Use the search button or ⌘K/Ctrl+K to find companies, insiders and funds. Filters and profile selections are kept in the URL.
 
