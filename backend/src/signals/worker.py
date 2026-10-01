@@ -46,11 +46,14 @@ def worker_lock(engine: Engine) -> Iterator[None]:
         )
         if not acquired:
             raise RuntimeError("Another Signals worker is already running")
+        # Session locks survive COMMIT. Keep ownership without pinning a vacuum snapshot.
+        connection.commit()
         try:
             yield
         finally:
             # Engine connections return to a pool; explicitly unlock before returning it.
             connection.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": WORKER_LOCK_KEY})
+            connection.commit()
 
 
 def recover_unfinished_runs(session: Session) -> int:

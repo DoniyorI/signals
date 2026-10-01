@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import httpx
 import pytest
-from sqlalchemy import event, select
+from sqlalchemy import event, select, text
 from sqlalchemy.orm import Session
 
 from signals import worker
@@ -488,3 +488,17 @@ def test_worker_restores_sec_pause_before_scheduling(
 
     monkeypatch.setattr(worker, "build_scheduler", scheduler)
     worker._serve_worker(settings, session_factory)
+
+
+def test_worker_lifetime_lock_does_not_hold_open_transaction(db_engine):
+    with worker.worker_lock(db_engine), db_engine.connect() as observer:
+        state = observer.scalar(
+            text("""
+            SELECT a.state FROM pg_locks l JOIN pg_stat_activity a ON a.pid=l.pid
+            WHERE l.locktype='advisory' AND l.granted
+              AND l.database=(SELECT oid FROM pg_database WHERE datname=current_database())
+              AND l.classid=:high AND l.objid=:low
+        """),
+            {"high": worker.WORKER_LOCK_KEY >> 32, "low": worker.WORKER_LOCK_KEY & 0xFFFFFFFF},
+        )
+        assert state == "idle"
