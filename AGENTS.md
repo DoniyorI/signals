@@ -9,3 +9,9 @@ This project was built by Claude Code, and any agent can continue it.
    - Record each finished task and each decision in that plan's ledger, in the format described in HANDOFF.md.
    - The live ledgers are `<worktree>/.superpowers/sdd/<plan>/progress.md`. Copies are in `docs/superpowers/ledgers/`.
 5. Never commit or print `.env` (it holds secrets), and never commit `data/`.
+
+## v2 (next phase of work)
+
+- Spec: `docs/superpowers/specs/2026-10-01-signals-v2-design.md`.
+- Plans: `docs/superpowers/plans/2026-10-01-signals-v2/`. Start with `00-roadmap.md`. It holds the phase order, the executor protocol and a ready-to-paste executor prompt.
+- Claude is the architect and reviewer. Executors implement one phase plan at a time, and stop at every USER GATE.
