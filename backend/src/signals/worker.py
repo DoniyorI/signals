@@ -4,6 +4,7 @@ SEC, Alpaca or OpenFIGI, so every request shares one rate limiter."""
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import datetime
+from typing import Any
 
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -18,14 +19,15 @@ from signals.db.session import make_engine, make_session_factory, session_scope
 from signals.domain.appstate import get_state, set_state
 from signals.domain.calendars import ET, now_et
 from signals.jobs import (
+    JobAlreadyRunning,
     JobContext,
     JobSpec,
     claim_next_request,
+    execute_job,
     load_all_jobs,
     make_ctx_builder,
     recover_interrupted_requests,
     run_request,
-    track_run,
 )
 from signals.logging import configure_logging, get_logger
 from signals.sec.archive import RawArchive
@@ -75,46 +77,14 @@ def _run_scheduled(spec: JobSpec, ctx_factory: CtxFactory | None) -> Callable[[]
             return
         try:
             ctx = ctx_factory(spec)
-            with track_run(ctx.session_factory, spec.kind) as run:
-                result = spec.func(ctx) or {}
-                run.notes.update(result)
-                run.fetched = max(
-                    run.fetched,
-                    _result_count(result, ("fetched", "entries", "listed", "requested")),
-                )
-                run.new_rows = max(
-                    run.new_rows, _result_count(result, ("new_rows", "new", "ingested", "rows"))
-                )
-                run.missed = max(run.missed, _result_count(result, ("missed", "missing")))
-                run.errors = max(run.errors, _result_count(result, ("errors",)))
-                if run.errors:
-                    details = _error_details(result)
-                    run.notes["error"] = (
-                        "; ".join(details)
-                        if details
-                        else f"{run.errors} errors reported by {spec.kind}"
-                    )
+            result = execute_job(spec, ctx)
             log.info("scheduled_job_done", kind=spec.kind, result=result)
+        except JobAlreadyRunning:
+            log.info("scheduled_job_deferred", kind=spec.kind)
         except Exception as exc:  # the wrapper's durable row records escaping failures
             log.error("scheduled_job_failed", kind=spec.kind, error=f"{type(exc).__name__}: {exc}")
 
     return run
-
-
-def _result_count(result: dict, keys: tuple[str, ...]) -> int:
-    """Aggregate returned per-day results without counting alias counters twice."""
-    own = next((result[key] for key in keys if isinstance(result.get(key), int)), 0)
-    return own + sum(
-        _result_count(row, keys) for row in result.get("results", []) if isinstance(row, dict)
-    )
-
-
-def _error_details(result: dict) -> list[str]:
-    details = [str(message) for message in result.get("error_details", [])]
-    for row in result.get("results", []):
-        if isinstance(row, dict):
-            details.extend(_error_details(row))
-    return details
 
 
 def build_scheduler(
@@ -125,7 +95,7 @@ def build_scheduler(
     poll_requests: Callable[[], None] | None = None,
 ) -> BlockingScheduler:
     scheduler = BlockingScheduler(executors={"default": ThreadPoolExecutor(4)}, timezone=ET)
-    defaults = {"max_instances": 1, "coalesce": True, "misfire_grace_time": 300}
+    defaults = {"max_instances": 1, "coalesce": True, "misfire_grace_time": None}
     for kind, spec in specs.items():
         if spec.cron:
             trigger = CronTrigger(**spec.cron, timezone=ET)
@@ -133,7 +103,10 @@ def build_scheduler(
             trigger = IntervalTrigger(seconds=spec.interval_seconds, timezone=ET)
         else:
             continue  # on-request only
-        scheduler.add_job(_run_scheduled(spec, ctx_factory), trigger, id=kind, **defaults)
+        startup: dict[str, Any] = {"next_run_time": now_et()} if kind == "catch_up" else {}
+        scheduler.add_job(
+            _run_scheduled(spec, ctx_factory), trigger, id=kind, **defaults, **startup
+        )
     # Two instances: a long backfill must not block short requested jobs.
     scheduler.add_job(
         poll_requests or (lambda: None),

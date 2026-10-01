@@ -52,7 +52,9 @@ def _job_statuses(session: Session) -> list[JobStatusOut]:
         ingest = ingest_by_job.get(kind)
         req = request_by_kind.get(kind)
         use_request = req is not None and (
-            ingest is None or (req.started_at or req.requested_at) >= ingest.started_at
+            ingest is None
+            or (req.finished_at or req.started_at or req.requested_at)
+            >= (ingest.finished_at or ingest.started_at)
         )
         if use_request and req is not None:
             out.append(
@@ -65,7 +67,9 @@ def _job_statuses(session: Session) -> list[JobStatusOut]:
                 )
             )
         elif ingest is not None:
-            status = "error" if ingest.errors > 0 else "ok"
+            status = (
+                "running" if ingest.finished_at is None else "error" if ingest.errors > 0 else "ok"
+            )
             out.append(
                 JobStatusOut(
                     kind=kind,

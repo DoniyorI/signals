@@ -216,3 +216,36 @@ def test_prices_daily_uses_providers(session, session_factory, settings, tmp_arc
     assert {p.symbol for p in stored} == set(BENCHMARK_SYMBOLS)
     assert all(p.source == "fake_primary" for p in stored)
     assert isinstance(result, dict)
+
+
+def test_prices_daily_fills_all_missed_trading_days_incrementally(
+    session, session_factory, settings, tmp_archive, monkeypatch
+):
+    from signals.domain.calendars import trading_days
+    from signals.prices.universe import UniverseEntry
+    from tests.factories import make_prices
+    from tests.integration.test_price_loader import FakeProvider, _bar
+
+    start, end = date(2026, 9, 18), date(2026, 9, 30)
+    make_prices(session, "GAP", start, [10.0])
+    expected = trading_days(start, end)
+    provider = FakeProvider("catchup_prices", {"GAP": [_bar(day, 10.0) for day in expected]})
+    monkeypatch.setattr(
+        price_jobs, "build_price_universe", lambda s, **kwargs: [UniverseEntry("GAP", start)]
+    )
+    monkeypatch.setattr(price_jobs, "make_providers", lambda settings: (provider, None))
+    ctx = _ctx(
+        settings,
+        session_factory,
+        SecClient(settings, http=MockRouter({}).client),
+        tmp_archive,
+        now=lambda: datetime(2026, 9, 30, 19, tzinfo=ET),
+    )
+    price_jobs.prices_daily(ctx)
+    stored = list(
+        session.scalars(
+            select(PriceDaily.date).where(PriceDaily.symbol == "GAP").order_by(PriceDaily.date)
+        )
+    )
+    assert stored == expected
+    assert provider.calls[0].start == start and provider.calls[-1].end == end

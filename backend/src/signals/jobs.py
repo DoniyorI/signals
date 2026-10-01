@@ -6,6 +6,7 @@ all outside traffic shares the worker's single SEC rate limiter.
 """
 
 import importlib
+import threading
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -32,6 +33,7 @@ JOB_MODULES = (
     "signals.reference.jobs",
     "signals.prices.jobs",
     "signals.analytics.jobs",
+    "signals.catchup",
 )
 
 BACKFILL_STEPS = (
@@ -68,8 +70,10 @@ class JobSpec:
 JOBS: dict[str, JobSpec] = {}
 
 
-def register_job(kind: str, *, cron: dict | None = None, interval_seconds: int | None = None):
-    def decorator(func: Callable[[JobContext], dict | None]):
+def register_job[F: Callable[[JobContext], dict | None]](
+    kind: str, *, cron: dict | None = None, interval_seconds: int | None = None
+) -> Callable[[F], F]:
+    def decorator(func: F) -> F:
         JOBS[kind] = JobSpec(kind, func, cron=cron, interval_seconds=interval_seconds)
         return func
 
@@ -231,13 +235,15 @@ def run_request(
         spec = JOBS.get(kind)
         if spec is None:
             raise KeyError(f"unknown job kind {kind!r}")
-        result = spec.func(ctx) or {}
+        result = execute_job(spec, ctx)
         ctx.progress["result"] = result
         count, details = reported_errors(result)
         if count:
             raise RuntimeError(
                 "; ".join(details) if details else f"{count} errors reported by {kind}"
             )
+    except JobAlreadyRunning:
+        status = "requested"
     except Exception as exc:  # recorded on the request row, surfaced by /api/health
         status, error = "failed", f"{type(exc).__name__}: {exc}"
         log.error("job_failed", kind=kind, request_id=request_id, error=error)
@@ -247,7 +253,9 @@ def run_request(
             req.status = status
             req.error = error
             req.progress = dict(ctx.progress)
-            req.finished_at = now_et()
+            req.finished_at = now_et() if status != "requested" else None
+            if status == "requested":
+                req.started_at = None
 
 
 def reported_errors(result: dict) -> tuple[int, list[str]]:
@@ -284,28 +292,108 @@ def track_run(session_factory: Callable[[], Session], job: str) -> Generator[Run
         return
     started = now_et()
     tracker = RunTracker()
+    with session_scope(session_factory) as s:
+        row = IngestRun(job=job, started_at=started, finished_at=None)
+        s.add(row)
+        s.flush()
+        run_id = row.id
     token = _ACTIVE_RUN.set((job, tracker))
     try:
         yield tracker
     except BaseException as exc:
-        tracker.errors += 1
+        tracker.errors = max(1, tracker.errors)
         tracker.notes["exception"] = f"{type(exc).__name__}: {exc}"
         raise
     finally:
         _ACTIVE_RUN.reset(token)
         with session_scope(session_factory) as s:
-            s.add(
-                IngestRun(
-                    job=job,
-                    started_at=started,
-                    finished_at=now_et(),
-                    fetched=tracker.fetched,
-                    new_rows=tracker.new_rows,
-                    missed=tracker.missed,
-                    errors=tracker.errors,
-                    notes=tracker.notes,
-                )
+            row = s.get(IngestRun, run_id)
+            assert row is not None
+            row.finished_at = now_et()
+            row.fetched, row.new_rows, row.missed = (
+                tracker.fetched,
+                tracker.new_rows,
+                tracker.missed,
             )
+            row.errors, row.notes = tracker.errors, dict(tracker.notes)
+
+
+class JobAlreadyRunning(RuntimeError):
+    """A scheduled, requested or catch-up execution already owns this job."""
+
+
+_JOB_LOCKS: dict[str, threading.Lock] = {}
+_LOCKS_GUARD = threading.Lock()
+_MAINTENANCE_LOCK = threading.RLock()
+
+
+def _result_count(result: dict, keys: tuple[str, ...]) -> int:
+    """Aggregate returned per-day results without counting alias counters twice."""
+    own = next((result[key] for key in keys if isinstance(result.get(key), int)), 0)
+    return own + sum(
+        _result_count(row, keys) for row in result.get("results", []) if isinstance(row, dict)
+    )
+
+
+def _error_details(result: dict) -> list[str]:
+    details = [str(message) for message in result.get("error_details", [])]
+    for row in result.get("results", []):
+        if isinstance(row, dict):
+            details.extend(_error_details(row))
+    return details
+
+
+def execute_job(spec: JobSpec, ctx: JobContext) -> dict:
+    # The lifetime worker DB lock ensures a single process; this lock closes races
+    # between its scheduled, catch-up and request threads without locking ingest rows.
+    with _LOCKS_GUARD:
+        lock = _JOB_LOCKS.setdefault(spec.kind, threading.Lock())
+    if not lock.acquire(blocking=False):
+        raise JobAlreadyRunning(spec.kind)
+    maintenance = bool(spec.cron) or spec.kind in (*BACKFILL_STEPS, "backfill_all", "catch_up")
+    if maintenance and not _MAINTENANCE_LOCK.acquire(blocking=False):
+        lock.release()
+        raise JobAlreadyRunning("Maintenance is already running")
+    try:
+        with session_scope(ctx.session_factory) as s:
+            running = s.scalar(
+                select(IngestRun.id)
+                .where(IngestRun.job == spec.kind, IngestRun.finished_at.is_(None))
+                .limit(1)
+            )
+            queued = select(JobRequest.id).where(
+                JobRequest.kind == spec.kind,
+                JobRequest.status.in_(("requested", "queued", "running")),
+            )
+            if ctx.request_id is not None:
+                queued = queued.where(
+                    JobRequest.id != ctx.request_id, JobRequest.status == "running"
+                )
+            if running is not None or s.scalar(queued.limit(1)) is not None:
+                raise JobAlreadyRunning(spec.kind)
+        with track_run(ctx.session_factory, spec.kind) as tracker:
+            result = spec.func(ctx) or {}
+            tracker.notes.update(result)
+            ctx.progress["result"] = result
+            tracker.fetched = max(
+                tracker.fetched,
+                _result_count(result, ("fetched", "entries", "listed", "requested")),
+            )
+            tracker.new_rows = max(
+                tracker.new_rows, _result_count(result, ("new_rows", "new", "ingested", "rows"))
+            )
+            tracker.missed = max(tracker.missed, _result_count(result, ("missed", "missing")))
+            count, details = reported_errors(result)
+            tracker.errors = max(tracker.errors, count)
+            if count:
+                raise RuntimeError(
+                    "; ".join(details) if details else f"{count} errors reported by {spec.kind}"
+                )
+            return result
+    finally:
+        if maintenance:
+            _MAINTENANCE_LOCK.release()
+        lock.release()
 
 
 # ----------------------------------------------------------------------------- built-in jobs
@@ -340,7 +428,7 @@ def backfill_all(ctx: JobContext) -> dict:
             now=ctx.now,
         )
         log.info("backfill_step_start", step=kind)
-        result = spec.func(step_ctx) or {}
+        result = execute_job(spec, step_ctx)
         sub["result"] = result
         sub["updated_at"] = ctx.now().isoformat()
         steps[kind] = sub

@@ -96,7 +96,12 @@ def reconcile_daily(ctx: JobContext) -> dict:
         state = get_state(s, "reconcile_last_day")
     # No prior state, or a very stale one, is capped at 7 days back either way.
     last_day = date.fromisoformat(state["day"]) if state else yesterday - timedelta(days=7)
-    start = max(last_day + timedelta(days=1), yesterday - timedelta(days=6))
+    start = last_day + timedelta(days=1)
+    if ctx.params.get("catch_up"):
+        if state is None:
+            start = max(ctx.settings.backfill_start, yesterday - timedelta(days=89))
+    else:
+        start = max(start, yesterday - timedelta(days=6))
 
     days: list[date] = []
     day = start
@@ -105,12 +110,20 @@ def reconcile_daily(ctx: JobContext) -> dict:
             days.append(day)
         day += timedelta(days=1)
 
-    results = [
-        reconcile_day(ctx.sec, ctx.session_factory, d, settings=ctx.settings, archive=ctx.archive)
-        for d in days
-    ]
-    with session_scope(ctx.session_factory) as s:
-        set_state(s, "reconcile_last_day", {"day": yesterday.isoformat()})
+    results = []
+    for day in days:
+        result = reconcile_day(
+            ctx.sec, ctx.session_factory, day, settings=ctx.settings, archive=ctx.archive
+        )
+        results.append(result)
+        if result.errors:
+            # Leave the failed day and everything after it for the next retry.
+            break
+        with session_scope(ctx.session_factory) as s:
+            set_state(s, "reconcile_last_day", {"day": day.isoformat()})
+    if not any(result.errors for result in results):
+        with session_scope(ctx.session_factory) as s:
+            set_state(s, "reconcile_last_day", {"day": yesterday.isoformat()})
     return {
         "days": [d.isoformat() for d in days],
         "results": [_reconcile_result_dict(r) for r in results],
