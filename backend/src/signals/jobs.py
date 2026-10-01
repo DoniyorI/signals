@@ -256,6 +256,7 @@ def run_request(
             req.finished_at = now_et() if status != "requested" else None
             if status == "requested":
                 req.started_at = None
+                req.requested_at = now_et()
 
 
 def reported_errors(result: dict) -> tuple[int, list[str]]:

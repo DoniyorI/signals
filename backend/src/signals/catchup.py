@@ -2,7 +2,7 @@
 
 import time
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import select
@@ -12,7 +12,7 @@ from signals import jobs as registry
 from signals.db.models import IngestRun, JobRequest
 from signals.db.session import session_scope
 from signals.domain.appstate import get_state, set_state
-from signals.domain.calendars import ET
+from signals.domain.calendars import ET, is_sec_business_day
 from signals.jobs import JobAlreadyRunning, JobContext, execute_job, register_job, track_run
 from signals.sec.client import SecBlockedError
 
@@ -70,8 +70,18 @@ def find_missed(session: Session, now: datetime) -> list[str]:
     for kind in sorted(kinds - active):
         due = last_due(specs[kind].cron or {}, now)
         success, failed = successes.get(kind), failures.get(kind)
+        incomplete_gap = False
+        if kind == "reconcile_daily" and due is not None:
+            checkpoint = get_state(session, "reconcile_last_day")
+            target_day = due.astimezone(ET).date() - timedelta(days=1)
+            while not is_sec_business_day(target_day):
+                target_day -= timedelta(days=1)
+            incomplete_gap = bool(checkpoint and date.fromisoformat(checkpoint["day"]) < target_day)
         if due is not None and (
-            success is None or success < due or (failed is not None and failed > success)
+            success is None
+            or success < due
+            or (failed is not None and failed > success)
+            or incomplete_gap
         ):
             missed.append(kind)
     return missed

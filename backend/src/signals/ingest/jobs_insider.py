@@ -102,6 +102,7 @@ def reconcile_daily(ctx: JobContext) -> dict:
             start = max(ctx.settings.backfill_start, yesterday - timedelta(days=89))
     else:
         start = max(start, yesterday - timedelta(days=6))
+    preserve_gap = state is not None and start > last_day + timedelta(days=1)
 
     days: list[date] = []
     day = start
@@ -119,9 +120,10 @@ def reconcile_daily(ctx: JobContext) -> dict:
         if result.errors:
             # Leave the failed day and everything after it for the next retry.
             break
-        with session_scope(ctx.session_factory) as s:
-            set_state(s, "reconcile_last_day", {"day": day.isoformat()})
-    if not any(result.errors for result in results):
+        if not preserve_gap:
+            with session_scope(ctx.session_factory) as s:
+                set_state(s, "reconcile_last_day", {"day": day.isoformat()})
+    if not preserve_gap and not any(result.errors for result in results):
         with session_scope(ctx.session_factory) as s:
             set_state(s, "reconcile_last_day", {"day": yesterday.isoformat()})
     return {

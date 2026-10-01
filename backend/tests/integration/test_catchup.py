@@ -419,3 +419,90 @@ def test_catchup_does_not_run_analytics_ahead_of_queued_prices(
     result = catch_up(ctx)
     assert calls == [] and result["ran"] == []
     assert result["behind"] == ["analytics_full"]
+
+
+def test_normal_reconcile_cannot_discard_gap_before_catchup_on_wake(
+    session, session_factory, settings, tmp_archive, monkeypatch
+):
+    from signals.ingest import jobs_insider
+    from signals.ingest.indexes import ReconcileResult
+
+    yesterday = NOW.date() - timedelta(days=1)
+    last = yesterday - timedelta(days=90)
+    set_state(session, "reconcile_last_day", {"day": last.isoformat()})
+    seen = []
+
+    def reconcile(client, factory, day, **kwargs):
+        seen.append(day)
+        return ReconcileResult(day, 0, 0, 0, 0)
+
+    monkeypatch.setattr(jobs_insider, "reconcile_day", reconcile)
+    ctx = JobContext(
+        settings,
+        session_factory,
+        SecClient(settings, http=MockRouter({}).client),
+        tmp_archive,
+        None,
+        {},
+        {},
+        lambda p: None,
+        lambda: NOW,
+    )
+    jobs_insider.reconcile_daily(ctx)
+    from signals.catchup import find_missed
+
+    monkeypatch.setattr(
+        jobs,
+        "load_all_jobs",
+        lambda: {
+            "reconcile_daily": JobSpec(
+                "reconcile_daily", lambda ctx: {}, cron={"hour": 6, "minute": 30}
+            )
+        },
+    )
+    session.add(
+        IngestRun(
+            job="reconcile_daily", started_at=NOW - timedelta(minutes=1), finished_at=NOW, errors=0
+        )
+    )
+    session.flush()
+    assert find_missed(session, NOW) == ["reconcile_daily"]
+    ctx.params["catch_up"] = True
+    jobs_insider.reconcile_daily(ctx)
+    expected = [
+        last + timedelta(days=n)
+        for n in range(1, 91)
+        if is_sec_business_day(last + timedelta(days=n))
+    ]
+    assert set(seen) == set(expected)
+
+
+def test_busy_requested_job_requeues_without_starving_later_work(
+    session, session_factory, settings, tmp_archive, monkeypatch
+):
+    from signals.jobs import run_request
+
+    isolated_specs(monkeypatch, ["prices_daily"])
+    session.add(
+        IngestRun(job="prices_daily", started_at=NOW - timedelta(minutes=2), finished_at=None)
+    )
+    req = JobRequest(
+        kind="prices_daily", status="running", requested_at=NOW - timedelta(hours=1), started_at=NOW
+    )
+    session.add(req)
+    session.flush()
+    monkeypatch.setattr(jobs, "now_et", lambda: NOW)
+    ctx = JobContext(
+        settings,
+        session_factory,
+        SecClient(settings, http=MockRouter({}).client),
+        tmp_archive,
+        req.id,
+        {},
+        {},
+        lambda p: None,
+    )
+    run_request(lambda req: ctx, session_factory, req.id)
+    session.refresh(req)
+    assert req.status == "requested" and req.started_at is None and req.finished_at is None
+    assert req.requested_at == NOW
