@@ -297,9 +297,15 @@ def load_13f_zip(session: Session, zip_bytes: bytes) -> F13FLoadResult:
         )
     )
 
-    positions_result = session.execute(
+    # Reuse the normalized rows from this INSERT for feed totals. Per-accession scans of
+    # the partitioned history table held this quarter's manager locks for hours and
+    # blocked live polling; RETURNING bounds the aggregate to the newly loaded batch.
+    session.execute(text("DROP TABLE IF EXISTS temp_position_totals"))
+    session.execute(
         text(
             f"""
+            CREATE TEMP TABLE temp_position_totals AS
+            WITH inserted_positions AS (
             INSERT INTO fund_positions (period, accession_no, cusip, put_call, filer_cik,
                                          name_of_issuer, title_of_class, shares, sh_prn, value_usd,
                                          is_effective)
@@ -323,10 +329,17 @@ def load_13f_zip(session: Session, zip_bytes: bytes) -> F13FLoadResult:
             WHERE upper(trim(i.cusip)) <> ''
             GROUP BY to_date(trim(s.periodofreport), '{_DATE_FMT}'), i.accession_number,
                      upper(trim(i.cusip)), coalesce(upper(trim(i.putcall)), ''), s.cik::bigint
+            RETURNING accession_no, value_usd
+            )
+            SELECT accession_no, count(*) AS n_positions, sum(value_usd) AS total_value
+            FROM inserted_positions
+            GROUP BY accession_no
             """
         )
     )
-    positions_written = int(getattr(positions_result, "rowcount", 0) or 0)
+    positions_written = int(
+        session.scalar(text("SELECT coalesce(sum(n_positions), 0) FROM temp_position_totals")) or 0
+    )
 
     touched = session.execute(
         text(
@@ -349,14 +362,13 @@ def load_13f_zip(session: Session, zip_bytes: bytes) -> F13FLoadResult:
                    fa.accepted_at,
                    coalesce(nullif(trim(c.filingmanager_name), ''), 'CIK ' || s.cik::bigint)
                        AS manager_name,
-                   (SELECT count(*) FROM fund_positions p WHERE p.accession_no = s.accession_number)
-                       AS n_positions,
-                   (SELECT coalesce(sum(p.value_usd), 0) FROM fund_positions p
-                    WHERE p.accession_no = s.accession_number) AS total_value
+                   coalesce(t.n_positions, 0) AS n_positions,
+                   coalesce(t.total_value, 0) AS total_value
             FROM temp_submission s
             JOIN temp_new_accessions n ON n.accession_no = s.accession_number
             LEFT JOIN temp_coverpage c ON c.accession_number = s.accession_number
             LEFT JOIN filing_acceptance fa ON fa.accession_no = s.accession_number
+            LEFT JOIN temp_position_totals t ON t.accession_no = s.accession_number
             """
         )
     ).all()

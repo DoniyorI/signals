@@ -3,7 +3,7 @@ from datetime import date, datetime
 from io import BytesIO
 
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import event, func, select, text
 
 from signals.db.models import (
     FeedItem,
@@ -15,6 +15,7 @@ from signals.db.models import (
 )
 from signals.domain.calendars import ET
 from signals.ingest.bulk_13f import load_13f_zip
+from signals.ingest.normalize_funds import NOTICE_SUMMARY, fund_summary, is_notice
 
 
 def _seed_filing_acceptance(session, accession_no: str) -> None:
@@ -204,3 +205,58 @@ def test_manager_name_and_accepted_at_from_filing_acceptance(session, manifest, 
     assert other is not None and other.accepted_at is None and other.accepted_at_source == "missing"
     manager = session.get(FundManager, 1061768)  # BAUPOST GROUP LLC/MA, from COVERPAGE
     assert manager is not None and manager.name == "BAUPOST GROUP LLC/MA"
+
+
+def test_bulk_feed_totals_do_not_rescan_historical_positions(session, fixture_bytes):
+    """The feed must reuse this batch's normalized totals, not scan history per filing."""
+    queries = []
+    connection = session.connection()
+
+    def capture(_conn, _cursor, statement, _parameters, _context, _executemany):
+        if statement.lstrip().startswith("SELECT") and "AS n_positions" in statement:
+            queries.append(statement)
+
+    event.listen(connection, "before_cursor_execute", capture)
+    try:
+        load_13f_zip(session, fixture_bytes("bulk_13f_slice_2025"))
+    finally:
+        event.remove(connection, "before_cursor_execute", capture)
+    assert len(queries) == 1
+    explained = session.scalar(text("EXPLAIN (ANALYZE, FORMAT JSON) " + queries[0]))
+
+    def historical_scans(node):
+        scans = int(node.get("Relation Name", "").startswith("fund_positions"))
+        return scans + sum(historical_scans(child) for child in node.get("Plans", []))
+
+    assert historical_scans(explained[0]["Plan"]) == 0
+
+
+@pytest.mark.parametrize("fixture", ["bulk_13f_slice_2022", "bulk_13f_slice_2025"])
+def test_bulk_feed_matches_legacy_position_totals(session, fixture_bytes, fixture):
+    load_13f_zip(session, fixture_bytes(fixture))
+    legacy = session.execute(
+        text("""
+            SELECT ff.accession_no, ff.submission_type, ff.period_of_report,
+                   count(p.accession_no) AS n_positions,
+                   coalesce(sum(p.value_usd), 0) AS total_value
+            FROM fund_filings ff
+            LEFT JOIN fund_positions p ON p.accession_no = ff.accession_no
+            GROUP BY ff.accession_no, ff.submission_type, ff.period_of_report
+        """)
+    ).all()
+    before = {}
+    for row in legacy:
+        item = session.get(FeedItem, row.accession_no)
+        assert item is not None
+        expected = (
+            NOTICE_SUMMARY
+            if is_notice(row.submission_type)
+            else fund_summary(row.period_of_report, row.n_positions, row.total_value)
+        )
+        assert item.summary == expected
+        before[row.accession_no] = (item.summary, item.form_type, item.codes, item.owner_ciks)
+    load_13f_zip(session, fixture_bytes(fixture))
+    for accession, expected_item in before.items():
+        item = session.get(FeedItem, accession)
+        assert item is not None
+        assert (item.summary, item.form_type, item.codes, item.owner_ciks) == expected_item
