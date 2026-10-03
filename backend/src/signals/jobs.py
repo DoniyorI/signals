@@ -34,6 +34,7 @@ JOB_MODULES = (
     "signals.prices.jobs",
     "signals.analytics.jobs",
     "signals.catchup",
+    "signals.completeness",
 )
 
 BACKFILL_STEPS = (
@@ -42,8 +43,9 @@ BACKFILL_STEPS = (
     "backfill_funds",
     "backfill_prices",
     "analytics_full",
+    "completeness_check",
 )
-RESUMABLE_JOBS = frozenset((*BACKFILL_STEPS, "backfill_all"))
+RESUMABLE_JOBS = frozenset((*BACKFILL_STEPS, "backfill_all", "gap_fill"))
 
 
 @dataclass
@@ -351,7 +353,12 @@ def execute_job(spec: JobSpec, ctx: JobContext) -> dict:
         lock = _JOB_LOCKS.setdefault(spec.kind, threading.Lock())
     if not lock.acquire(blocking=False):
         raise JobAlreadyRunning(spec.kind)
-    maintenance = bool(spec.cron) or spec.kind in (*BACKFILL_STEPS, "backfill_all", "catch_up")
+    maintenance = bool(spec.cron) or spec.kind in (
+        *BACKFILL_STEPS,
+        "backfill_all",
+        "catch_up",
+        "gap_fill",
+    )
     if maintenance and not _MAINTENANCE_LOCK.acquire(blocking=False):
         lock.release()
         raise JobAlreadyRunning("Maintenance is already running")

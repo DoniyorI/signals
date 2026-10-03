@@ -21,7 +21,8 @@ PATHS = {
     "/api/funds/{cik}/performance", "/api/screener/insiders", "/api/screener/funds",
     "/api/compare", "/api/search", "/api/watchlists", "/api/watchlists/{watchlist_id}",
     "/api/watchlists/{watchlist_id}/items", "/api/watchlists/{watchlist_id}/items/{kind}/{cik}",
-    "/api/watchlists/{watchlist_id}/activity", "/api/health", "/api/jobs",
+    "/api/watchlists/{watchlist_id}/activity", "/api/health", "/api/health/completeness",
+    "/api/jobs",
 }  # fmt: skip
 
 

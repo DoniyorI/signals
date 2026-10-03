@@ -114,6 +114,10 @@ def test_gap_retry_keeps_attempted_offset_until_failed_filing_succeeds(
         session.expire_all()
         assert session.get(Filing, accession).parse_status == "parsed"
         assert len([r for r in router.requests if str(r.url) == url]) == 2
+        from signals.domain.appstate import get_state
+
+        state = get_state(session, "completeness_attempt:" + accession)
+        assert state is not None and state["status"] == "resolved"
     finally:
         dispatch.reset_registry()
 

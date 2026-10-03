@@ -9,6 +9,7 @@ type HealthOut = Schema<"HealthOut">;
 export function health(): HealthOut {
   return {
     status: "ok",
+    completeness: { checked_at: "2024-06-07T21:12:47Z", gaps: 0, unavailable: 0 },
     catch_up: { status: "done", started_at: null, finished_at: null, ran: [], behind: [],
       error: null, deferred: null, last_updated_at: "2024-06-07T20:05:12Z" },
     sec_blocked_until: null,

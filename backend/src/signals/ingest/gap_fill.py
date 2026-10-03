@@ -9,16 +9,18 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date, timedelta
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from signals.config import Settings
+from signals.db.models import AppState
 from signals.db.session import session_scope
 from signals.domain.calendars import is_sec_business_day, now_et
 from signals.ingest.indexes import IndexEntry, daily_index_url, full_index_url, parse_form_idx
 from signals.ingest.pipeline import ingest_accession
 from signals.logging import get_logger
 from signals.sec.archive import RawArchive
-from signals.sec.client import SecClient
+from signals.sec.client import SecBlockedError, SecClient
 
 log = get_logger(__name__)
 
@@ -102,6 +104,14 @@ def gap_fill(
     save_progress: Callable[[dict], None],
     source: str = "full_index",
 ) -> GapFillResult:
+    # Import lazily: completeness registers a worker job which calls this same scanner.
+    from signals.completeness import (
+        ATTEMPT_PREFIX,
+        family_for,
+        record_accession_failure,
+        record_accession_success,
+    )
+
     listed = 0
     ingested = 0
     skipped_existing = 0
@@ -109,9 +119,23 @@ def gap_fill(
     quarters_done: list[str] = list(progress.get("quarters_done", []))
     resume = dict(progress.get("current", {}))
     pending: dict[str, list[dict]] = deepcopy(progress.get("pending_failures", {}))
+    # Usually empty. Read retry metadata once, not millions of per-filing state queries
+    # during a historical scan already covered by the bulk loader.
+    with session_scope(session_factory) as s:
+        retry_states = list(
+            s.scalars(select(AppState.value).where(AppState.key.startswith(ATTEMPT_PREFIX)))
+        )
+    retry_tracked = {
+        state["accession_no"] for state in retry_states if state.get("status") != "resolved"
+    }
+    unavailable = {
+        state["accession_no"] for state in retry_states if state.get("status") == "unavailable"
+    }
 
-    def attempt(cik: int, accession: str) -> dict | None:
+    def attempt(cik: int, accession: str, *, form_type: str, day: date) -> dict | None:
         nonlocal listed, ingested, skipped_existing, errors
+        if accession in unavailable:
+            return None
         listed += 1
         try:
             with session_scope(session_factory) as s:
@@ -124,6 +148,9 @@ def gap_fill(
                     settings=settings,
                     archive=archive,
                 )
+                if outcome.status in ("duplicate", "parsed") and accession in retry_tracked:
+                    record_accession_success(s, accession)
+                    retry_tracked.discard(accession)
             if outcome.status == "duplicate":
                 skipped_existing += 1
                 return None
@@ -131,11 +158,32 @@ def gap_fill(
                 ingested += 1
                 return None
             message = outcome.error or f"Unexpected ingest status: {outcome.status}"
+        except SecBlockedError:
+            # A shared SEC pause is not an accession failure and must not exhaust retries.
+            raise
         except Exception as exc:
             message = f"{type(exc).__name__}: {exc}"
             log.warning("gap_fill_fetch_error", accession=accession, error=message)
+        family = family_for(form_type)
+        if family is not None:
+            with session_scope(session_factory) as s:
+                exhausted = record_accession_failure(
+                    s, accession=accession, cik=cik, family=family, day=day, error=message
+                )
+            retry_tracked.add(accession)
+            if exhausted:
+                unavailable.add(accession)
+                # Terminal absence stays visible in the completeness report, while the
+                # scan can finish without repeatedly blocking an entire backfill quarter.
+                return None
         errors += 1
-        return {"cik": cik, "accession_no": accession, "error": message}
+        return {
+            "cik": cik,
+            "accession_no": accession,
+            "error": message,
+            "form_type": form_type,
+            "filed_date": day.isoformat(),
+        }
 
     def checkpoint(key: str, offset: int) -> None:
         progress["current"] = {"quarter": key, "offset": offset}
@@ -156,16 +204,28 @@ def gap_fill(
         offset = resume.get("offset", 0) if resume.get("quarter") == key else 0
         # The attempted offset stays monotonic; a separate queue retries its failed entries.
         retry_entries = pending.pop(key, [])
+        by_accession = {entry.accession_no: entry for entry in filtered}
         failures: list[dict] = []
         pending[key] = failures
         for failed in retry_entries:
-            error = attempt(failed["cik"], failed["accession_no"])
+            # Older checkpoints do not contain form/date metadata. Recover it from the
+            # fresh index without moving their attempted offset backwards.
+            entry = by_accession.get(failed["accession_no"])
+            form = failed.get("form_type") or (entry.form_type if entry else next(iter(form_types)))
+            day = (
+                date.fromisoformat(failed["filed_date"])
+                if failed.get("filed_date")
+                else (entry.date_filed if entry else quarter_start)
+            )
+            error = attempt(failed["cik"], failed["accession_no"], form_type=form, day=day)
             if error is not None:
                 failures.append(error)
         for i, entry in enumerate(filtered):
             if i < offset:
                 continue
-            error = attempt(entry.cik, entry.accession_no)
+            error = attempt(
+                entry.cik, entry.accession_no, form_type=entry.form_type, day=entry.date_filed
+            )
             if error is not None:
                 failures.append(error)
 

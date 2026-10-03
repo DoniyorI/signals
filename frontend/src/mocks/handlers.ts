@@ -2,6 +2,7 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type { Schema } from "@/api/client";
 import { companyForm144, companyHeader, companyInstitutions, companyPrices, companyRoster, companyStakes, lookupCompany } from "./data/companies";
 import { compare } from "./data/compare";
+import { completeness } from "./data/completeness";
 import { FEED, feedSummary, filterFeed } from "./data/feed";
 import { fundHeader, fundHoldings, fundPerformance } from "./data/funds";
 import { health } from "./data/health";
@@ -165,6 +166,7 @@ export const handlers: HttpHandler[] = [
 
   // ---------------------------------------------------------------- health
   http.get("/api/health", () => HttpResponse.json(health())),
+  http.get("/api/health/completeness", () => HttpResponse.json(completeness())),
 
   // ---------------------------------------------------------------- insiders
   http.get("/api/insiders/:cik", ({ request, params }) => {

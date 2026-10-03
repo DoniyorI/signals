@@ -935,6 +935,13 @@
         "SCHEDULE 13D": 100,
         "13F-HR": 100
       },
+      "family_accession_counts": {
+        "ownership": 0,
+        "form144": 100,
+        "stakes": 86,
+        "13f": 100
+      },
+      "accession_note": "The 100 SCHEDULE 13D index rows contain 14 duplicated accession pairs; count 86 unique submissions, not 100 issuer/reporting-person rows.",
       "structure_note": "The daily-index header wraps: 'Date Filed' and 'File Name' sit on the line after 'Form Type ... CIK'. Parse data rows right-anchored: '<form>  <company>  <cik>  <date>  <edgar/...txt>' where the form type (which may contain single spaces, e.g. 'SCHEDULE 13D', '1-A POS') ends at the first run of 2+ spaces; dates are YYYYMMDD in daily indexes and YYYY-MM-DD in full indexes."
     }
   },

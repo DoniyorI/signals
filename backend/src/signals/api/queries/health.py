@@ -19,6 +19,7 @@ from signals.api.queries.common import now, sec_url
 from signals.api.schemas import (
     BackfillStep,
     CatchUpOut,
+    CompletenessSummaryOut,
     Coverage,
     HealthOut,
     JobStatusOut,
@@ -194,9 +195,11 @@ def _backfill_steps(session: Session) -> list[BackfillStep]:
             sub = progress.get("steps", {}).get(kind, {})
             status = (
                 "done"
-                if kind in done or parent.status == "done"
+                if kind in done or (parent.status == "done" and kind != "completeness_check")
                 else (
-                    parent.status if kind == active and parent.status != "requested" else "pending"
+                    parent.status
+                    if kind == active and parent.status not in ("requested", "done")
+                    else "pending"
                 )
             )
             timestamp_progress = sub or (progress if kind == active else {})
@@ -376,6 +379,10 @@ def get_health(session: Session) -> HealthOut:
     jobs = _job_statuses(session)
     catch_raw = get_state(session, "catch_up") or {}
     catch_up = CatchUpOut.model_validate(catch_raw)
+    completeness_raw = get_state(session, "completeness_summary")
+    completeness = (
+        CompletenessSummaryOut.model_validate(completeness_raw) if completeness_raw else None
+    )
     latest_catch = session.scalar(
         select(IngestRun)
         .where(IngestRun.job == "catch_up")
@@ -412,6 +419,7 @@ def get_health(session: Session) -> HealthOut:
             has_recent,
             bool(catch_up.behind)
             or catch_up.status == "error"
+            or bool(completeness and (completeness.gaps or completeness.unavailable))
             or any(job.last_status in ("error", "failed") for job in jobs),
         ),
         jobs=jobs,
@@ -423,4 +431,5 @@ def get_health(session: Session) -> HealthOut:
         coverage=_coverage(session),
         sec_blocked_until=sec_blocked_until,
         catch_up=catch_up,
+        completeness=completeness,
     )

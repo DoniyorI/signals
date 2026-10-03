@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { DASH, fmtDate, fmtDateET, fmtPct, fmtRelative, fmtShares } from "@/lib/format";
 import { required } from "@/lib/httpError";
+import { useCoverage } from "@/hooks/useCoverage";
+import { CompletenessSection } from "./health/CompletenessSection";
 
 const statusText = { ok: "All systems normal", warn: "Needs attention", error: "Problem detected" };
 const statusClass = { ok: "border-pos/30 bg-pos/10", warn: "border-warn/30 bg-warn/10", error: "border-neg/30 bg-neg/10" };
@@ -25,6 +27,7 @@ async function queueJob(body: Schema<"JobRequestIn">) {
 }
 
 export default function HealthPage() {
+  const completenessQuery = useCoverage();
   const healthQuery = useQuery({
     queryKey: ["health"],
     queryFn: async () => {
@@ -46,8 +49,9 @@ export default function HealthPage() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div><h1 className="text-xl font-semibold">Data health</h1>
           <p className="text-xs text-muted-foreground">Refreshes every 30 seconds · Times in US Eastern</p></div>
-        <Button variant="outline" disabled={healthQuery.isFetching} onClick={() => healthQuery.refetch()}>
-          {healthQuery.isFetching ? "Refreshing…" : "Refresh now"}
+        <Button variant="outline" disabled={healthQuery.isFetching || completenessQuery.isFetching}
+          onClick={() => { void Promise.all([healthQuery.refetch(), completenessQuery.refetch()]); }}>
+          {healthQuery.isFetching || completenessQuery.isFetching ? "Refreshing…" : "Refresh now"}
         </Button>
       </header>
       {healthQuery.isError && <p role="alert" className="text-sm text-neg">
@@ -108,6 +112,7 @@ export default function HealthPage() {
           <StartBackfill />
         </div>
       </Section>
+      <CompletenessSection query={completenessQuery} />
       <Section title="Coverage">
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {(Object.keys(coverageLabels) as (keyof Schema<"Coverage">)[]).map((key) =>

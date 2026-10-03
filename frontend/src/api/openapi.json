@@ -486,6 +486,100 @@
         "title": "CompareProfile",
         "type": "object"
       },
+      "CompletenessOut": {
+        "properties": {
+          "as_of": {
+            "format": "date",
+            "title": "As Of",
+            "type": "string"
+          },
+          "checked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked At"
+          },
+          "funds": {
+            "$ref": "#/components/schemas/FundCoverageOut"
+          },
+          "insider_transactions": {
+            "items": {
+              "$ref": "#/components/schemas/YearTransactionsOut"
+            },
+            "title": "Insider Transactions",
+            "type": "array"
+          },
+          "prices": {
+            "$ref": "#/components/schemas/PriceCoverageOut"
+          },
+          "quarters": {
+            "items": {
+              "$ref": "#/components/schemas/QuarterCompletenessOut"
+            },
+            "title": "Quarters",
+            "type": "array"
+          },
+          "returns": {
+            "$ref": "#/components/schemas/ReturnsCoverageOut"
+          },
+          "unavailable": {
+            "items": {
+              "$ref": "#/components/schemas/UnavailableAccessionOut"
+            },
+            "title": "Unavailable",
+            "type": "array"
+          }
+        },
+        "required": [
+          "as_of",
+          "checked_at",
+          "quarters",
+          "insider_transactions",
+          "prices",
+          "returns",
+          "funds",
+          "unavailable"
+        ],
+        "title": "CompletenessOut",
+        "type": "object"
+      },
+      "CompletenessSummaryOut": {
+        "properties": {
+          "checked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked At"
+          },
+          "gaps": {
+            "title": "Gaps",
+            "type": "integer"
+          },
+          "unavailable": {
+            "title": "Unavailable",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "checked_at",
+          "gaps",
+          "unavailable"
+        ],
+        "title": "CompletenessSummaryOut",
+        "type": "object"
+      },
       "Coverage": {
         "properties": {
           "cusip_value_mapped_pct": {
@@ -1189,6 +1283,49 @@
         "title": "Form144Out",
         "type": "object"
       },
+      "FundCoverageOut": {
+        "properties": {
+          "covered": {
+            "title": "Covered",
+            "type": "integer"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          },
+          "quarters": {
+            "items": {
+              "$ref": "#/components/schemas/FundQuarterCoverageOut"
+            },
+            "title": "Quarters",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "tracked": {
+            "title": "Tracked",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tracked",
+          "total",
+          "covered",
+          "pct",
+          "quarters"
+        ],
+        "title": "FundCoverageOut",
+        "type": "object"
+      },
       "FundHeader": {
         "properties": {
           "cik": {
@@ -1482,6 +1619,40 @@
         "title": "FundHoldingsOut",
         "type": "object"
       },
+      "FundQuarterCoverageOut": {
+        "properties": {
+          "cik": {
+            "title": "Cik",
+            "type": "integer"
+          },
+          "period": {
+            "format": "date",
+            "title": "Period",
+            "type": "string"
+          },
+          "present": {
+            "title": "Present",
+            "type": "boolean"
+          },
+          "quarter": {
+            "title": "Quarter",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cik",
+          "year",
+          "quarter",
+          "period",
+          "present"
+        ],
+        "title": "FundQuarterCoverageOut",
+        "type": "object"
+      },
       "FundScreenPage": {
         "properties": {
           "items": {
@@ -1649,6 +1820,16 @@
           },
           "catch_up": {
             "$ref": "#/components/schemas/CatchUpOut"
+          },
+          "completeness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompletenessSummaryOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "coverage": {
             "$ref": "#/components/schemas/Coverage"
@@ -2868,6 +3049,55 @@
         "title": "PerformanceOut",
         "type": "object"
       },
+      "PriceCoverageOut": {
+        "properties": {
+          "covered": {
+            "title": "Covered",
+            "type": "integer"
+          },
+          "loading": {
+            "title": "Loading",
+            "type": "boolean"
+          },
+          "missing_symbols": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Symbols",
+            "type": "array"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          },
+          "through": {
+            "format": "date",
+            "title": "Through",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "covered",
+          "pct",
+          "through",
+          "loading",
+          "missing_symbols"
+        ],
+        "title": "PriceCoverageOut",
+        "type": "object"
+      },
       "PriceSeriesOut": {
         "properties": {
           "bars": {
@@ -2902,6 +3132,101 @@
           "markers"
         ],
         "title": "PriceSeriesOut",
+        "type": "object"
+      },
+      "QuarterCompletenessOut": {
+        "properties": {
+          "coverage_start": {
+            "format": "date",
+            "title": "Coverage Start",
+            "type": "string"
+          },
+          "family": {
+            "enum": [
+              "ownership",
+              "form144",
+              "stakes",
+              "13f"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "indexed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indexed"
+          },
+          "indexed_through": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indexed Through"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          },
+          "quarter": {
+            "title": "Quarter",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "complete",
+              "gap",
+              "in_progress",
+              "unknown",
+              "not_supported"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "stored": {
+            "title": "Stored",
+            "type": "integer"
+          },
+          "through": {
+            "format": "date",
+            "title": "Through",
+            "type": "string"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "quarter",
+          "family",
+          "indexed",
+          "stored",
+          "pct",
+          "status",
+          "coverage_start",
+          "through",
+          "indexed_through"
+        ],
+        "title": "QuarterCompletenessOut",
         "type": "object"
       },
       "Rating": {
@@ -2944,6 +3269,52 @@
           "n"
         ],
         "title": "Rating",
+        "type": "object"
+      },
+      "ReturnCoverageOut": {
+        "properties": {
+          "covered": {
+            "title": "Covered",
+            "type": "integer"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "integer"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          }
+        },
+        "required": [
+          "eligible",
+          "covered",
+          "pct"
+        ],
+        "title": "ReturnCoverageOut",
+        "type": "object"
+      },
+      "ReturnsCoverageOut": {
+        "properties": {
+          "executed": {
+            "$ref": "#/components/schemas/ReturnCoverageOut"
+          },
+          "filed": {
+            "$ref": "#/components/schemas/ReturnCoverageOut"
+          }
+        },
+        "required": [
+          "filed",
+          "executed"
+        ],
+        "title": "ReturnsCoverageOut",
         "type": "object"
       },
       "RoleAtIssuer": {
@@ -3496,6 +3867,61 @@
         "title": "TransactionPage",
         "type": "object"
       },
+      "UnavailableAccessionOut": {
+        "properties": {
+          "accession_no": {
+            "title": "Accession No",
+            "type": "string"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "cik": {
+            "title": "Cik",
+            "type": "integer"
+          },
+          "error": {
+            "title": "Error",
+            "type": "string"
+          },
+          "family": {
+            "enum": [
+              "ownership",
+              "form144",
+              "stakes",
+              "13f"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "quarter": {
+            "title": "Quarter",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accession_no",
+          "cik",
+          "family",
+          "year",
+          "quarter",
+          "attempts",
+          "error",
+          "updated_at"
+        ],
+        "title": "UnavailableAccessionOut",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -3759,6 +4185,24 @@
           "time_invested_pct"
         ],
         "title": "WindowStat",
+        "type": "object"
+      },
+      "YearTransactionsOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "count"
+        ],
+        "title": "YearTransactionsOut",
         "type": "object"
       }
     }
@@ -4944,6 +5388,56 @@
           }
         },
         "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/health/completeness": {
+      "get": {
+        "operationId": "completeness_api_health_completeness_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "as_of",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompletenessOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Completeness",
         "tags": [
           "health"
         ]

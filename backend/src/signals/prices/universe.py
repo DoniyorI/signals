@@ -13,7 +13,14 @@ from datetime import date, timedelta
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from signals.db.models import FundManager, FundPosition, InsiderTransaction, Security, Ticker
+from signals.db.models import (
+    FundFiling,
+    FundManager,
+    FundPosition,
+    InsiderTransaction,
+    Security,
+    Ticker,
+)
 from signals.domain.calendars import now_et
 from signals.domain.tickers import canonical_symbol
 from signals.domain.types import BENCHMARK_SYMBOLS
@@ -27,13 +34,17 @@ class UniverseEntry:
     start: date
 
 
-def _traded_ticker_intervals(session: Session, backfill_start: date) -> list[tuple[str, date]]:
+def _traded_ticker_intervals(
+    session: Session, backfill_start: date, today: date
+) -> list[tuple[str, date]]:
     """(symbol, start) for tickers of issuers with a tracked Form 4 transaction, restricted
     to ticker intervals overlapping [backfill_start, today]."""
-    today = now_et().date()
     traded_issuers = (
         select(InsiderTransaction.issuer_cik)
-        .where(InsiderTransaction.transaction_date >= backfill_start)
+        .where(
+            InsiderTransaction.transaction_date >= backfill_start,
+            InsiderTransaction.transaction_date <= today,
+        )
         .distinct()
     )
     rows = session.execute(
@@ -47,9 +58,9 @@ def _traded_ticker_intervals(session: Session, backfill_start: date) -> list[tup
     return [(symbol, max(floor, valid_from)) for symbol, valid_from in rows]
 
 
-def _tracked_fund_tickers(session: Session) -> list[str]:
+def _tracked_fund_tickers(session: Session, as_of: date | None = None) -> list[str]:
     """Tickers of securities in effective positions held by tracked funds."""
-    rows = session.scalars(
+    query = (
         select(Security.ticker)
         .join(FundPosition, FundPosition.cusip == Security.cusip)
         .join(FundManager, FundManager.cik == FundPosition.filer_cik)
@@ -60,10 +71,16 @@ def _tracked_fund_tickers(session: Session) -> list[str]:
         )
         .distinct()
     )
-    return [ticker for ticker in rows if ticker is not None]
+    if as_of is not None:
+        query = query.join(FundFiling, FundFiling.accession_no == FundPosition.accession_no).where(
+            FundFiling.filed_date < as_of
+        )
+    return [ticker for ticker in session.scalars(query) if ticker is not None]
 
 
-def build_price_universe(session: Session, *, backfill_start: date) -> list[UniverseEntry]:
+def build_price_universe(
+    session: Session, *, backfill_start: date, as_of: date | None = None
+) -> list[UniverseEntry]:
     floor = backfill_start - PRICE_LOOKBACK
     best: dict[str, date] = {}
 
@@ -74,9 +91,11 @@ def build_price_universe(session: Session, *, backfill_start: date) -> list[Univ
         if symbol not in best or start < best[symbol]:
             best[symbol] = start
 
-    for symbol, start in _traded_ticker_intervals(session, backfill_start):
+    for symbol, start in _traded_ticker_intervals(
+        session, backfill_start, as_of or now_et().date()
+    ):
         add(symbol, start)
-    for symbol in _tracked_fund_tickers(session):
+    for symbol in _tracked_fund_tickers(session, as_of):
         add(symbol, floor)
     for symbol in BENCHMARK_SYMBOLS:
         add(symbol, floor)

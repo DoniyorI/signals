@@ -119,6 +119,7 @@ def catch_up(ctx: JobContext) -> dict:
                                 "backfill_insiders",
                                 "backfill_funds",
                                 "backfill_prices",
+                                "gap_fill",
                             )
                         ),
                         JobRequest.status.in_(("requested", "running")),

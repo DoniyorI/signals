@@ -490,6 +490,85 @@ class WatchlistItemCreate(BaseModel):
 
 
 # ---------------------------------------------------------------------------- health, jobs
+FormFamily = Literal["ownership", "form144", "stakes", "13f"]
+
+
+class QuarterCompletenessOut(BaseModel):
+    year: int
+    quarter: int
+    family: FormFamily
+    indexed: int | None
+    stored: int
+    pct: float | None
+    status: Literal["complete", "gap", "in_progress", "unknown", "not_supported"]
+    coverage_start: date
+    through: date
+    indexed_through: date | None
+
+
+class YearTransactionsOut(BaseModel):
+    year: int
+    count: int
+
+
+class PriceCoverageOut(BaseModel):
+    total: int
+    covered: int
+    pct: float | None
+    through: date
+    loading: bool
+    missing_symbols: list[str]
+
+
+class ReturnCoverageOut(BaseModel):
+    eligible: int
+    covered: int
+    pct: float | None
+
+
+class ReturnsCoverageOut(BaseModel):
+    filed: ReturnCoverageOut
+    executed: ReturnCoverageOut
+
+
+class FundQuarterCoverageOut(BaseModel):
+    cik: int
+    year: int
+    quarter: int
+    period: date
+    present: bool
+
+
+class FundCoverageOut(BaseModel):
+    tracked: int
+    total: int
+    covered: int
+    pct: float | None
+    quarters: list[FundQuarterCoverageOut]
+
+
+class UnavailableAccessionOut(BaseModel):
+    accession_no: str
+    cik: int
+    family: FormFamily
+    year: int
+    quarter: int
+    attempts: int
+    error: str
+    updated_at: datetime
+
+
+class CompletenessOut(BaseModel):
+    as_of: date
+    checked_at: datetime | None
+    quarters: list[QuarterCompletenessOut]
+    insider_transactions: list[YearTransactionsOut]
+    prices: PriceCoverageOut
+    returns: ReturnsCoverageOut
+    funds: FundCoverageOut
+    unavailable: list[UnavailableAccessionOut]
+
+
 class JobStatusOut(BaseModel):
     kind: str
     last_started_at: datetime | None
@@ -532,6 +611,12 @@ class CatchUpOut(BaseModel):
     last_updated_at: datetime | None = None
 
 
+class CompletenessSummaryOut(BaseModel):
+    checked_at: datetime | None
+    gaps: int
+    unavailable: int
+
+
 class HealthOut(BaseModel):
     status: Literal["ok", "warn", "error"]
     jobs: list[JobStatusOut]
@@ -543,6 +628,7 @@ class HealthOut(BaseModel):
     coverage: Coverage
     sec_blocked_until: datetime | None
     catch_up: CatchUpOut = Field(default_factory=CatchUpOut)
+    completeness: CompletenessSummaryOut | None = None
 
 
 class JobRequestIn(BaseModel):

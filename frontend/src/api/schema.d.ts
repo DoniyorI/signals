@@ -231,6 +231,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health/completeness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Completeness */
+        get: operations["completeness_api_health_completeness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/insiders/{cik}": {
         parameters: {
             query?: never;
@@ -638,6 +655,34 @@ export interface components {
             /** Windows */
             windows: components["schemas"]["WindowStat"][];
         };
+        /** CompletenessOut */
+        CompletenessOut: {
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Checked At */
+            checked_at: string | null;
+            funds: components["schemas"]["FundCoverageOut"];
+            /** Insider Transactions */
+            insider_transactions: components["schemas"]["YearTransactionsOut"][];
+            prices: components["schemas"]["PriceCoverageOut"];
+            /** Quarters */
+            quarters: components["schemas"]["QuarterCompletenessOut"][];
+            returns: components["schemas"]["ReturnsCoverageOut"];
+            /** Unavailable */
+            unavailable: components["schemas"]["UnavailableAccessionOut"][];
+        };
+        /** CompletenessSummaryOut */
+        CompletenessSummaryOut: {
+            /** Checked At */
+            checked_at: string | null;
+            /** Gaps */
+            gaps: number;
+            /** Unavailable */
+            unavailable: number;
+        };
         /** Coverage */
         Coverage: {
             /** Cusip Value Mapped Pct */
@@ -826,6 +871,19 @@ export interface components {
              */
             status: "pending" | "matched" | "expired";
         };
+        /** FundCoverageOut */
+        FundCoverageOut: {
+            /** Covered */
+            covered: number;
+            /** Pct */
+            pct: number | null;
+            /** Quarters */
+            quarters: components["schemas"]["FundQuarterCoverageOut"][];
+            /** Total */
+            total: number;
+            /** Tracked */
+            tracked: number;
+        };
         /** FundHeader */
         FundHeader: {
             /** Cik */
@@ -894,6 +952,22 @@ export interface components {
             /** Top5 Weight */
             top5_weight: number | null;
         };
+        /** FundQuarterCoverageOut */
+        FundQuarterCoverageOut: {
+            /** Cik */
+            cik: number;
+            /**
+             * Period
+             * Format: date
+             */
+            period: string;
+            /** Present */
+            present: boolean;
+            /** Quarter */
+            quarter: number;
+            /** Year */
+            year: number;
+        };
         /** FundScreenPage */
         FundScreenPage: {
             /** Items */
@@ -942,6 +1016,7 @@ export interface components {
             /** Backfill */
             backfill: components["schemas"]["BackfillStep"][];
             catch_up?: components["schemas"]["CatchUpOut"];
+            completeness?: components["schemas"]["CompletenessSummaryOut"] | null;
             coverage: components["schemas"]["Coverage"];
             /** Feed Delay P50 S */
             feed_delay_p50_s: number | null;
@@ -1272,6 +1347,24 @@ export interface components {
             /** Windows */
             windows: components["schemas"]["WindowStat"][];
         };
+        /** PriceCoverageOut */
+        PriceCoverageOut: {
+            /** Covered */
+            covered: number;
+            /** Loading */
+            loading: boolean;
+            /** Missing Symbols */
+            missing_symbols: string[];
+            /** Pct */
+            pct: number | null;
+            /**
+             * Through
+             * Format: date
+             */
+            through: string;
+            /** Total */
+            total: number;
+        };
         /** PriceSeriesOut */
         PriceSeriesOut: {
             /** Bars */
@@ -1281,6 +1374,41 @@ export interface components {
             /** Symbol */
             symbol: string | null;
         };
+        /** QuarterCompletenessOut */
+        QuarterCompletenessOut: {
+            /**
+             * Coverage Start
+             * Format: date
+             */
+            coverage_start: string;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "ownership" | "form144" | "stakes" | "13f";
+            /** Indexed */
+            indexed: number | null;
+            /** Indexed Through */
+            indexed_through: string | null;
+            /** Pct */
+            pct: number | null;
+            /** Quarter */
+            quarter: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "complete" | "gap" | "in_progress" | "unknown" | "not_supported";
+            /** Stored */
+            stored: number;
+            /**
+             * Through
+             * Format: date
+             */
+            through: string;
+            /** Year */
+            year: number;
+        };
         /** Rating */
         Rating: {
             /** Confidence */
@@ -1289,6 +1417,20 @@ export interface components {
             n: number;
             /** Score */
             score: number | null;
+        };
+        /** ReturnCoverageOut */
+        ReturnCoverageOut: {
+            /** Covered */
+            covered: number;
+            /** Eligible */
+            eligible: number;
+            /** Pct */
+            pct: number | null;
+        };
+        /** ReturnsCoverageOut */
+        ReturnsCoverageOut: {
+            executed: components["schemas"]["ReturnCoverageOut"];
+            filed: components["schemas"]["ReturnCoverageOut"];
         };
         /** RoleAtIssuer */
         RoleAtIssuer: {
@@ -1430,6 +1572,31 @@ export interface components {
             /** Next Cursor */
             next_cursor: string | null;
         };
+        /** UnavailableAccessionOut */
+        UnavailableAccessionOut: {
+            /** Accession No */
+            accession_no: string;
+            /** Attempts */
+            attempts: number;
+            /** Cik */
+            cik: number;
+            /** Error */
+            error: string;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "ownership" | "form144" | "stakes" | "13f";
+            /** Quarter */
+            quarter: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Year */
+            year: number;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1509,6 +1676,13 @@ export interface components {
              * @enum {string}
              */
             window: "ytd" | "1y" | "3y" | "5y";
+        };
+        /** YearTransactionsOut */
+        YearTransactionsOut: {
+            /** Count */
+            count: number;
+            /** Year */
+            year: number;
         };
     };
     responses: never;
@@ -1963,6 +2137,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthOut"];
+                };
+            };
+        };
+    };
+    completeness_api_health_completeness_get: {
+        parameters: {
+            query?: {
+                as_of?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompletenessOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

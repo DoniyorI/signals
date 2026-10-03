@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { api } from "@/api/client";
 import { required } from "@/lib/httpError";
+import { fmtDateET } from "@/lib/format";
 
 export function FreshnessIndicator() {
   const query = useQuery({
@@ -14,6 +15,7 @@ export function FreshnessIndicator() {
     staleTime: 15_000,
   });
   const state = query.data?.catch_up;
+  const completeness = query.data?.completeness;
   const behind = state?.behind ?? [];
   let label = "Checking for updates…";
   let warning = false;
@@ -33,8 +35,14 @@ export function FreshnessIndicator() {
   } else if (state) {
     label = "Waiting for first update";
   }
+  if (completeness && (completeness.gaps > 0 || completeness.unavailable > 0)) warning = true;
+  const completenessLabel = !completeness ? "Coverage status unknown" : !completeness.checked_at ? "Completeness not checked yet" :
+    `${completeness.gaps} filing ${completeness.gaps === 1 ? "gap" : "gaps"} · ${completeness.unavailable} unavailable`;
   return <Link to="/health" role={warning ? "alert" : "status"} title={title}
-    className={`text-xs ${warning ? "text-warn" : "text-muted-foreground"}`}>
-    {label}
+    className={`inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-xs ${warning ? "text-warn" : "text-muted-foreground"}`}>
+    <span>{label}</span>
+    {query.isSuccess && <span title={completeness?.checked_at ? `Completeness last checked ${fmtDateET(completeness.checked_at)}` : undefined}>
+      {completenessLabel}
+    </span>}
   </Link>;
 }
