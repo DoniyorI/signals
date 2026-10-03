@@ -33,6 +33,19 @@ function renderHealth() {
 
 afterEach(() => vi.useRealTimers());
 
+it("shows the pending price stage as queued while fund history loads", async () => {
+  snapshot({ backfill: [
+    { step: "backfill_funds", status: "running", done_units: 13, total_units: null, updated_at: null },
+    { step: "backfill_prices", status: "pending", done_units: 0, total_units: null, updated_at: null },
+  ], jobs: [] });
+  server.use(http.get("/api/health/completeness", () => HttpResponse.json({
+    ...completeness(), prices: { ...completeness().prices, loading: true, pct: 0 },
+  })));
+  renderHealth();
+  expect(await screen.findByText("Price loading is queued while fund filings finish.")).toBeInTheDocument();
+  expect(screen.queryByText("Price loading is active")).not.toBeInTheDocument();
+});
+
 it.each([
   ["ok", "All systems normal"], ["warn", "Needs attention"], ["error", "Problem detected"],
 ] as const)("status banner text per status: %s", async (status, message) => {
@@ -215,6 +228,7 @@ it("shows catch-up timing, completed work and behind jobs", async () => {
 });
 
 it("shows price, both return bases and tracked fund quarter coverage", async () => {
+  snapshot({ backfill: [{ step: "backfill_prices", status: "running", done_units: 0, total_units: null, updated_at: null }] });
   const report = completeness();
   server.use(http.get("/api/health/completeness", () => HttpResponse.json({ ...report,
     prices: { ...report.prices, covered: 37, pct: 0.37, loading: true },

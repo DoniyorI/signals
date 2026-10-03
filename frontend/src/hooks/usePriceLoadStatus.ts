@@ -13,6 +13,15 @@ const stepLabels: Record<string, string> = {
   backfill_form144: "Form 144 notices",
 };
 
+function timestamp(value: string | null | undefined): number | null {
+  const parsed = value ? Date.parse(value) : NaN;
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function jobTimestamp(job: { last_finished_at: string | null; last_started_at: string | null }): number | null {
+  return timestamp(job.last_finished_at ?? job.last_started_at);
+}
+
 /** Completeness.loading includes queued work. Reuse the header's health snapshot to show
  * whether prices are actually running, waiting for another step, or need recovery. */
 export function usePriceLoadStatus(enabled: boolean) {
@@ -33,12 +42,27 @@ export function usePriceLoadStatus(enabled: boolean) {
     const priceStep = backfill.find((step) => step.step === "backfill_prices");
     const priceJobs = jobs.filter((job) => priceKinds.has(job.kind));
     const activeStep = backfill.find((step) => step.step !== "backfill_prices" && !step.step.includes(".") && step.status === "running");
-    const failedPrerequisite = backfill.some((step) => step.step !== "backfill_prices" && step.step.startsWith("backfill_") &&
-      !step.step.includes(".") && failed.has(step.status)) || jobs.some((job) => job.kind === "backfill_all" && failed.has(job.last_status ?? ""));
+    const failedPrerequisiteSteps = backfill.filter((step) => step.step !== "backfill_prices" && step.step.startsWith("backfill_") &&
+      !step.step.includes(".") && failed.has(step.status));
+    const failedParentJobs = jobs.filter((job) => job.kind === "backfill_all" && failed.has(job.last_status ?? ""));
+    const failedPrerequisite = failedPrerequisiteSteps.length > 0 || failedParentJobs.length > 0;
     const latestPriceJob = priceJobs.sort((left, right) =>
-      (right.last_finished_at ?? right.last_started_at ?? "").localeCompare(left.last_finished_at ?? left.last_started_at ?? ""))[0];
+      (jobTimestamp(right) ?? 0) - (jobTimestamp(left) ?? 0))[0];
+    const latestPriceJobTime = latestPriceJob ? jobTimestamp(latestPriceJob) : null;
+    const historicalTimes = [
+      ...(priceStep ? [timestamp(priceStep.updated_at)] : []),
+      ...failedPrerequisiteSteps.map((step) => timestamp(step.updated_at)),
+      ...failedParentJobs.map(jobTimestamp),
+    ];
+    // A standalone retry can recover prices without rerunning old prerequisites. Only
+    // supersede the historical snapshot when all timestamps establish that it is newer.
+    const newerQueuedPriceRetry = latestPriceJob && queued.has(latestPriceJob.last_status ?? "") &&
+      latestPriceJobTime !== null && historicalTimes.every((time) => time !== null && latestPriceJobTime > time);
     if (priceStep?.status === "running" || priceJobs.some((job) => job.last_status === "running")) state = "running";
-    else if (priceStep && failed.has(priceStep.status)) {
+    else if (newerQueuedPriceRetry) {
+      state = "queued";
+      explanation = "Price loading is queued and has not started yet.";
+    } else if (priceStep && failed.has(priceStep.status)) {
       state = "failed";
       explanation = "Price loading failed. Check Data health for the error and retry status.";
     } else if (priceStep && queued.has(priceStep.status)) {
@@ -54,7 +78,7 @@ export function usePriceLoadStatus(enabled: boolean) {
       state = "queued";
       explanation = "Price loading is queued and has not started yet.";
     } else if (latestPriceJob && failed.has(latestPriceJob.last_status ?? "") &&
-      (priceStep?.status !== "done" || (latestPriceJob.last_finished_at ?? latestPriceJob.last_started_at ?? "") > (priceStep.updated_at ?? ""))) {
+      (priceStep?.status !== "done" || (latestPriceJobTime ?? 0) > (timestamp(priceStep.updated_at) ?? 0))) {
       state = "failed";
       explanation = "Price loading failed. Check Data health for the error and retry status.";
     }

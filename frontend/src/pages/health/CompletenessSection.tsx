@@ -1,4 +1,5 @@
 import type { useCoverage } from "@/hooks/useCoverage";
+import { usePriceLoadStatus } from "@/hooks/usePriceLoadStatus";
 import { useState } from "react";
 import { SecLink } from "@/components/data/SecLink";
 import { ErrorState } from "@/components/state/ErrorState";
@@ -13,6 +14,7 @@ const pctLabel = (pct: number | null) => pct == null ? "Unknown" : fmtPct(pct, {
  * section, while headline coverage and unavailable accession failures remain easy to see. */
 export function CompletenessSection({ query }: { query: ReturnType<typeof useCoverage> }) {
   const report = query.data;
+  const priceStatus = usePriceLoadStatus(!!report);
   const [filingsOpen, setFilingsOpen] = useState(false);
   const [fundsOpen, setFundsOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
@@ -38,7 +40,10 @@ export function CompletenessSection({ query }: { query: ReturnType<typeof useCov
         <CoverageMetric label="Tracked fund quarters" pct={report.funds.pct}
           detail={`${fmtShares(report.funds.covered)} / ${fmtShares(report.funds.total)} quarters across ${fmtShares(report.funds.tracked)} tracked funds`} />
       </dl>
-      <p className="mt-3 text-xs text-muted-foreground">{report.prices.loading ? "Price loading is active" : "No price load is active"}</p>
+      <p className="mt-3 text-xs text-muted-foreground">{priceStatus.explanation ?? (
+        report.prices.loading ? priceStatus.state === "running" ? "Price loading is active" :
+          "Price work is queued or running. Check Backfill for current progress." : "No price load is active"
+      )}</p>
       <p className="mt-1 text-xs text-muted-foreground">Return coverage includes decisions whose six-month horizon has elapsed.</p>
       <div className="mt-5 flex min-w-0 flex-col gap-4">
         <details className="min-w-0" onToggle={(event) => setFilingsOpen(event.currentTarget.open)}>
