@@ -131,11 +131,15 @@ def gap_fill(
     unavailable = {
         state["accession_no"] for state in retry_states if state.get("status") == "unavailable"
     }
+    attempted: set[str] = set()
 
     def attempt(cik: int, accession: str, *, form_type: str, day: date) -> dict | None:
         nonlocal listed, ingested, skipped_existing, errors
-        if accession in unavailable:
+        if accession in unavailable or accession in attempted:
             return None
+        # Joint filers can repeat an accession in the index, and older retry queues
+        # can repeat it too. Preserve raw-row offsets while spending one attempt per run.
+        attempted.add(accession)
         listed += 1
         try:
             with session_scope(session_factory) as s:
@@ -147,6 +151,7 @@ def gap_fill(
                     source=source,
                     settings=settings,
                     archive=archive,
+                    expected_identity=(form_type, day),
                 )
                 if outcome.status in ("duplicate", "parsed") and accession in retry_tracked:
                     record_accession_success(s, accession)

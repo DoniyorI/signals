@@ -35,6 +35,7 @@ EXPECTED = {
     "job_requests",
     "ingest_runs",
     "app_state",
+    "completeness_index_members",
 }
 
 

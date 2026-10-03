@@ -6,8 +6,10 @@ start dates without reading archives or making HTTP requests. Missing baselines 
 
 from collections import defaultdict
 from datetime import date, timedelta
+from typing import cast
 
-from sqlalchemy import and_, func, or_, select
+import psycopg
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from signals.api.schemas import (
@@ -25,6 +27,7 @@ from signals.api.schemas import (
 from signals.config import Settings, get_settings
 from signals.db.models import (
     AppState,
+    CompletenessIndexMember,
     Decision,
     DecisionReturn,
     Filing,
@@ -60,6 +63,7 @@ FAMILIES: dict[FormFamily, frozenset[str]] = {
 }
 INDEX_PREFIX = "completeness_index:"
 ATTEMPT_PREFIX = "completeness_attempt:"
+MEMBERSHIP_VERSION = 1
 TARGET = 0.995
 
 
@@ -138,11 +142,13 @@ def index_counts(
     counts: dict[str, int] = dict.fromkeys(FAMILIES, 0)
     daily: dict[str, dict[str, int]] = {}
     seen: set[str] = set()
+    members: list[IndexEntry] = []
     for entry in entries:
         family = family_for(entry.form_type)
         if family is None or not start <= entry.date_filed <= through or entry.accession_no in seen:
             continue
         seen.add(entry.accession_no)
+        members.append(entry)
         counts[family] += 1
         day = daily.setdefault(entry.date_filed.isoformat(), dict.fromkeys(FAMILIES, 0))
         day[family] += 1
@@ -152,21 +158,22 @@ def index_counts(
             (e.date_filed for e in entries if start <= e.date_filed <= through),
             default=start - timedelta(days=1),
         )
-    expected = {
-        (entry.accession_no, entry.form_type)
-        for entry in entries
-        if start <= entry.date_filed <= through
-    }
-    unexpected = [
-        accession
-        for accession, form in session.execute(
-            select(Filing.accession_no, Filing.form_type).where(
-                Filing.filed_date.between(start, through),
-                Filing.form_type.in_(set().union(*FAMILIES.values())),
-            )
+    # COPY streams one row at a time and uses this session's transaction. A failed
+    # baseline update rolls back membership replacement as well; no raw filings change.
+    session.execute(
+        delete(CompletenessIndexMember).where(
+            CompletenessIndexMember.filed_date.between(start, end)
         )
-        if (accession, form) not in expected
-    ]
+    )
+    raw = cast(psycopg.Connection, session.connection().connection.driver_connection)
+    with (
+        raw.cursor() as cursor,
+        cursor.copy(
+            "COPY completeness_index_members (accession_no, form_type, filed_date) FROM STDIN"
+        ) as copy,
+    ):
+        for entry in members:
+            copy.write_row((entry.accession_no, entry.form_type, entry.date_filed))
     set_state(
         session,
         INDEX_PREFIX + key,
@@ -175,7 +182,7 @@ def index_counts(
             "quarter": quarter,
             "counts": counts,
             "daily_counts": daily,
-            "unexpected_accessions": unexpected,
+            "membership_version": MEMBERSHIP_VERSION,
             "through": through.isoformat(),
             "checked_at": now_et().isoformat(),
         },
@@ -186,13 +193,11 @@ def index_counts(
 def stored_counts(session: Session, year: int, quarter: int) -> dict[str, int]:
     start, end = quarter_bounds(year, quarter)
     counts: dict[str, int] = dict.fromkeys(FAMILIES, 0)
-    baseline = get_state(session, f"{INDEX_PREFIX}{year}Q{quarter}") or {}
     for form, count in session.execute(
         select(Filing.form_type, func.count())
         .where(
             Filing.filed_date.between(start, end),
             Filing.parse_status == "parsed",
-            Filing.accession_no.not_in(baseline.get("unexpected_accessions", [])),
         )
         .group_by(Filing.form_type)
     ):
@@ -424,19 +429,27 @@ def completeness_report(
         )
     }
     counts: dict[tuple[int, int, str], int] = defaultdict(int)
-    unexpected = [
-        accession
-        for baseline in baselines.values()
-        for accession in baseline.get("unexpected_accessions", [])
-    ]
+    matched_counts: dict[tuple[int, int, str], int] = defaultdict(int)
     # Group once, preserving date bounds for partial parser-era quarters and stale indexes.
     daily_stored = list(
         session.execute(
-            select(Filing.filed_date, Filing.form_type, func.count())
+            select(
+                Filing.filed_date,
+                Filing.form_type,
+                func.count(Filing.accession_no),
+                func.count(CompletenessIndexMember.accession_no),
+            )
+            .outerjoin(
+                CompletenessIndexMember,
+                and_(
+                    Filing.accession_no == CompletenessIndexMember.accession_no,
+                    Filing.form_type == CompletenessIndexMember.form_type,
+                    Filing.filed_date == CompletenessIndexMember.filed_date,
+                ),
+            )
             .where(
                 Filing.filed_date.between(date(2016, 1, 1), last),
                 Filing.parse_status == "parsed",
-                Filing.accession_no.not_in(unexpected),
                 or_(
                     *(
                         and_(Filing.form_type.in_(forms), Filing.filed_date >= starts[family])
@@ -447,10 +460,11 @@ def completeness_report(
             .group_by(Filing.filed_date, Filing.form_type)
         )
     )
-    for day, form, count in daily_stored:
+    for day, form, count, matched in daily_stored:
         family = family_for(form)
         year, quarter = quarter_of(day)
         counts[year, quarter, str(family)] += count
+        matched_counts[year, quarter, str(family)] += matched
     quarters = []
     for year, quarter in quarters_between(date(2016, 1, 1), as_of):
         start, end = quarter_bounds(year, quarter)
@@ -462,6 +476,7 @@ def completeness_report(
             indexed = None
             if (
                 baseline
+                and baseline.get("membership_version") == MEMBERSHIP_VERSION
                 and frontier is not None
                 and (frontier >= through or (year, quarter) == quarter_of(as_of))
             ):
@@ -470,7 +485,7 @@ def completeness_report(
                     for day, row in baseline["daily_counts"].items()
                     if scoped_start <= date.fromisoformat(day) <= through
                 )
-            stored = counts[year, quarter, family]
+            stored = (matched_counts if indexed is not None else counts)[year, quarter, family]
             pct = min(1.0, stored / indexed) if indexed else None
             if through < starts[family]:
                 status = "not_supported"
@@ -533,8 +548,8 @@ def _has_retryable_gap(session: Session, archive: RawArchive, row: QuarterComple
         if e.form_type in FAMILIES[row.family] and row.coverage_start <= e.date_filed <= row.through
     ]
     stored = set(
-        session.scalars(
-            select(Filing.accession_no).where(
+        session.execute(
+            select(Filing.accession_no, Filing.form_type, Filing.filed_date).where(
                 Filing.form_type.in_(FAMILIES[row.family]),
                 Filing.parse_status == "parsed",
                 Filing.filed_date.between(
@@ -544,7 +559,11 @@ def _has_retryable_gap(session: Session, archive: RawArchive, row: QuarterComple
         )
     )
     unavailable = {item.accession_no for item in unavailable_accessions(session)}
-    return any(e.accession_no not in stored and e.accession_no not in unavailable for e in entries)
+    return any(
+        (e.accession_no, e.form_type, e.date_filed) not in stored
+        and e.accession_no not in unavailable
+        for e in entries
+    )
 
 
 def _save_summary(session: Session, report: CompletenessReport) -> None:

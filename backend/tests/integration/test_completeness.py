@@ -146,6 +146,117 @@ def test_stored_counts_by_filed_date_and_family(session):
     }
 
 
+def test_new_unindexed_filing_after_baseline_cannot_hide_gap(session, settings, tmp_archive):
+    _baseline(session, settings, tmp_archive, _index(n=1))
+    make_filing(session, accession_no="unexpected-after-baseline", filed_date=date(2025, 1, 10))
+    row = _row(
+        _module().completeness_report(session, as_of=date(2025, 4, 2), settings=settings),
+        2025,
+        1,
+        "ownership",
+    )
+    assert (row.indexed, row.stored, row.pct, row.status) == (1, 0, 0.0, "gap")
+    assert _module().stored_counts(session, 2025, 1)["ownership"] == 1
+    assert _module()._has_retryable_gap(session, tmp_archive, row) is True
+
+
+@pytest.mark.parametrize("form,day", [("5", date(2025, 1, 10)), ("4", date(2025, 1, 11))])
+def test_index_identity_requires_matching_form_and_date(session, settings, tmp_archive, form, day):
+    _baseline(session, settings, tmp_archive, _index(n=1))
+    make_filing(session, accession_no="0001000001-25-000000", form_type=form, filed_date=day)
+    row = _row(
+        _module().completeness_report(session, as_of=date(2025, 4, 2), settings=settings),
+        2025,
+        1,
+        "ownership",
+    )
+    assert (row.stored, row.status) == (0, "gap")
+    assert _module()._has_retryable_gap(session, tmp_archive, row) is True
+
+
+def test_legacy_unverified_index_baseline_stays_unknown(session, settings):
+    set_state(
+        session,
+        "completeness_index:2025Q1",
+        {
+            "year": 2025,
+            "quarter": 1,
+            "counts": {"ownership": 1},
+            "daily_counts": {"2025-01-10": {"ownership": 1}},
+            "unexpected_accessions": [],
+            "through": "2025-03-31",
+            "checked_at": "2025-04-01T10:00:00-04:00",
+        },
+    )
+    make_filing(session, filed_date=date(2025, 1, 10))
+    row = _row(
+        _module().completeness_report(session, as_of=date(2025, 4, 2), settings=settings),
+        2025,
+        1,
+        "ownership",
+    )
+    assert (row.indexed, row.stored, row.pct, row.status) == (None, 1, None, "unknown")
+
+
+def test_index_members_replace_only_the_target_quarter(session, settings, tmp_archive):
+    from signals.db.models import CompletenessIndexMember
+
+    _baseline(session, settings, tmp_archive, _index(n=2))
+    april = idx_text(
+        [
+            idx_line(
+                form_type="4", company="Q2", cik=1, date_filed="2025-04-10", accession="q2-member"
+            )
+        ]
+    ).encode()
+    _baseline(session, settings, tmp_archive, april, year=2025, quarter=2)
+    _baseline(session, settings, tmp_archive, _index(n=1))
+    assert set(session.scalars(select(CompletenessIndexMember.accession_no))) == {
+        "0001000001-25-000000",
+        "q2-member",
+    }
+    state = get_state(session, "completeness_index:2025Q1")
+    assert state is not None and state["membership_version"] == 1
+    assert "unexpected_accessions" not in state
+
+
+def test_index_member_copy_and_baseline_update_roll_back_together(
+    session, settings, tmp_archive, monkeypatch
+):
+    from signals.db.models import CompletenessIndexMember
+
+    _baseline(session, settings, tmp_archive, _index(n=1))
+    original = get_state(session, "completeness_index:2025Q1")
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("State write failed")
+
+    monkeypatch.setattr(_module(), "set_state", fail)
+    with pytest.raises(RuntimeError, match="State write failed"), session.begin_nested():
+        _baseline(session, settings, tmp_archive, _index(n=3))
+    assert set(session.scalars(select(CompletenessIndexMember.accession_no))) == {
+        "0001000001-25-000000"
+    }
+    assert get_state(session, "completeness_index:2025Q1") == original
+
+
+def test_index_member_copy_handles_large_quarter_and_missing_filings(
+    session, settings, tmp_archive
+):
+    from signals.db.models import CompletenessIndexMember
+
+    counts, _ = _baseline(session, settings, tmp_archive, _index(n=1505))
+    assert counts["ownership"] == 1505
+    assert session.scalar(select(func.count()).select_from(CompletenessIndexMember)) == 1505
+    row = _row(
+        _module().completeness_report(session, as_of=date(2025, 4, 2), settings=settings),
+        2025,
+        1,
+        "ownership",
+    )
+    assert (row.indexed, row.stored, row.status) == (1505, 0, "gap")
+
+
 def test_quarter_below_threshold_is_gap(session, settings, tmp_archive):
     _baseline(session, settings, tmp_archive)
     for i in range(99):

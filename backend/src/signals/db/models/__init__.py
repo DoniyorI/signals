@@ -1,6 +1,7 @@
 """All ORM models. Importing this package registers every table on Base.metadata."""
 
 from signals.db.models.app import AppState, IngestRun, JobRequest, User, Watchlist, WatchlistItem
+from signals.db.models.completeness import CompletenessIndexMember
 from signals.db.models.derived import (
     Decision,
     DecisionOwner,
@@ -24,6 +25,7 @@ from signals.db.models.reference import FilingAcceptance, Issuer, Security, Tick
 
 __all__ = [
     "AppState",
+    "CompletenessIndexMember",
     "Decision",
     "DecisionOwner",
     "DecisionReturn",

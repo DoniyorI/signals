@@ -5,7 +5,7 @@ A handler failure rolls back only its own writes and is recorded on the filing r
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from sqlalchemy import func
@@ -98,8 +98,11 @@ def ingest_raw(
     first_seen_at: datetime | None,
     settings: Settings,
     archive: RawArchive,
+    expected_identity: tuple[str, date] | None = None,
 ) -> IngestOutcome:
     sgml = SgmlFiling.from_txt(raw)
+    if expected_identity is not None and (sgml.form_type, sgml.filed_date) != expected_identity:
+        raise ValueError("Submission form/date does not match the SEC index")
     filing = _upsert_filing(
         session, sgml, source=source, raw_path=raw_path, first_seen_at=first_seen_at
     )
@@ -143,10 +146,18 @@ def ingest_accession(
     first_seen_at: datetime | None = None,
     settings: Settings,
     archive: RawArchive,
+    expected_identity: tuple[str, date] | None = None,
 ) -> IngestOutcome:
     acc = normalize_accession(accession)
     existing = session.get(Filing, acc)
-    if existing is not None and existing.parse_status == "parsed":
+    if (
+        existing is not None
+        and existing.parse_status == "parsed"
+        and (
+            expected_identity is None
+            or (existing.form_type, existing.filed_date) == expected_identity
+        )
+    ):
         return IngestOutcome(acc, "duplicate")
     raw = client.get(filing_txt_url(cik, acc), priority=priority)
     path = archive.put("filing", acc, raw, "txt")
@@ -159,6 +170,7 @@ def ingest_accession(
             first_seen_at=first_seen_at,
             settings=settings,
             archive=archive,
+            expected_identity=expected_identity,
         )
     except ValueError as exc:  # unreadable SEC wrapper: no form/date to record a row with
         log.error("ingest_unreadable_submission", accession=acc, error=str(exc))
