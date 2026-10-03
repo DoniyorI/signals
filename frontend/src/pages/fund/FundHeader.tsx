@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import type { Schema } from "@/api/client";
 import { ValueChart } from "@/components/charts/ValueChart";
-import { RatingPill } from "@/components/data/RatingPill";
+import { CoverageRatingPill } from "@/components/data/CoverageRatingPill";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useWatch } from "@/hooks/useWatch";
@@ -38,7 +38,7 @@ export function FundHeader({ fund }: { fund: FundHeader }) {
           )}
         </div>
         <div className="flex items-center gap-3">
-          <RatingPill rating={fund.rating} />
+          <CoverageRatingPill rating={fund.rating} quarterly />
           <Button
             variant={watch.isWatched ? "secondary" : "outline"}
             size="sm"

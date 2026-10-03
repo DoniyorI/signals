@@ -3,6 +3,8 @@ import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { useSearchParams } from "react-router";
 import { api, type Schema } from "@/api/client";
 import { ErrorState } from "@/components/state/ErrorState";
+import { EmptyState } from "@/components/state/EmptyState";
+import { CoverageEmptyState } from "@/components/state/CoverageEmptyState";
 import { WINDOWS, type WindowName } from "@/lib/domain";
 import { InsiderScreener } from "./screener/InsiderScreener";
 import { FundScreener } from "./screener/FundScreener";
@@ -81,6 +83,10 @@ export default function ScreenerPage() {
   const csv = new URLSearchParams(Object.entries(query).filter(([, value]) => value !== undefined)
     .flatMap(([key, value]) => Array.isArray(value) ? value.map((v) => [key, v]) : [[key, String(value)]]));
   csv.set("format", "csv");
+  const hasRows = result.data?.pages.some((p) => funds ? p.funds.length > 0 : p.insiders.length > 0) ?? false;
+  const filterKeys = ["sectors", "min_rating", "confidence", "min_return", "max_return", "risk",
+    ...(!funds ? ["roles", "last_trade_from", "last_trade_to"] : [])];
+  const hasFilters = filterKeys.some((key) => !!sp.get(key)) || (!funds && (number("min_decisions") ?? 1) > 1);
 
   return <div className="flex min-w-0 flex-col gap-4">
     <h1 className="text-xl font-semibold">Screener</h1>
@@ -99,7 +105,9 @@ export default function ScreenerPage() {
     </div>
     <div id="screener-results" role="tabpanel" aria-labelledby={`screener-${funds ? "funds" : "insiders"}`}>
       {validation ? <p role="alert" className="text-sm text-neg">{validation}</p> : result.isPending ? <p>Loading…</p> : result.isError ? <ErrorState title="The screener didn't load"
-        action={<button onClick={() => { void result.refetch(); }}>Try again</button>} /> : funds ?
+        action={<button onClick={() => { void result.refetch(); }}>Try again</button>} /> : !hasRows ?
+        hasFilters ? <EmptyState title={`No ${funds ? "funds" : "insiders"} match these filters`} description="Try broadening or clearing your filters." /> :
+          <CoverageEmptyState title={`No ${funds ? "fund" : "insider"} performance data yet`} allowLoading /> : funds ?
         <FundScreener data={result.data.pages.flatMap((p) => p.funds)} {...controls} /> :
         <InsiderScreener data={result.data.pages.flatMap((p) => p.insiders)} {...controls} />}
     </div>

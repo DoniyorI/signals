@@ -6,10 +6,11 @@ import { EquityChart } from "@/components/charts/EquityChart";
 import { AllocationDonut } from "@/components/charts/AllocationDonut";
 import { BasisToggle } from "@/components/controls/BasisToggle";
 import { TenB51Toggle } from "@/components/controls/TenB51Toggle";
-import { RatingPill } from "@/components/data/RatingPill";
+import { CoverageRatingPill } from "@/components/data/CoverageRatingPill";
 import { ReturnCell } from "@/components/data/ReturnCell";
 import { EmptyState } from "@/components/state/EmptyState";
 import { ErrorState } from "@/components/state/ErrorState";
+import { CoverageEmptyState } from "@/components/state/CoverageEmptyState";
 import { WINDOWS } from "@/lib/domain";
 
 export default function ComparePage() {
@@ -44,6 +45,7 @@ export default function ComparePage() {
     .filter((h) => !ids.includes(`${h.kind}:${h.cik}`));
   const names = new Map(profiles.map((p) => [p.id, p.name]));
   const missing = comparison.isSuccess ? ids.filter((id) => !names.has(id)) : [];
+  const profilesWithCurves = profiles.filter((p) => p.curve.length > 0);
 
   return <div className="flex min-w-0 flex-col gap-4">
     <h1 className="text-xl font-semibold">Compare</h1>
@@ -73,7 +75,11 @@ export default function ComparePage() {
         {profiles.length > 0 && <>
           <section aria-label="Performance comparison" className="min-w-0 rounded border border-border bg-card p-4">
             <h2 className="mb-3 font-medium">Portfolio growth</h2>
-            <EquityChart profiles={profiles.map((p) => ({ id: p.id, label: p.name, points: p.curve }))} />
+            {profilesWithCurves.length > 0 ? <EquityChart profiles={profilesWithCurves.map((p) => ({ id: p.id, label: p.name, points: p.curve }))} /> :
+              <CoverageEmptyState title="No completed performance to compare yet" />}
+            {profilesWithCurves.length > 0 && profilesWithCurves.length < profiles.length && <p className="mt-2 text-sm text-muted-foreground">
+              Performance data is unavailable for {profiles.filter((p) => p.curve.length === 0).map((p) => p.name).join(", ")}. Open the profile for coverage details.
+            </p>}
           </section>
           <div className="min-w-0 overflow-auto rounded border border-border">
             <table aria-label="Profile comparison" className="w-full text-sm">
@@ -82,7 +88,7 @@ export default function ComparePage() {
                 <div className="text-xs font-normal text-muted-foreground">{p.kind === "fund" ? "Quarterly decisions" : "Six-month decisions"}</div>
               </th>)}</tr></thead>
               <tbody>
-                <StatRow label="Rating" profiles={profiles} render={(p) => <RatingPill rating={p.rating} />} />
+                <StatRow label="Rating" profiles={profiles} render={(p) => <CoverageRatingPill rating={p.rating} quarterly={p.kind === "fund"} compact />} />
                 <StatRow label="Avg ROI vs SPY" profiles={profiles} render={(p) => <ReturnCell value={p.avg_roi_6m} />} />
                 <StatRow label="Hit rate" profiles={profiles} render={(p) => <ReturnCell value={p.hit_rate} />} />
                 {WINDOWS.map((w) => <StatRow key={w} label={`${w.toUpperCase()} return`} profiles={profiles} render={(p) => <ReturnCell value={p.windows.find((v) => v.window === w)?.ret} />} />)}

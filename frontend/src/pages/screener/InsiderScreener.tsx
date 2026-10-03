@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router";
 import type { Schema } from "@/api/client";
 import { DataTable } from "@/components/data/DataTable";
-import { RatingPill } from "@/components/data/RatingPill";
+import { CoverageRatingPill } from "@/components/data/CoverageRatingPill";
 import { ReturnCell } from "@/components/data/ReturnCell";
 import { EmptyState } from "@/components/state/EmptyState";
 import { fmtDate } from "@/lib/format";
@@ -15,7 +15,7 @@ export function InsiderScreener({ data, window, ...controls }: ScreenerTableCont
     { id: "issuer", accessorFn: (r) => r.primary_issuer?.ticker ?? r.primary_issuer?.name, header: "Company", cell: ({ row: { original: r } }) => r.primary_issuer ? <Link className="text-link" to={`/company/${r.primary_issuer.cik}`}>{r.primary_issuer.ticker ?? r.primary_issuer.name}</Link> : "—" },
     { accessorKey: "roles", header: "Roles", cell: ({ row }) => row.original.roles.join(", ") || "—" },
     { accessorKey: "sector", header: "Sector" },
-    { id: "rating", accessorFn: (r) => r.rating.score, header: "Rating", sortDescFirst: true, cell: ({ row }) => <RatingPill rating={row.original.rating} /> },
+    { id: "rating", accessorFn: (r) => r.rating.score, header: "Rating", sortDescFirst: true, cell: ({ row }) => <CoverageRatingPill rating={row.original.rating} compact /> },
     { accessorKey: "avg_roi_6m", header: "Avg ROI", sortDescFirst: true, cell: ({ row }) => <ReturnCell value={row.original.avg_roi_6m} /> },
     { accessorKey: "hit_rate", header: "Hit rate", sortDescFirst: true, cell: ({ row }) => <ReturnCell value={row.original.hit_rate} /> },
     { accessorKey: "n_decisions", header: "Decisions", sortDescFirst: true },

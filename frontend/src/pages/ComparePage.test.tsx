@@ -4,6 +4,8 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { createChart } from "lightweight-charts";
 import { AppWithRouter } from "@/App";
 import { server } from "@/mocks/node";
+import { HttpResponse, http } from "msw";
+import { compare } from "@/mocks/data/compare";
 
 vi.mock("lightweight-charts", () => ({
   createChart: vi.fn(() => ({ addSeries: vi.fn(() => ({ setData: vi.fn(), applyOptions: vi.fn() })),
@@ -54,4 +56,13 @@ it("search picker adds an insider without losing the existing fund", async () =>
   await user.type(screen.getByRole("searchbox", { name: "Search profiles" }), "Doe");
   await user.click(await screen.findByRole("button", { name: /Doe Jane.*CEO/ }));
   await waitFor(() => expect(lastCompare()?.searchParams.get("ids")).toBe("fund:3000001,insider:2000001"));
+});
+
+it("explains an empty performance comparison and avoids drawing empty curves", async () => {
+  const comparison = compare("insider:2000001", "filed", false);
+  server.use(http.get("/api/compare", () => HttpResponse.json({ ...comparison,
+    profiles: comparison.profiles.map((profile) => ({ ...profile, curve: [] })) })));
+  render(<AppWithRouter initialPath="/compare?ids=insider:2000001" />);
+  expect(await screen.findByText("No completed performance to compare yet")).toBeInTheDocument();
+  expect(createChart).not.toHaveBeenCalled();
 });

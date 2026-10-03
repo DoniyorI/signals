@@ -6,6 +6,7 @@ import { EquityChart } from "@/components/charts/EquityChart";
 import { WindowsTable } from "@/components/data/WindowsTable";
 import { EmptyState } from "@/components/state/EmptyState";
 import { ErrorState } from "@/components/state/ErrorState";
+import { CoverageEmptyState } from "@/components/state/CoverageEmptyState";
 import { isNotFound, required, retryUnlessNotFound } from "@/lib/httpError";
 import { basisParam } from "@/lib/queryParams";
 
@@ -48,6 +49,8 @@ export function FundPerformance({ cik }: { cik: number }) {
             }
           />
         )
+      ) : query.data.points.length === 0 || query.data.coverage_pct === 0 ? (
+        <FundEmptyPerformance cik={cik} noPrices={query.data.coverage_pct === 0} />
       ) : (
         <>
           <EquityChart points={query.data.points} />
@@ -56,4 +59,25 @@ export function FundPerformance({ cik }: { cik: number }) {
       )}
     </section>
   );
+}
+
+function FundEmptyPerformance({ cik, noPrices }: { cik: number; noPrices: boolean }) {
+  const [searchParams] = useSearchParams();
+  const period = searchParams.get("period");
+  const holdings = useQuery({
+    queryKey: ["fund-holdings", cik, period],
+    queryFn: async () => {
+      const { data, response } = await api.GET("/api/funds/{cik}/holdings", {
+        params: { path: { cik }, query: { period: period ?? undefined } },
+      });
+      return required(data, response);
+    },
+  });
+  if (holdings.isPending) return <p className="py-10 text-center text-sm text-muted-foreground">Checking price coverage…</p>;
+  if (holdings.isError) return <ErrorState title="Performance coverage didn't load" />;
+  const rows = holdings.data.rows;
+  const unmapped = noPrices && holdings.data.next_cursor === null && rows.length > 0 &&
+    rows.every((row) => row.security.ticker === null && row.security.issuer_cik === null);
+  return <CoverageEmptyState title="No completed quarterly performance yet" notCovered={unmapped}
+    symbols={rows.flatMap((row) => row.security.ticker ? [row.security.ticker] : [])} noPricesWhenIdle={noPrices && rows.length > 0} />;
 }

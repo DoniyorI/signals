@@ -2,7 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { AppWithRouter } from "@/App";
+import { HttpResponse, http } from "msw";
 import { server } from "@/mocks/node";
+import { coverageFixture } from "@/test/coverage";
 
 // lightweight-charts draws on canvas, which jsdom doesn't implement (components.test.tsx uses
 // the same stub for the same reason).
@@ -68,4 +70,20 @@ it("change chips render", async () => {
 it("unknown company shows not found", async () => {
   render(<AppWithRouter initialPath="/company/NOPE" />);
   expect(await screen.findByText("Company not found")).toBeInTheDocument();
+});
+
+it("an unmapped security explains missing prices even during a global price load", async () => {
+  server.use(
+    http.get("/api/companies/:cik/prices", () => HttpResponse.json({ symbol: null, bars: [], markers: [] })),
+    http.get("/api/health/completeness", () => HttpResponse.json(coverageFixture({ loading: true, pct: 0.37 }))),
+  );
+  render(<AppWithRouter initialPath="/company/ACME" />);
+  expect(await screen.findByText("No price data for this security.")).toBeInTheDocument();
+  expect(screen.queryByText(/Performance appears when prices finish loading/)).not.toBeInTheDocument();
+});
+
+it("shows a price API error instead of hiding the chart", async () => {
+  server.use(http.get("/api/companies/:cik/prices", () => HttpResponse.json({ detail: "unavailable" }, { status: 500 })));
+  render(<AppWithRouter initialPath="/company/ACME" />);
+  expect(await screen.findByText("Prices didn't load", {}, { timeout: 3000 })).toBeInTheDocument();
 });

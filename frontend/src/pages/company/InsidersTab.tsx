@@ -4,7 +4,7 @@ import { Link, useSearchParams } from "react-router";
 import { api, type Schema } from "@/api/client";
 import { TenB51Toggle } from "@/components/controls/TenB51Toggle";
 import { DataTable } from "@/components/data/DataTable";
-import { RatingPill } from "@/components/data/RatingPill";
+import { CoverageRatingPill } from "@/components/data/CoverageRatingPill";
 import { EmptyState } from "@/components/state/EmptyState";
 import { ErrorState } from "@/components/state/ErrorState";
 import { includeParam } from "@/lib/queryParams";
@@ -43,7 +43,7 @@ const columns = [
   columnHelper.accessor("n_decisions", { header: "Decisions" }),
   columnHelper.accessor("rating", {
     header: "Rating",
-    cell: ({ getValue }) => <RatingPill rating={getValue()} />,
+    cell: ({ getValue }) => <CoverageRatingPill rating={getValue()} compact />,
   }),
 ];
 

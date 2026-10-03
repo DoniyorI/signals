@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it } from "vitest";
 import { AppWithRouter } from "@/App";
 import { server } from "@/mocks/node";
 import { screenInsiders } from "@/mocks/data/screener";
+import { coverageFixture } from "@/test/coverage";
 
 let requests: URL[] = [];
 function record({ request }: { request: Request }) {
@@ -97,4 +98,49 @@ it("every displayed insider and fund column exposes server sorting", async () =>
   }
   await user.click(screen.getByRole("button", { name: "Coverage" }));
   await waitFor(() => expect(requests.at(-1)?.searchParams.get("sort")).toBe("coverage_pct"));
+});
+
+it("screener empty state explains prices still loading", async () => {
+  server.use(
+    http.get("/api/screener/insiders", () => HttpResponse.json({ items: [], next_cursor: null })),
+    http.get("/api/health/completeness", () => HttpResponse.json(coverageFixture({ loading: true, pct: 0.37 }))),
+  );
+  render(<AppWithRouter initialPath="/screener" />);
+  expect(await screen.findByText("Performance appears when prices finish loading (37% done).")).toBeInTheDocument();
+});
+
+it("keeps genuine filter misses distinct from loading prices", async () => {
+  server.use(http.get("/api/health/completeness", () => HttpResponse.json(coverageFixture({ loading: true, pct: 0.37 }))));
+  render(<AppWithRouter initialPath="/screener?min_rating=100" />);
+  expect(await screen.findByText("No insiders match these filters")).toBeInTheDocument();
+  expect(screen.queryByText(/Performance appears when prices finish loading/)).not.toBeInTheDocument();
+});
+
+it("does not claim prices are loading just because price coverage is low", async () => {
+  server.use(
+    http.get("/api/screener/insiders", () => HttpResponse.json({ items: [], next_cursor: null })),
+    http.get("/api/health/completeness", () => HttpResponse.json(coverageFixture({ pct: 0.37 }))),
+  );
+  render(<AppWithRouter initialPath="/screener" />);
+  expect(await screen.findByText("No insider performance data yet")).toBeInTheDocument();
+  expect(screen.queryByText(/Performance appears when prices finish loading/)).not.toBeInTheDocument();
+});
+
+it("shows a coverage error instead of inventing an empty reason", async () => {
+  server.use(
+    http.get("/api/screener/insiders", () => HttpResponse.json({ items: [], next_cursor: null })),
+    http.get("/api/health/completeness", () => HttpResponse.json({ detail: "unavailable" }, { status: 500 })),
+  );
+  render(<AppWithRouter initialPath="/screener" />);
+  expect(await screen.findByText("Coverage details didn't load", {}, { timeout: 3000 })).toBeInTheDocument();
+  expect(screen.queryByText(/Performance appears when prices finish loading/)).not.toBeInTheDocument();
+});
+
+it("does not treat ignored insider filters as fund filter misses", async () => {
+  server.use(
+    http.get("/api/screener/funds", () => HttpResponse.json({ items: [], next_cursor: null })),
+    http.get("/api/health/completeness", () => HttpResponse.json(coverageFixture({ loading: true, pct: 0.37 }))),
+  );
+  render(<AppWithRouter initialPath="/screener?tab=funds&roles=CEO" />);
+  expect(await screen.findByText("Performance appears when prices finish loading (37% done).")).toBeInTheDocument();
 });

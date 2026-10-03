@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router";
 import type { Schema } from "@/api/client";
 import { DataTable } from "@/components/data/DataTable";
-import { RatingPill } from "@/components/data/RatingPill";
+import { CoverageRatingPill } from "@/components/data/CoverageRatingPill";
 import { ReturnCell } from "@/components/data/ReturnCell";
 import { EmptyState } from "@/components/state/EmptyState";
 import { fmtUsd, fmtPct } from "@/lib/format";
@@ -15,7 +15,7 @@ export function FundScreener({ data, window, ...controls }: ScreenerTableControl
     { accessorKey: "latest_value_usd", header: "Portfolio value", cell: ({ row }) => fmtUsd(row.original.latest_value_usd) },
     { accessorKey: "positions", header: "Positions" },
     { accessorKey: "top_sector", header: "Top sector" },
-    { id: "rating", accessorFn: (r) => r.rating.score, header: "Rating (quarterly)", sortDescFirst: true, cell: ({ row }) => <RatingPill rating={row.original.rating} /> },
+    { id: "rating", accessorFn: (r) => r.rating.score, header: "Rating (quarterly)", sortDescFirst: true, cell: ({ row }) => <CoverageRatingPill rating={row.original.rating} quarterly compact /> },
     { id: "return", accessorFn: (r) => r.windows[window], header: `${window.toUpperCase()} return`, sortDescFirst: true, cell: ({ row }) => <ReturnCell value={row.original.windows[window]} /> },
     { accessorKey: "risk_label", header: "Risk" },
     { accessorKey: "coverage_pct", header: "Coverage", cell: ({ row }) => fmtPct(row.original.coverage_pct) },

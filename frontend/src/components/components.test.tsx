@@ -50,6 +50,7 @@ describe("RatingPill", () => {
   it("shows 'Not enough data yet' for a null score", () => {
     render(<RatingPill rating={{ score: null, confidence: null, n: 0 }} />);
     expect(screen.getByText(NOT_ENOUGH_DATA)).toBeInTheDocument();
+    expect(screen.getByText("Rating appears after completed six-month returns are calculated.")).toBeInTheDocument();
   });
 
   it("shows the score and confidence otherwise", () => {

@@ -2,7 +2,10 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { AppWithRouter } from "@/App";
+import { HttpResponse, http } from "msw";
 import { server } from "@/mocks/node";
+import { insiderDecisions, insiderHeader } from "@/mocks/data/insiders";
+import { coverageFixture } from "@/test/coverage";
 
 // lightweight-charts draws on canvas, which jsdom doesn't implement (components.test.tsx uses
 // the same stub for the same reason).
@@ -48,7 +51,7 @@ it("renders header metrics", async () => {
 it("renders not-enough-data state", async () => {
   render(<AppWithRouter initialPath="/insider/2000005" />);
   await screen.findByRole("heading", { name: "New Person" });
-  expect(await screen.findByText("Not enough data yet")).toBeInTheDocument();
+  expect(await within(screen.getByRole("region", { name: "Performance" })).findByText("Not enough data yet")).toBeInTheDocument();
   const roiStat = screen.getByText("Avg ROI (6m vs SPY)").closest("div");
   expect(roiStat).not.toBeNull();
   expect(within(roiStat as HTMLElement).getByText("—")).toBeInTheDocument();
@@ -91,4 +94,39 @@ it("watch button creates default watchlist then adds item", async () => {
       "/api/watchlists/1/items",
     ]),
   );
+});
+
+it("explains one completed trade using actual returns rather than the total decisions", async () => {
+  const decisions = insiderDecisions(2000005, "filed", false, null);
+  const completed = { ...decisions[0], returns: decisions[0].returns.map((r) => r.horizon === "6m" ? { ...r, complete: true, raw: 0.1, excess_spy: 0.02 } : r) };
+  server.use(http.get("/api/insiders/:cik/decisions", () => HttpResponse.json({ items: [completed], next_cursor: null })));
+  render(<AppWithRouter initialPath="/insider/2000005" />);
+  expect(await screen.findByText("Needs 3+ completed trades (has 1).")).toBeInTheDocument();
+});
+
+it("shows an insider performance API error instead of treating it as no data", async () => {
+  server.use(http.get("/api/insiders/:cik/performance", () => HttpResponse.json({ detail: "unavailable" }, { status: 500 })));
+  render(<AppWithRouter initialPath="/insider/2000001" />);
+  expect(await screen.findByText("Performance didn't load", {}, { timeout: 3000 })).toBeInTheDocument();
+});
+
+it("shares the coverage query across missing ratings and performance", async () => {
+  server.use(http.get("/api/health/completeness", () => HttpResponse.json(coverageFixture({ loading: true, pct: 0.37, missingSymbols: ["XYZ"] }))));
+  render(<AppWithRouter initialPath="/insider/2000005" />);
+  expect(await screen.findByText("Prices 37% loaded. Rating appears after returns are calculated.")).toBeInTheDocument();
+  expect(await screen.findByText("Performance appears when prices finish loading (37% done).")).toBeInTheDocument();
+  expect(requestPaths.filter((r) => new URL(r.url).pathname === "/api/health/completeness")).toHaveLength(1);
+});
+
+it("does not present a partial decision page as an exact completed trade count", async () => {
+  const header = insiderHeader(2000005, "filed", false)!;
+  const decisions = insiderDecisions(2000005, "filed", false, null);
+  server.use(
+    http.get("/api/insiders/:cik", () => HttpResponse.json({ ...header, n_decisions: 1500 })),
+    http.get("/api/insiders/:cik/decisions", () => HttpResponse.json({ items: decisions, next_cursor: "more" })),
+  );
+  render(<AppWithRouter initialPath="/insider/2000005?tab=transactions" />);
+  expect(await screen.findByText("No performance data yet")).toBeInTheDocument();
+  expect(screen.queryByText(/Needs 3\+ completed trades \(has/)).not.toBeInTheDocument();
+  expect(requestPaths.filter((r) => new URL(r.url).pathname.endsWith("/decisions"))).toHaveLength(1);
 });

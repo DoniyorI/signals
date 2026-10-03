@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { api } from "@/api/client";
 import { PriceChart } from "@/components/charts/PriceChart";
 import { ErrorState } from "@/components/state/ErrorState";
+import { CoverageEmptyState } from "@/components/state/CoverageEmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlState } from "@/hooks/useUrlState";
 import { isNotFound, required, retryUnlessNotFound } from "@/lib/httpError";
@@ -82,11 +83,14 @@ function PricesSection({ cik }: { cik: number }) {
   const query = useQuery({
     queryKey: ["company-prices", cik],
     queryFn: async () => {
-      const { data } = await api.GET("/api/companies/{cik}/prices", { params: { path: { cik }, query: {} } });
-      return data ?? { symbol: null, bars: [], markers: [] };
+      const { data, response } = await api.GET("/api/companies/{cik}/prices", { params: { path: { cik }, query: {} } });
+      return required(data, response);
     },
   });
 
-  if (!query.data || query.data.bars.length === 0) return null;
+  if (query.isPending) return <p className="py-10 text-center text-sm text-muted-foreground">Loading prices…</p>;
+  if (query.isError) return <ErrorState title="Prices didn't load"
+    action={<button type="button" className="text-sm text-link hover:underline" onClick={() => { void query.refetch(); }}>Try again</button>} />;
+  if (query.data.bars.length === 0) return <CoverageEmptyState notCovered={query.data.symbol === null} allowLoading noPricesWhenIdle />;
   return <PriceChart bars={query.data.bars} markers={query.data.markers} />;
 }

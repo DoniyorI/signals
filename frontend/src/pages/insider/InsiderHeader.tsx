@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import type { Schema } from "@/api/client";
 import { BasisToggle } from "@/components/controls/BasisToggle";
 import { TenB51Toggle } from "@/components/controls/TenB51Toggle";
-import { RatingPill } from "@/components/data/RatingPill";
+import { CoverageRatingPill } from "@/components/data/CoverageRatingPill";
 import { Button } from "@/components/ui/button";
 import { useWatch } from "@/hooks/useWatch";
 import { DASH, fmtPct } from "@/lib/format";
@@ -56,7 +56,7 @@ export function InsiderHeader({ header }: { header: InsiderHeader }) {
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-6">
-        <RatingPill rating={header.rating} />
+        <CoverageRatingPill rating={header.rating} />
         <Stat label="Avg ROI (6m vs SPY)" value={fmtPct(header.avg_roi_6m)} />
         <Stat label="Hit rate" value={fmtPct(header.hit_rate, { signed: false })} />
         <Stat label="Avg lag" value={header.avg_lag_days != null ? `${header.avg_lag_days.toFixed(1)}d` : DASH} />
