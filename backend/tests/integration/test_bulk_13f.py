@@ -5,6 +5,7 @@ from io import BytesIO
 import pytest
 from sqlalchemy import event, func, select, text
 
+from signals import jobs
 from signals.db.models import (
     FeedItem,
     Filing,
@@ -12,10 +13,14 @@ from signals.db.models import (
     FundFiling,
     FundManager,
     FundPosition,
+    JobRequest,
 )
 from signals.domain.calendars import ET
+from signals.ingest import jobs_funds
 from signals.ingest.bulk_13f import load_13f_zip
 from signals.ingest.normalize_funds import NOTICE_SUMMARY, fund_summary, is_notice
+from signals.sec.client import SecClient
+from tests.support import MockRouter
 
 
 def _seed_filing_acceptance(session, accession_no: str) -> None:
@@ -94,6 +99,104 @@ def test_load_2025_slice_dollars(session, manifest, fixture_bytes):
         )
     )
     assert v == pytest.approx(sample["value_reported"])
+
+
+@pytest.mark.parametrize("prefix", ["01JUN2025-31AUG2025_form13f/", "outer/inner/"])
+def test_load_13f_zip_with_directory_wrapper(session, manifest, fixture_bytes, prefix):
+    wrapped = BytesIO()
+    with (
+        zipfile.ZipFile(BytesIO(fixture_bytes("bulk_13f_slice_2025"))) as original,
+        zipfile.ZipFile(wrapped, "w") as output,
+    ):
+        output.writestr(prefix, b"")
+        # A directory named like a table and macOS metadata are not source TSVs.
+        output.writestr("SUBMISSION.tsv/", b"")
+        for info in original.infolist():
+            output.writestr(prefix + info.filename, original.read(info))
+            output.writestr("__MACOSX/._" + info.filename, b"metadata")
+    expected = manifest["bulk_13f_slice_2025"]["expect"]
+    result = load_13f_zip(session, wrapped.getvalue())
+    assert result.accessions == len(expected["accessions"])
+    sample = expected["sample"]
+    value = session.scalar(
+        select(FundPosition.value_usd).where(
+            FundPosition.accession_no == sample["accession"],
+            FundPosition.cusip == sample["cusip"],
+        )
+    )
+    assert value == pytest.approx(sample["value_reported"])
+    manager = session.get(FundManager, 1061768)
+    assert manager is not None and manager.name == "BAUPOST GROUP LLC/MA"
+    again = load_13f_zip(session, wrapped.getvalue())
+    assert (again.accessions, again.skipped_existing) == (0, len(expected["accessions"]))
+
+
+@pytest.mark.parametrize("member", ["SUBMISSION.tsv", "INFOTABLE.tsv"])
+def test_13f_zip_rejects_ambiguous_table_before_loading(session, fixture_bytes, member):
+    ambiguous = BytesIO()
+    with (
+        zipfile.ZipFile(BytesIO(fixture_bytes("bulk_13f_slice_2025"))) as original,
+        zipfile.ZipFile(ambiguous, "w") as output,
+    ):
+        for info in original.infolist():
+            output.writestr(info.filename, original.read(info))
+        output.writestr("other/" + member, original.read(member))
+    with pytest.raises(ValueError, match="[Aa]mbiguous.*" + member):
+        load_13f_zip(session, ambiguous.getvalue())
+    assert session.scalar(select(func.count()).select_from(FundFiling)) == 0
+    assert session.scalar(select(func.count()).select_from(FundPosition)) == 0
+
+
+@pytest.mark.parametrize("unsafe", ["../SUBMISSION.tsv", "/SUBMISSION.tsv"])
+def test_13f_zip_rejects_unsafe_consumed_member_path(session, fixture_bytes, unsafe):
+    unsafe_zip = BytesIO()
+    with (
+        zipfile.ZipFile(BytesIO(fixture_bytes("bulk_13f_slice_2025"))) as original,
+        zipfile.ZipFile(unsafe_zip, "w") as output,
+    ):
+        for info in original.infolist():
+            output.writestr(info.filename, original.read(info))
+        output.writestr(unsafe, original.read("SUBMISSION.tsv"))
+    with pytest.raises(ValueError, match=r"[Uu]nsafe.*SUBMISSION\.tsv"):
+        load_13f_zip(session, unsafe_zip.getvalue())
+    assert session.scalar(select(func.count()).select_from(FundFiling)) == 0
+
+
+def test_ambiguous_bulk_zip_fails_request_without_marking_dataset_done(
+    session, session_factory, settings, tmp_archive, fixture_bytes, monkeypatch
+):
+    payload = BytesIO()
+    with (
+        zipfile.ZipFile(BytesIO(fixture_bytes("bulk_13f_slice_2025"))) as original,
+        zipfile.ZipFile(payload, "w") as output,
+    ):
+        for info in original.infolist():
+            output.writestr(info.filename, original.read(info))
+        output.writestr("other/SUBMISSION.tsv", original.read("SUBMISSION.tsv"))
+    dataset = "2016q1_form13f.zip"
+    href = f"/files/datastandardsinnovation/data/form-13f-data-sets/{dataset}"
+    router = MockRouter(
+        {
+            jobs_funds.LISTING_URL: f'<a href="{href}">{dataset}</a>'.encode(),
+            "https://www.sec.gov" + href: payload.getvalue(),
+        }
+    )
+    request = JobRequest(
+        kind="backfill_funds", status="running", progress={"datasets_done": ["previous"]}
+    )
+    session.add(request)
+    session.flush()
+    monkeypatch.setitem(
+        jobs.JOBS, "backfill_funds", jobs.JobSpec("backfill_funds", jobs_funds.backfill_funds)
+    )
+    builder = jobs.make_ctx_builder(
+        settings, session_factory, SecClient(settings, http=router.client), tmp_archive
+    )
+    jobs.run_request(builder, session_factory, request.id)
+    session.refresh(request)
+    assert request.status == "failed" and "Ambiguous" in (request.error or "")
+    assert request.progress["datasets_done"] == ["previous"]
+    assert session.scalar(select(func.count()).select_from(FundFiling)) == 0
 
 
 def test_overlap_dedupes_by_accession(session, manifest, fixture_bytes):

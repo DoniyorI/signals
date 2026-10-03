@@ -15,6 +15,7 @@ import zipfile
 from dataclasses import dataclass
 from datetime import date, datetime
 from io import BytesIO
+from pathlib import PurePosixPath
 from typing import Any
 
 from sqlalchemy import text
@@ -156,19 +157,39 @@ def _load_temp_table(session: Session, table: str, columns: list[str], body: str
         copy.write(body)
 
 
+def _tsv_members(archive: zipfile.ZipFile) -> dict[str, zipfile.ZipInfo]:
+    """Resolve exact TSV names at the ZIP root or inside ordinary wrapper directories."""
+    targets = {member for member, _columns in _TABLES.values()}
+    members: dict[str, zipfile.ZipInfo] = {}
+    for info in archive.infolist():
+        if info.is_dir():
+            continue
+        path = PurePosixPath(info.filename)
+        if path.name not in targets:
+            continue
+        if path.is_absolute() or ".." in path.parts or "\\" in info.filename:
+            raise ValueError(f"Unsafe 13F data set member path: {info.filename}")
+        if path.name in members:
+            raise ValueError(f"Ambiguous 13F data set member: {path.name}")
+        members[path.name] = info
+    return members
+
+
 def load_13f_zip(session: Session, zip_bytes: bytes) -> F13FLoadResult:
     """Load one Form 13F Data Set zip. Accessions already in `fund_filings` are skipped, so
     loading the same or an overlapping zip again is a no-op for what it already has."""
-    session.flush()
     with zipfile.ZipFile(BytesIO(zip_bytes)) as zf:
-        names = set(zf.namelist())
+        members = _tsv_members(zf)
         bodies = {
-            table: zf.read(member).decode("utf-8", errors="replace") if member in names else None
+            table: zf.read(members[member]).decode("utf-8", errors="replace")
+            if member in members
+            else None
             for table, (member, _columns) in _TABLES.items()
         }
     if bodies["temp_submission"] is None:
         raise ValueError("13F data set zip has no SUBMISSION.tsv")
 
+    session.flush()
     for table, (_member, columns) in _TABLES.items():
         _load_temp_table(session, table, columns, bodies[table])
 
