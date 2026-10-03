@@ -1,6 +1,22 @@
 # Handoff: build status and how to continue
 
-Snapshot: 2026-09-30. Read `CLAUDE.md` first (architecture, hard rules, setup, commands), then this file.
+Snapshot: 2026-10-03. Read `CLAUDE.md` first (architecture, hard rules, setup, commands), then this file. The latest continuation below supersedes the historical September 30 status counts.
+
+## Latest continuation (2026-10-03 morning)
+
+Continue `feat/sec-dashboard` in this checkout; no remote, merge/tag or later-phase branch was created. Latest implementation commits: `7eb1ea2` completeness; `3aca5a8` measured bulk feed-query optimization; `c48675e` live acceptance tools; `c5a35b0` empty states; `83cff24` exact SEC membership/retry identity repair; `a76c68a` queued-price/timezone diagnostics; `abc5383` scoped insider performance; `5e4f85f` SEC 13F wrapper ZIP support. Current migration head is **0002_completeness_members**, applied locally.
+
+Final checks: backend **816 tests**, full Ruff and Pyright passed; frontend **177 tests**, build/lint passed; mocked Chromium **12 passed**; real mature-insider acceptance **1 passed** on both bases. Full-population live criteria remain pending. P0.2/P0.3 code is implemented, P0.4's measured 13F bottleneck is fixed, P0.5's acceptance tools are implemented; do not equate these with finished P0.1/P0.4/P0.5 live acceptance. P1–P4 have not started and the P0.6/P1 user gates remain binding.
+
+The old 13F feed SELECT scanned historical fund-position partitions per filing and ran seven hours. It now derives summaries from newly normalized inserted positions; EXPLAIN goes from 38 historical scans to zero. Subsequent imports advanced to **38 completed fund datasets** before encountering a valid nested-folder SEC ZIP. `5e4f85f` resolves unique TSV basenames; raw archives remain untouched. Fixed singleton worker resumed **request 3 backfill_all at 09:24:27 ET**, retaining reference, all 42 insider ZIPs, finished ownership/Form 144 gap checkpoints and all 38 fund datasets. Never reset these checkpoints. Mapping, remaining funds/stakes, full-universe prices, full analytics and the final completeness baseline are pending.
+
+Live recovery verified at **09:30:41 ET**: request 3 running, error=null, **42 completed fund datasets**, worker loader hash equals committed `5e4f85f`. The fixed archive and subsequent datasets succeeded. The last inspected health had no SEC pause or parse errors.
+
+Missing insider charts now request a deduplicated `refresh_insider_performance` worker job, poll its scoped status and refetch on completion. Only the worker calls providers; maintenance still serializes. Historical requests yield at committed dataset/gap checkpoints and resume; startup catch-up defers to queued priority work. No per-profile request marks global prices/backfill complete. Existing curves render immediately; failed/empty jobs do not requeue loops or wait on failed global coverage.
+
+Real request **431** refreshed Buffett (**315090**) in about 80 seconds: 41 symbols checked, 39 available, 84,553 price rows, 56 decisions, 448 return rows, 12 profile-stat rows; analytics 7.34 seconds. Filed/executed charts have 2,700/2,703 points through October 2; header has 53 completed decisions. Missing LBTY/LLYVA.K remain missing. Local page `http://127.0.0.1:5173/insider/315090` is populated. Screenshot: `docs/superpowers/reports/screenshots/v2-p0-buffett-performance.png`. Warm filed-chart 100-request median/p95: 69.26/244.81 ms, maximum 1032.42 ms; cold filed/executed: 604.96/509.15 ms. This measures one cached chart, not every endpoint or full analytics duration/RSS.
+
+The live read-only coverage summary after the scoped refresh still has no SEC baseline: prices through October 2 **35/13,039**, mature returns filed **53/59,381**, executed **53/59,593**, tracked funds **0**, unavailable accessions **0**. Those global gaps remain acceptance failures. Plan 08's RESULTS.md preserves prior failed latency observations and coverage; v2 ledger/report records rulings and completed implementation subtasks. Finish the historical job, spot-check through the worker lock, real profile coverage/performance/security checks and review gates in roadmap order.
 
 ## Where the work is
 
