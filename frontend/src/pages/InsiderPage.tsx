@@ -1,18 +1,22 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useParams, useSearchParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { api, type Schema } from "@/api/client";
 import { EquityChart } from "@/components/charts/EquityChart";
 import { WindowsTable } from "@/components/data/WindowsTable";
 import { ErrorState } from "@/components/state/ErrorState";
 import { CoverageEmptyState } from "@/components/state/CoverageEmptyState";
+import { EmptyState } from "@/components/state/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlState } from "@/hooks/useUrlState";
+import { useCoverage } from "@/hooks/useCoverage";
+import { useInsiderPerformanceRefresh } from "@/hooks/useInsiderPerformanceRefresh";
 import { isNotFound, required, retryUnlessNotFound } from "@/lib/httpError";
 import { basisParam, includeParam } from "@/lib/queryParams";
 import { DecisionsTab } from "./insider/DecisionsTab";
 import { Form144Tab } from "./insider/Form144Tab";
 import { HoldingsTab } from "./insider/HoldingsTab";
 import { InsiderHeader } from "./insider/InsiderHeader";
+import { PerformanceRefreshState } from "./insider/PerformanceRefreshState";
 import { TransactionsTab } from "./insider/TransactionsTab";
 
 type Tab = "decisions" | "transactions" | "holdings" | "form144";
@@ -105,6 +109,7 @@ export default function InsiderPage() {
 /** Reuse the decisions tab's first page for missing stats; do not scan a long trade history
  * solely to explain an empty view. Count exactly only when every decision is present. */
 function InsiderEmptyPerformance({ header }: { header: Schema<"InsiderHeader"> }) {
+  const coverage = useCoverage();
   const decisions = useInfiniteQuery({
     queryKey: ["insider-decisions", header.cik, header.basis, header.include_10b5_1],
     enabled: header.updated_at === null,
@@ -117,10 +122,23 @@ function InsiderEmptyPerformance({ header }: { header: Schema<"InsiderHeader"> }
     },
     getNextPageParam: (page) => page.next_cursor ?? undefined,
   });
+  const items = decisions.data?.pages.flatMap((page) => page.items) ?? [];
+  const symbols = [...new Set([...header.roles.map((role) => role.issuer.ticker), ...items.map((decision) => decision.issuer.ticker)])]
+    .filter((symbol): symbol is string => typeof symbol === "string");
+  const missingPrices = coverage.data?.prices.loading && symbols.some((symbol) => coverage.data?.prices.missing_symbols.includes(symbol));
+  const refresh = useInsiderPerformanceRefresh(header.cik,
+    header.updated_at === null || (coverage.isSuccess && header.rating.n >= 3 && !!missingPrices));
+  if (refresh.isStarting || refresh.isRefreshing || refresh.requestError || refresh.statusError || (refresh.job && !refresh.isDone)) {
+    return <PerformanceRefreshState refresh={refresh} />;
+  }
   if (header.updated_at === null && decisions.isPending) return <p className="py-10 text-center text-sm text-muted-foreground">Checking completed trades…</p>;
   if (header.updated_at === null && decisions.isError) return <ErrorState title="Performance details didn't load" />;
-  const items = decisions.data?.pages.flatMap((page) => page.items) ?? [];
   const completedTrades = header.updated_at !== null ? header.rating.n : decisions.hasNextPage ? null :
     items.filter((decision) => decision.returns.some((r) => r.horizon === "6m" && r.complete)).length;
-  return <CoverageEmptyState completedTrades={completedTrades} symbols={items.flatMap((decision) => decision.issuer.ticker ? [decision.issuer.ticker] : [])} />;
+  if (refresh.isDone) {
+    return completedTrades !== null && completedTrades < 3 ? <EmptyState reason="insufficient" completedTrades={completedTrades} /> :
+      <EmptyState title="No performance data yet" description="The available data doesn't include calculated performance yet. Check Data health for coverage."
+        action={<Link to="/health" className="text-sm text-link hover:underline">Data health</Link>} />;
+  }
+  return <CoverageEmptyState completedTrades={completedTrades} symbols={symbols} />;
 }

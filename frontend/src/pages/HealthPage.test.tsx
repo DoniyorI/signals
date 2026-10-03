@@ -19,7 +19,7 @@ const parseError: Schema<"ParseErrorOut"> = {
 };
 const queued: Schema<"JobRequestOut"> = {
   id: 42, kind: "reparse", status: "queued", requested_at: "2024-06-07T20:00:00Z",
-  finished_at: null, error: null,
+  finished_at: null, error: null, progress: {},
 };
 
 function snapshot(overrides: Partial<Schema<"HealthOut">> = {}) {

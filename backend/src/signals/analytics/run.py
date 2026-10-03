@@ -259,3 +259,51 @@ def run_incremental(
         report("version")
         _stamp(session, as_of)
     return RunResult(decisions, returns, badges, insider_profiles, 0, time.monotonic() - started)
+
+
+def run_insider_profile(
+    session_factory: Callable[[], Session],
+    *,
+    owner_cik: int,
+    as_of: date,
+    progress: Progress | None = None,
+) -> RunResult:
+    """Refresh one profile without rebuilding every insider in its issuers.
+
+    Joint episodes retain all owners; their affected profiles refresh in the same
+    transaction as the replaced decisions and returns. Unrelated IDs stay stable.
+    """
+    started = time.monotonic()
+    report = progress or (lambda step: None)
+    with _locked(session_factory) as session:
+        report("positions")
+        build_positions(session, owner_ciks=[owner_cik])
+    with _locked(session_factory) as session:
+        owned = select(DecisionOwner.decision_id).where(DecisionOwner.owner_cik == owner_cik)
+        touched = set(
+            session.scalars(
+                select(DecisionOwner.owner_cik).where(DecisionOwner.decision_id.in_(owned))
+            )
+        )
+        report("decisions")
+        decisions = build_decisions(session, owner_ciks=[owner_cik])
+        ids = list(session.scalars(owned))
+        touched.update(
+            session.scalars(
+                select(DecisionOwner.owner_cik).where(DecisionOwner.decision_id.in_(ids))
+            )
+        )
+        issuers = list(
+            session.scalars(select(Decision.issuer_cik).where(Decision.id.in_(ids)).distinct())
+        )
+        report("returns")
+        returns = compute_decision_returns(session, decision_ids=ids, as_of=as_of)
+        report("badges")
+        badges = compute_badges(session, issuer_ciks=issuers)
+        report("insider_stats")
+        profiles = compute_profile_stats(
+            session, owner_ciks=sorted(touched | {owner_cik}), as_of=as_of
+        )
+        report("version")
+        _stamp(session, as_of)
+    return RunResult(decisions, returns, badges, profiles, 0, time.monotonic() - started)

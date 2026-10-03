@@ -11,7 +11,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert, select, text
 from sqlalchemy.orm import Session
 
 from signals.db.models import Decision, DecisionOwner, Filing, InsiderTransaction
@@ -202,7 +202,12 @@ def group_episodes(trades: pd.DataFrame) -> pd.DataFrame:
     return _frame(episodes)
 
 
-def load_trades(session: Session, *, issuer_ciks: Collection[int] | None = None) -> pd.DataFrame:
+def load_trades(
+    session: Session,
+    *,
+    issuer_ciks: Collection[int] | None = None,
+    owner_ciks: Collection[int] | None = None,
+) -> pd.DataFrame:
     """Non-superseded, non-derivative P and S rows with their filing's acceptance."""
     query = (
         select(
@@ -230,6 +235,19 @@ def load_trades(session: Session, *, issuer_ciks: Collection[int] | None = None)
     )
     if issuer_ciks is not None:
         query = query.where(InsiderTransaction.issuer_cik.in_(list(issuer_ciks)))
+    if owner_ciks is not None:
+        from signals.db.models import FilingOwner
+
+        accessions = select(FilingOwner.accession_no).where(
+            FilingOwner.owner_cik.in_(list(owner_ciks))
+        )
+        query = query.where(
+            InsiderTransaction.accession_no.in_(accessions),
+            text(
+                "string_to_array(insider_transactions.owner_group, '|')::bigint[] "
+                "&& CAST(:owners AS bigint[])"
+            ),
+        ).params(owners=list(owner_ciks))
     rows = [tuple(r) for r in session.execute(query)]
     df = pd.DataFrame(
         {c: pd.Series([r[i] for r in rows], dtype=object) for i, c in enumerate(_TRADE_COLUMNS)}
@@ -249,15 +267,23 @@ def load_trades(session: Session, *, issuer_ciks: Collection[int] | None = None)
     return df.rename(columns={"id": "tx_id"})
 
 
-def build_decisions(session: Session, *, issuer_ciks: Collection[int] | None = None) -> int:
+def build_decisions(
+    session: Session,
+    *,
+    issuer_ciks: Collection[int] | None = None,
+    owner_ciks: Collection[int] | None = None,
+) -> int:
     """Replace `decisions` and `decision_owners` for the issuers (or all). Returns the count.
 
     Deleting a decision cascades to its `decision_owners` and `decision_returns`.
     """
-    trades = load_trades(session, issuer_ciks=issuer_ciks)
+    trades = load_trades(session, issuer_ciks=issuer_ciks, owner_ciks=owner_ciks)
     scope = delete(Decision)
     if issuer_ciks is not None:
         scope = scope.where(Decision.issuer_cik.in_(list(issuer_ciks)))
+    if owner_ciks is not None:
+        ids = select(DecisionOwner.decision_id).where(DecisionOwner.owner_cik.in_(list(owner_ciks)))
+        scope = scope.where(Decision.id.in_(ids))
     session.execute(scope)
     episodes = group_episodes(trades)
     if episodes.empty:

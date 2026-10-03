@@ -25,7 +25,7 @@ from signals.ingest.fund_changes import (
     flag_value_unit_anomalies,
     refresh_fund_manager_stats,
 )
-from signals.jobs import JobContext, register_job
+from signals.jobs import JobContext, register_job, yield_for_priority
 from signals.logging import get_logger
 from signals.reference.cusip import OpenFigiClient, map_securities
 from signals.reference.tracked_funds import load_curated, refresh_tracked_funds
@@ -53,6 +53,7 @@ def _gap_fill(ctx: JobContext, form_types: frozenset[str], *, start: date, key: 
     def save(p: dict) -> None:
         ctx.progress[key] = dict(p)
         ctx.save_progress(ctx.progress)
+        yield_for_priority(ctx)
 
     result = gap_fill(
         ctx.sec,
@@ -105,6 +106,7 @@ def backfill_funds(ctx: JobContext) -> dict:
         datasets_done.append(dataset.name)
         ctx.progress["datasets_done"] = datasets_done
         ctx.save_progress(ctx.progress)
+        yield_for_priority(ctx)
 
     _apply_acceptance(ctx)
     last_end = datasets[-1].end if datasets else ctx.settings.backfill_start

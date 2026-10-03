@@ -22,7 +22,7 @@ PATHS = {
     "/api/compare", "/api/search", "/api/watchlists", "/api/watchlists/{watchlist_id}",
     "/api/watchlists/{watchlist_id}/items", "/api/watchlists/{watchlist_id}/items/{kind}/{cik}",
     "/api/watchlists/{watchlist_id}/activity", "/api/health", "/api/health/completeness",
-    "/api/jobs",
+    "/api/jobs", "/api/jobs/{job_id}",
 }  # fmt: skip
 
 

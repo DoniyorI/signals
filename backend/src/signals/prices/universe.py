@@ -10,10 +10,11 @@ The union, deduplicated by symbol with the minimum start, of:
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, text
 from sqlalchemy.orm import Session
 
 from signals.db.models import (
+    FilingOwner,
     FundFiling,
     FundManager,
     FundPosition,
@@ -101,3 +102,42 @@ def build_price_universe(
         add(symbol, floor)
 
     return [UniverseEntry(symbol=s, start=d) for s, d in sorted(best.items())]
+
+
+def build_insider_price_universe(
+    session: Session, *, owner_cik: int, backfill_start: date, as_of: date
+) -> list[UniverseEntry]:
+    """Only this owner's traded issuers' dated symbols and comparison benchmarks.
+
+    Filing-owner lookup uses its indexed CIK; the group predicate also handles joint
+    filings without matching an unrelated owner whose CIK shares a numeric prefix.
+    """
+    issuers = (
+        select(InsiderTransaction.issuer_cik)
+        .join(FilingOwner, FilingOwner.accession_no == InsiderTransaction.accession_no)
+        .where(
+            FilingOwner.owner_cik == owner_cik,
+            text(":owner = ANY(string_to_array(insider_transactions.owner_group, '|')::bigint[])"),
+            InsiderTransaction.table_kind == "nonderiv",
+            InsiderTransaction.code.in_(("P", "S")),
+            InsiderTransaction.superseded_by.is_(None),
+            InsiderTransaction.transaction_date >= backfill_start,
+            InsiderTransaction.transaction_date <= as_of,
+        )
+        .params(owner=owner_cik)
+        .distinct()
+    )
+    floor = backfill_start - PRICE_LOOKBACK
+    best = dict.fromkeys(BENCHMARK_SYMBOLS, floor)
+    for raw, first in session.execute(
+        select(Ticker.symbol, Ticker.valid_from).where(
+            Ticker.issuer_cik.in_(issuers),
+            Ticker.valid_from <= as_of,
+            or_(Ticker.valid_to.is_(None), Ticker.valid_to >= backfill_start),
+        )
+    ):
+        symbol = canonical_symbol(raw)
+        if symbol:
+            start = max(floor, first)
+            best[symbol] = min(best.get(symbol, start), start)
+    return [UniverseEntry(symbol, start) for symbol, start in sorted(best.items())]

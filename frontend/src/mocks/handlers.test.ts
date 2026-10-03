@@ -98,7 +98,16 @@ it("the typed api client reaches the mocks", async () => {
   expect(data?.status).toBe("ok");
 });
 
+it("returns a requested job's progress by id and 404 for an unknown job", async () => {
+  const { data } = await api.POST("/api/jobs", { body: { kind: "reparse" } });
+  const detail = await fetch(url(`/api/jobs/${data!.id}`));
+  expect(detail.status).toBe(200);
+  expect(await detail.json()).toMatchObject({ id: data!.id, status: "queued", progress: {} });
+  expect((await fetch(url("/api/jobs/9999"))).status).toBe(404);
+});
+
 const SAMPLE_PARAMS: Record<string, string> = {
+  job_id: "1",
   cik: "1000001",
   ref: "ACME",
   kind: "company",

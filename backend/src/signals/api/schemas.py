@@ -643,3 +643,4 @@ class JobRequestOut(BaseModel):
     requested_at: datetime
     finished_at: datetime | None
     error: str | None
+    progress: dict[str, Any] = Field(default_factory=dict)

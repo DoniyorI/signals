@@ -74,7 +74,18 @@ export function listJobs(limit: number): JobRequestOut[] {
   return state.jobs.slice(0, limit);
 }
 
-export function createJob(kind: string): JobRequestOut {
+export function getJob(id: number): JobRequestOut | undefined {
+  const job = state.jobs.find((item) => item.id === id);
+  // Mock profiles use fixed prices/returns; a scoped refresh finishes at its first poll.
+  if (job?.kind === "refresh_insider_performance") {
+    job.status = "done";
+    job.finished_at = new Date().toISOString();
+    job.progress = { ...job.progress, stage: "done", symbols_total: 0, symbols_done: 0, missing: [] };
+  }
+  return job;
+}
+
+export function createJob(kind: string, params: Record<string, unknown> = {}): JobRequestOut {
   const job: JobRequestOut = {
     id: state.nextJobId++,
     kind,
@@ -82,6 +93,7 @@ export function createJob(kind: string): JobRequestOut {
     requested_at: new Date().toISOString(),
     finished_at: null,
     error: null,
+    progress: kind === "refresh_insider_performance" ? { owner_cik: params.owner_cik } : {},
   };
   state.jobs.unshift(job);
   return job;

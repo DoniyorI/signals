@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import case, select, text
 from sqlalchemy.orm import Session
 
 from signals.config import Settings
@@ -46,6 +46,7 @@ BACKFILL_STEPS = (
     "completeness_check",
 )
 RESUMABLE_JOBS = frozenset((*BACKFILL_STEPS, "backfill_all", "gap_fill"))
+PRIORITY_JOBS = frozenset(("refresh_insider_performance",))
 
 
 @dataclass
@@ -97,7 +98,30 @@ def request_job(
 ) -> int:
     """Queue/coalesce a job; identical backfill retries retain their existing checkpoint."""
     params = dict(params or {})
-    if kind in RESUMABLE_JOBS:
+    if kind == "refresh_insider_performance":
+        owner = params.get("owner_cik")
+        if type(owner) is not int or owner <= 0:
+            raise ValueError("refresh_insider_performance requires a positive integer owner_cik")
+        # Browser mounts can race before either INSERT is visible. Serialize only this
+        # owner until commit; refreshes for other owners keep distinct queue entries.
+        session.execute(
+            text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
+            {"key": f"{kind}:{owner}"},
+        )
+        existing = session.scalars(
+            select(JobRequest)
+            .where(
+                JobRequest.kind == kind,
+                JobRequest.params.contains({"owner_cik": owner}),
+                JobRequest.status.in_(("requested", "queued", "running")),
+            )
+            .order_by(JobRequest.id)
+            .limit(1)
+            .with_for_update()
+        ).one_or_none()
+        if existing is not None:
+            return existing.id
+    elif kind in RESUMABLE_JOBS:
         existing = session.scalars(
             select(JobRequest)
             .where(
@@ -180,7 +204,11 @@ def claim_next_request(session: Session) -> JobRequest | None:
     req = session.execute(
         select(JobRequest)
         .where(JobRequest.status == "requested")
-        .order_by(JobRequest.requested_at, JobRequest.id)
+        .order_by(
+            case((JobRequest.kind.in_(PRIORITY_JOBS), 0), else_=1),
+            JobRequest.requested_at,
+            JobRequest.id,
+        )
         .limit(1)
         .with_for_update(skip_locked=True)
     ).scalar_one_or_none()
@@ -303,6 +331,9 @@ def track_run(session_factory: Callable[[], Session], job: str) -> Generator[Run
     token = _ACTIVE_RUN.set((job, tracker))
     try:
         yield tracker
+    except JobDeferred as exc:
+        tracker.notes["deferred"] = str(exc)
+        raise
     except BaseException as exc:
         tracker.errors = max(1, tracker.errors)
         tracker.notes["exception"] = f"{type(exc).__name__}: {exc}"
@@ -323,6 +354,35 @@ def track_run(session_factory: Callable[[], Session], job: str) -> Generator[Run
 
 class JobAlreadyRunning(RuntimeError):
     """A scheduled, requested or catch-up execution already owns this job."""
+
+
+class JobDeferred(JobAlreadyRunning):
+    """A historical request yielded at a durable checkpoint for priority work."""
+
+
+def yield_for_priority(ctx: JobContext) -> None:
+    """After saving a historical checkpoint, release execution guards by unwinding.
+
+    Scheduled work has no durable request to requeue. Check the parent request's kind
+    so a priority refresh cannot defer itself through its own progress callbacks.
+    """
+    if ctx.request_id is None:
+        return
+    with session_scope(ctx.session_factory) as session:
+        parent = session.get(JobRequest, ctx.request_id)
+        if parent is None or parent.kind not in RESUMABLE_JOBS:
+            return
+        waiting = session.scalar(
+            select(JobRequest.kind)
+            .where(
+                JobRequest.kind.in_(PRIORITY_JOBS),
+                JobRequest.id != ctx.request_id,
+                JobRequest.status.in_(("requested", "queued", "running")),
+            )
+            .limit(1)
+        )
+    if waiting:
+        raise JobDeferred(f"Yielded to requested {waiting}")
 
 
 _JOB_LOCKS: dict[str, threading.Lock] = {}
@@ -358,6 +418,7 @@ def execute_job(spec: JobSpec, ctx: JobContext) -> dict:
         "backfill_all",
         "catch_up",
         "gap_fill",
+        *PRIORITY_JOBS,
     )
     if maintenance and not _MAINTENANCE_LOCK.acquire(blocking=False):
         lock.release()
@@ -413,6 +474,7 @@ def backfill_all(ctx: JobContext) -> dict:
     for kind in BACKFILL_STEPS:
         if kind in done:
             continue
+        yield_for_priority(ctx)
         spec = JOBS.get(kind)
         if spec is None:
             raise KeyError(f"backfill step {kind!r} is not registered")
@@ -423,6 +485,7 @@ def backfill_all(ctx: JobContext) -> dict:
             steps[kind] = dict(p)
             ctx.progress["steps"] = steps
             ctx.save_progress(ctx.progress)
+            yield_for_priority(ctx)
 
         step_ctx = JobContext(
             settings=ctx.settings,

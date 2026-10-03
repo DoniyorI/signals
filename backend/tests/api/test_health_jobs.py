@@ -79,6 +79,39 @@ def test_jobs_post_and_list(api):
     assert bad.status_code == 422
 
 
+def test_profile_refresh_request_validation_and_progress(api, session):
+    from signals.db.models import JobRequest
+    from tests.factories import make_owner
+
+    make_owner(session)
+    for params in ({}, {"owner_cik": "bad"}, {"owner_cik": True}, {"owner_cik": 0}):
+        assert (
+            api.post(
+                "/api/jobs", json={"kind": "refresh_insider_performance", "params": params}
+            ).status_code
+            == 422
+        )
+    assert (
+        api.post(
+            "/api/jobs",
+            json={"kind": "refresh_insider_performance", "params": {"owner_cik": 9999999}},
+        ).status_code
+        == 404
+    )
+    first = api.post(
+        "/api/jobs", json={"kind": "refresh_insider_performance", "params": {"owner_cik": 2000001}}
+    )
+    assert first.status_code == 202
+    rid = first.json()["id"]
+    row = session.get(JobRequest, rid)
+    row.progress = {"stage": "prices", "symbols_done": 2, "symbols_total": 5}
+    session.flush()
+    detail = api.get(f"/api/jobs/{rid}")
+    assert detail.status_code == 200
+    assert detail.json()["progress"] == row.progress
+    assert api.get("/api/jobs/9999999").status_code == 404
+
+
 @pytest.mark.parametrize(
     "status,ran",
     [("running", []), ("done", ["prices_daily", "analytics_full"]), ("error", ["reconcile_daily"])],

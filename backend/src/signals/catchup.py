@@ -129,11 +129,12 @@ def catch_up(ctx: JobContext) -> dict:
                 is not None
             )
             cron_kinds = [k for k, spec in registry.load_all_jobs().items() if spec.cron]
+            maintenance_kinds = [*cron_kinds, *registry.PRIORITY_JOBS]
             maintenance_active = (
                 session.scalar(
                     select(JobRequest.id)
                     .where(
-                        JobRequest.kind.in_(cron_kinds),
+                        JobRequest.kind.in_(maintenance_kinds),
                         JobRequest.status.in_(("requested", "queued", "running")),
                     )
                     .limit(1)
@@ -141,7 +142,7 @@ def catch_up(ctx: JobContext) -> dict:
                 is not None
                 or session.scalar(
                     select(IngestRun.id)
-                    .where(IngestRun.job.in_(cron_kinds), IngestRun.finished_at.is_(None))
+                    .where(IngestRun.job.in_(maintenance_kinds), IngestRun.finished_at.is_(None))
                     .limit(1)
                 )
                 is not None

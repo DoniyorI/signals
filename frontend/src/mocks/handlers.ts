@@ -15,6 +15,7 @@ import {
   createJob,
   createWatchlist,
   deleteWatchlist,
+  getJob,
   getWatchlist,
   listJobs,
   listWatchlists,
@@ -205,7 +206,11 @@ export const handlers: HttpHandler[] = [
   }),
   http.post("/api/jobs", async ({ request }) => {
     const body = (await request.json()) as Schema<"JobRequestIn">;
-    return HttpResponse.json(createJob(body.kind), { status: 202 });
+    return HttpResponse.json(createJob(body.kind, body.params), { status: 202 });
+  }),
+  http.get("/api/jobs/:job_id", ({ params }) => {
+    const job = getJob(Number(params.job_id));
+    return job ? HttpResponse.json(job) : notFound("job not found");
   }),
 
   // ---------------------------------------------------------------- screener
